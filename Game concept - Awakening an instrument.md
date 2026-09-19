@@ -11,7 +11,7 @@ Build and awaken an impossible musical instrument: something between a synthesiz
 
 Progress brings the instrument into existence and makes it function. The destination is not a collection of revealed pictures: the parts contribute to a shared audiovisual whole that becomes more complete through play.
 
-The exact theme, name and visual treatment remain open. A literal model of synthesizer components is not required.
+The exact theme and visual treatment remain open. A literal model of synthesizer components is not required.
 
 ## Runs and persistent progression
 
