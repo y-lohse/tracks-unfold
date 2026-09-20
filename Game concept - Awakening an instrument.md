@@ -15,7 +15,7 @@ The exact theme and visual treatment remain open. A literal model of synthesizer
 
 ## Runs and persistent progression
 
-Each puzzle type uses the shared run structure: limited mistakes, escalating challenge and an attempt to progress as far as possible. Progress is tracked separately across the different demands within each type, both to adapt difficulty and to establish learning progress. A definition of successful run completion remains open.
+Each puzzle type uses the shared [[Run director]]: three lives, personalized escalating challenge, and a target of roughly fifteen presented puzzles per run. Skills are assessed separately to adapt challenge and establish learning progress. Runs end when lives are exhausted, or successfully after three correct ceiling-generated answers once every skill's assigned challenge is at its maximum. Successful completion does not require proficiency estimates of 100%.
 
 Types unlock when relevant earlier abilities reach suitable milestones, not necessarily when an earlier type is fully completed.
 
