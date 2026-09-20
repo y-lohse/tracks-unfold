@@ -279,27 +279,27 @@ function updateAssessment(
     assessment.proficiency +
       tuning.proficiencyLearningRate * evidence * (outcome - expectedSuccess),
   );
-  const outcomeLikelihood = correct ? expectedSuccess : 1 - expectedSuccess;
+  const challengeGap = challenge - assessment.proficiency;
+  const surprisingGap = correct
+    ? challengeGap - tuning.surpriseChallengeGap
+    : -challengeGap - tuning.surpriseChallengeGap;
+  const surpriseSeverity = clamp01(
+    surprisingGap / (1 - tuning.surpriseChallengeGap),
+  );
   const certainty =
-    outcomeLikelihood >= 0.5
+    surpriseSeverity > 0
       ? clamp01(
-          assessment.certainty +
-            tuning.certaintyLearningRate *
-              evidence *
-              (outcomeLikelihood - 0.5) *
-              2 *
-              (1 - assessment.certainty),
-        )
-      : clamp01(
           assessment.certainty -
             tuning.surprisePenaltyRate *
               evidence *
-              (0.5 - outcomeLikelihood) *
-              2 *
-              Math.max(
-                tuning.minimumCertaintyForSurprise,
-                assessment.certainty,
-              ),
+              surpriseSeverity *
+              assessment.certainty,
+        )
+      : clamp01(
+          assessment.certainty +
+            tuning.certaintyLearningRate *
+              evidence *
+              (1 - assessment.certainty),
         );
   return { proficiency, certainty };
 }

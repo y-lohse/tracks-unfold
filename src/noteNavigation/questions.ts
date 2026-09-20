@@ -168,7 +168,11 @@ function validStartsForMovement(
       return false;
     }
     if (repertoire.octaveCrossings) return true;
-    return spellPitch(destinationMidi, preference).octave === note.octave;
+    const singleRegisterOctave = NOTE_NAVIGATION_TUNING.singleRegisterOctave;
+    return (
+      note.octave === singleRegisterOctave &&
+      spellPitch(destinationMidi, preference).octave === singleRegisterOctave
+    );
   });
 }
 
@@ -333,7 +337,11 @@ function namedCandidates(
         ) {
           continue;
         }
-        if (!repertoire.octaveCrossings && start.octave !== end.octave) {
+        if (
+          !repertoire.octaveCrossings &&
+          (start.octave !== NOTE_NAVIGATION_TUNING.singleRegisterOctave ||
+            end.octave !== NOTE_NAVIGATION_TUNING.singleRegisterOctave)
+        ) {
           continue;
         }
         candidates.push({

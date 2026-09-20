@@ -3,6 +3,7 @@ import type { SkillAssessment } from "./types";
 export const NOTE_NAVIGATION_TUNING = {
   displayMidiMin: 48, // C3
   displayMidiMax: 83, // B5
+  singleRegisterOctave: 4,
   navigationMilestoneCount: 11,
   intervalProgressionSteps: 12,
   curatedChoiceThresholds: {
@@ -39,8 +40,8 @@ export const NOTE_NAVIGATION_TUNING = {
     proficiencyLearningRate: 0.2,
     certaintyLearningRate: 0.13,
     surprisePenaltyRate: 0.18,
+    surpriseChallengeGap: 0.2,
     expectedSuccessSlope: 4,
-    minimumCertaintyForSurprise: 0.2,
   },
   defaultAssessment: {
     proficiency: 0,

@@ -5,6 +5,7 @@ import { MainMenu } from "./MainMenu";
 import { PuzzleKeyboard } from "./PuzzleKeyboard";
 import { keyboardSynth } from "./keyboardSynth";
 import {
+  NOTE_NAVIGATION_TUNING,
   SKILLS,
   answerQuestion,
   clearSavedProfile,
@@ -199,7 +200,7 @@ function RunView({
             destination={destination}
             octaves={
               session.question.keyboardMode === "singleRegister"
-                ? [session.question.start.octave]
+                ? [NOTE_NAVIGATION_TUNING.singleRegisterOctave]
                 : [3, 4, 5]
             }
             revealDestinationLabel={

@@ -22,7 +22,7 @@ Distances can be expressed numerically, through interval names with numerical re
 
 Use a regular keyboard as an illustration, not an answer surface or playable instrument. It introduces the instrument used interactively in later puzzles. Illustrate the starting note for forward questions and both supplied notes for reverse questions. Keep note positions stable; do not label every key during the question. Players answer separately from the keyboard.
 
-Include octave identifiers wherever register matters. For example, B3 up one semitone reaches C4. Before octave-boundary movement is available, show the single keyboard register containing the question. After it becomes available, show the full three-register keyboard range. The displayed range remains distinct from the maximum movement distance.
+Include octave identifiers wherever register matters. For example, B3 up one semitone reaches C4. Before octave-boundary movement is available, keep questions in and show only the C4–B4 keyboard register. After it becomes available, show the full three-register keyboard range. The displayed range remains distinct from the maximum movement distance.
 
 ## Learning coverage
 
@@ -80,7 +80,7 @@ Edge enharmonic spellings E♯, B♯, C♭, and F♭ become available only after
 
 ### Assessment-gated register repertoire
 
-Before the relevant numerical-navigation skill is familiar, both notes must remain within the same C–B octave register. Forward eligibility derives from numerical destination construction; reverse eligibility derives from numerical distance identification. Forward and reverse readiness remain separate.
+Before the relevant numerical-navigation skill is familiar, both notes must remain within the C4–B4 register. Forward eligibility derives from numerical destination construction; reverse eligibility derives from numerical distance identification. Forward and reverse readiness remain separate.
 
 Once that skill is familiar with sufficient certainty, octave-boundary crossings join the cumulative repertoire. Navigation demand then controls which eligible movements are sampled. Run pressure and high control settings must not override repertoire readiness. If a selected distance has no valid within-register placement, exclude that distance until crossings are available rather than silently crossing the boundary.
 

@@ -73,13 +73,14 @@ describe("run director", () => {
         question.instruction.kind,
       );
       expect(question.keyboardMode).toBe("singleRegister");
+      expect(question.start.octave).toBe(4);
       const endOctave =
         question.form === "reverse"
           ? question.end?.octave
           : question.answer.kind === "note"
             ? question.answer.note.octave
             : undefined;
-      expect(endOctave).toBe(question.start.octave);
+      expect(endOctave).toBe(4);
     }
   });
 
@@ -148,6 +149,88 @@ describe("run director", () => {
     expect(state.lives).toBe(0);
     expect(state.status).toBe("failed");
     expect(state.puzzlesPresented).toBe(3);
+  });
+
+  it("builds certainty from zero when an answer supplies evidence", () => {
+    const state = startRun(createProfile(), createSeededRng(21), "certainty");
+    const prepared = prepareNextQuestion(state, createSeededRng(22));
+    const transition = answerQuestion(
+      prepared.state,
+      prepared.question,
+      correctSubmission(prepared.question),
+    );
+    const evidencedSkills = prepared.question.demands
+      .filter((demand) => demand.weight * (1 - demand.support) > 0)
+      .map((demand) => demand.skill);
+
+    expect(evidencedSkills.length).toBeGreaterThan(0);
+    for (const skill of evidencedSkills) {
+      expect(transition.state.profile[skill].certainty).toBeGreaterThan(0);
+    }
+  });
+
+  it("reduces certainty only for outcomes across a significant challenge gap", () => {
+    const masteredProfile = createProfile(
+      Object.fromEntries(
+        SKILLS.map((skill) => [skill, { proficiency: 0.8, certainty: 0.8 }]),
+      ),
+    );
+    const easyState = startRun(
+      masteredProfile,
+      createSeededRng(23),
+      "surprising-failure",
+    );
+    const easyPrepared = prepareNextQuestion(easyState, createSeededRng(24));
+    const easyQuestion = {
+      ...easyPrepared.question,
+      demands: easyPrepared.question.demands.map((demand) => ({
+        ...demand,
+        challenge: 0.1,
+      })),
+    };
+    const failedEasy = answerQuestion(
+      easyPrepared.state,
+      easyQuestion,
+      incorrectSubmission(easyQuestion),
+    );
+    for (const demand of easyQuestion.demands) {
+      if (demand.weight * (1 - demand.support) > 0) {
+        expect(failedEasy.state.profile[demand.skill].certainty).toBeLessThan(
+          0.8,
+        );
+      }
+    }
+
+    const noviceProfile = createProfile(
+      Object.fromEntries(
+        SKILLS.map((skill) => [skill, { proficiency: 0, certainty: 0.8 }]),
+      ),
+    );
+    const hardState = startRun(
+      noviceProfile,
+      createSeededRng(25),
+      "surprising-success",
+    );
+    const hardPrepared = prepareNextQuestion(hardState, createSeededRng(26));
+    const hardQuestion = {
+      ...hardPrepared.question,
+      demands: hardPrepared.question.demands.map((demand) => ({
+        ...demand,
+        challenge: 0.8,
+      })),
+    };
+    const solvedHard = answerQuestion(
+      hardPrepared.state,
+      hardQuestion,
+      correctSubmission(hardQuestion),
+    );
+    for (const demand of hardQuestion.demands) {
+      if (demand.weight * (1 - demand.support) > 0) {
+        expect(solvedHard.state.profile[demand.skill].certainty).toBeLessThan(
+          0.8,
+        );
+      }
+    }
   });
 
   it("reports proficiency before/after while keeping certainty internal", () => {

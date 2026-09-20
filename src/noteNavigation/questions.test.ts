@@ -67,7 +67,8 @@ describe("question generation", () => {
               ? question.answer.note
               : undefined;
         expect(question.keyboardMode).toBe("singleRegister");
-        expect(end?.octave).toBe(question.start.octave);
+        expect(question.start.octave).toBe(4);
+        expect(end?.octave).toBe(4);
         for (const note of [question.start, end]) {
           expect(
             note && edgeEnharmonics.has(`${note.letter}:${note.accidental}`),

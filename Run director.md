@@ -59,7 +59,7 @@ The exact mapping from skill assessments and safety margins to generation contro
 
 Every answer throughout the run updates the player's profile, including late-run answers. Success raises and failure lowers associated proficiency estimates, weighted by the skills actually demanded and their contributions. Supplied support must be accounted for: an answer cannot establish independent recall of information supplied in the puzzle.
 
-Certainty does not increase monotonically. Results consistent with the assessment strengthen it; surprising results can temporarily lower it as proficiency is corrected. Failure in a mixed-demand question is weaker evidence against any single skill than failure attributable mainly to that skill.
+Certainty does not increase monotonically. A result is surprising only when the challenge differs significantly from the existing proficiency estimate in the opposite direction from the outcome: the player answers correctly significantly above their estimated level, or fails significantly below it. These surprising results can temporarily lower certainty as proficiency is corrected. Every other result carrying assessment evidence increases certainty while updating proficiency normally. The exact significant-gap threshold remains implementation tuning. Failure in a mixed-demand question is weaker evidence against any single skill than failure attributable mainly to that skill.
 
 Updates account for challenge relative to the existing assessment. Failing far above estimated proficiency causes only a small downward correction; failing something believed mastered causes a stronger correction. Exact formulas remain open.
 
