@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { MainMenu } from "./MainMenu";
 
@@ -12,7 +12,7 @@ const areas = [
 ];
 
 describe("MainMenu", () => {
-  it("shows the title and five dormant areas", () => {
+  it("shows one active area and four dormant areas", () => {
     render(<MainMenu />);
 
     expect(
@@ -23,6 +23,15 @@ describe("MainMenu", () => {
       expect(screen.getByText(area)).toBeInTheDocument();
     }
 
-    expect(screen.getAllByText("Dormant")).toHaveLength(5);
+    expect(screen.getAllByText("Dormant")).toHaveLength(4);
+  });
+
+  it("opens note navigation", () => {
+    const onOpenNoteNavigation = vi.fn();
+    render(<MainMenu onOpenNoteNavigation={onOpenNoteNavigation} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
+
+    expect(onOpenNoteNavigation).toHaveBeenCalledOnce();
   });
 });

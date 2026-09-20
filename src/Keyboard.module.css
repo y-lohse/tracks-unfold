@@ -1,7 +1,7 @@
 .keyboard {
-  --key-face: #eef1db;
+  --key-face: var(--color-instrument-face);
   --key-face-pressed: #e2e6ca;
-  --key-face-disabled: #daddc8;
+  --key-face-disabled: var(--color-instrument-face-muted);
   --disabled-white-touch-face: #d0d3c0;
   --disabled-black-touch-face: #30312b;
   --white-touch-center: #dfe3c7;

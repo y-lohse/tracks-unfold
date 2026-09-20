@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { Keyboard, type KeyboardLabels } from "./Keyboard";
+import { PuzzleKeyboard } from "./PuzzleKeyboard";
 
 const labels = {
   C: "C",
@@ -17,6 +18,21 @@ const labels = {
   "A sharp": "A♯",
   B: "B",
 } satisfies KeyboardLabels;
+
+describe("PuzzleKeyboard", () => {
+  it("preserves the question's enharmonic spelling on the key", () => {
+    render(
+      <PuzzleKeyboard
+        destination={{ letter: "D", accidental: "natural", octave: 4 }}
+        revealDestinationLabel={false}
+        start={{ letter: "B", accidental: "sharp", octave: 3 }}
+      />,
+    );
+
+    expect(screen.getByText("B♯3")).toBeInTheDocument();
+    expect(screen.queryByText("C4")).not.toBeInTheDocument();
+  });
+});
 
 describe("Keyboard", () => {
   it("renders labeled keys and disables the requested notes", () => {

@@ -1,0 +1,239 @@
+.runScreen,
+.centeredScreen {
+  --panel-surface: var(--color-instrument-face);
+  --panel-edge: var(--color-ink);
+  --positive-signal: #4d7c63;
+  --negative-signal: #a34f3f;
+  --question-screen: #171817;
+  --question-text: #fff;
+
+  min-height: 100svh;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+}
+
+.runScreen {
+  padding: 0;
+}
+
+.runShell {
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  margin: 0 auto;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.runStatus {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 1rem 0;
+  padding-bottom: 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.debugAssessments {
+  display: grid;
+  box-sizing: border-box;
+  width: min(calc(100% - 2rem), 34rem);
+  margin: 0 auto;
+  padding: 0.55rem 0.7rem;
+  gap: 0.3rem;
+  font-size: 0.62rem;
+  border: 1px dashed var(--color-muted);
+}
+
+.debugAssessments div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.debugAssessments span:last-child {
+  white-space: nowrap;
+}
+
+.question {
+  display: grid;
+  gap: 0;
+}
+
+.question h1 {
+  box-sizing: border-box;
+  width: min(calc(100% - 2rem), 34rem);
+  min-height: 4.5rem;
+  margin: 0 auto;
+  padding: 1rem;
+  font-size: clamp(0.9rem, 4vw, 1.2rem);
+  font-weight: 650;
+  line-height: 1.45;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  color: var(--question-text);
+  background: var(--question-screen);
+}
+
+.answerArea {
+  display: grid;
+  width: min(calc(100% - 2rem), 34rem);
+  gap: 0.9rem;
+  margin: auto auto 1rem;
+}
+
+.action {
+  min-height: 3rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--panel-surface);
+  border: 1px solid var(--panel-edge);
+  border-radius: 3px;
+  background: var(--panel-edge);
+  box-shadow: 0 3px 0 var(--color-muted);
+}
+
+.action:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.action:focus-visible,
+.textButton:focus-visible,
+.reset:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.action:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.feedback {
+  box-sizing: border-box;
+  width: min(calc(100% - 2rem), 34rem);
+  margin: 0 auto;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--color-rule);
+  border-left: 4px solid;
+  background: var(--panel-surface);
+}
+
+.feedback strong {
+  display: block;
+  font-size: 0.82rem;
+}
+
+.feedback p {
+  margin: 0.45rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.correct {
+  border-color: var(--positive-signal);
+}
+
+.incorrect {
+  border-color: var(--negative-signal);
+}
+
+.centeredScreen {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.panel {
+  display: flex;
+  width: 100%;
+  max-width: 28rem;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.panel h1 {
+  margin: 2.5rem 0 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.panel p {
+  margin: 0 0 0.75rem;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.panel > .action {
+  margin-top: 2rem;
+}
+
+.textButton,
+.reset {
+  width: fit-content;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-muted);
+  border: 0;
+  background: transparent;
+}
+
+.textButton {
+  padding: 0.35rem 0;
+  font-size: 0.76rem;
+}
+
+.reset {
+  align-self: center;
+  margin-top: 1.5rem;
+  padding: 0.35rem;
+  font-size: 0.65rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.scores {
+  margin: 1.5rem 0 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.scores div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  font-size: 0.76rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.scores dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.resultActions {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.resultActions .textButton {
+  justify-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action {
+    transition: none;
+  }
+}

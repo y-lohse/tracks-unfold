@@ -1,0 +1,193 @@
+.instrument {
+  --key-face: var(--color-instrument-face);
+  --key-face-muted: var(--color-instrument-face-muted);
+  --start-flow-deep: #cd6c8b;
+  --start-flow-light: #e5636d;
+  --destination-flow-deep: #7f91c3;
+  --destination-flow-light: #73b4a2;
+  --white-touch-center: #dfe3c7;
+  --white-touch-middle: #e9ecd5;
+  --white-touch-rim: #f5f6ea;
+  --black-touch-center: #030303;
+  --black-touch-middle: #0a0a0a;
+  --black-touch-rim: #292929;
+  --black-touch-edge: var(--color-ink);
+  --touch-cast-shadow: rgb(0 0 0 / 35%);
+  --touch-top-highlight: rgb(255 255 255 / 30%);
+  --touch-inner-shadow: rgb(0 0 0 / 20%);
+  --touch-inner-highlight: rgb(255 255 255 / 14%);
+  --keyboard-gutter: 2px;
+
+  display: grid;
+  box-sizing: border-box;
+  width: 100%;
+  gap: 3px;
+  margin: 0 0 1rem;
+  padding: 3px;
+  background: var(--black-touch-edge);
+}
+
+.octave {
+  min-width: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: var(--keyboard-gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row + .row {
+  margin-top: var(--keyboard-gutter);
+}
+
+.keySlot {
+  position: relative;
+  min-width: 0;
+}
+
+.key {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 2px;
+  color: var(--black-touch-edge);
+  background: var(--key-face-muted);
+}
+
+.whiteKey,
+.centered {
+  grid-column: span 2;
+  aspect-ratio: 1;
+}
+
+.wideLeft,
+.wideRight {
+  grid-column: span 3;
+}
+
+.dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  height: 72%;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  box-shadow:
+    0 2px 4px var(--touch-cast-shadow),
+    0 -1px 2px var(--touch-top-highlight),
+    inset 0 2px 4px var(--touch-inner-shadow),
+    inset 0 -2px 3px var(--touch-inner-highlight);
+}
+
+.wideLeft .dot {
+  left: 33.333%;
+}
+
+.wideRight .dot {
+  left: 66.667%;
+}
+
+.whiteDot {
+  background: radial-gradient(
+    circle,
+    var(--white-touch-center) 0%,
+    var(--white-touch-middle) 45%,
+    var(--white-touch-rim) 72%,
+    var(--key-face) 100%
+  );
+}
+
+.blackDot {
+  color: var(--key-face);
+  background: radial-gradient(
+    circle,
+    var(--black-touch-center) 0%,
+    var(--black-touch-middle) 45%,
+    var(--black-touch-rim) 72%,
+    var(--black-touch-edge) 100%
+  );
+}
+
+.start::before,
+.destination::before {
+  position: absolute;
+  inset: -24%;
+  background-position: 15% 35%;
+  background-size: 240% 240%;
+  content: "";
+  animation: key-flow 8s ease-in-out infinite alternate;
+}
+
+.start::before {
+  background-image: linear-gradient(
+    128deg,
+    var(--start-flow-deep) 0%,
+    var(--start-flow-light) 38%,
+    var(--start-flow-deep) 67%,
+    var(--start-flow-light) 100%
+  );
+}
+
+.destination::before {
+  background-image: linear-gradient(
+    48deg,
+    var(--destination-flow-deep) 0%,
+    var(--destination-flow-light) 42%,
+    var(--destination-flow-deep) 72%,
+    var(--destination-flow-light) 100%
+  );
+  animation-delay: -4s;
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(0.55rem, 2.4vw, 0.75rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+@keyframes key-flow {
+  0% {
+    background-position: 15% 35%;
+    filter: brightness(0.96) saturate(0.94);
+    transform: rotate(-3deg) scale(1.02);
+  }
+
+  50% {
+    background-position: 85% 62%;
+    filter: brightness(1.06) saturate(1.04);
+    transform: rotate(3deg) scale(1.06);
+  }
+
+  100% {
+    background-position: 35% 88%;
+    filter: brightness(1) saturate(1);
+    transform: rotate(-1deg) scale(1.03);
+  }
+}
+
+@media (min-width: 640px) {
+  .instrument {
+    gap: 4px;
+    padding: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start::before,
+  .destination::before {
+    animation: none;
+  }
+}

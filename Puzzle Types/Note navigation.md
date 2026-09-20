@@ -22,7 +22,7 @@ Distances can be expressed numerically, through interval names with numerical re
 
 Use a regular keyboard as an illustration, not an answer surface or playable instrument. It introduces the instrument used interactively in later puzzles. Illustrate the starting note for forward questions and both supplied notes for reverse questions. Keep note positions stable; do not label every key during the question. Players answer separately from the keyboard.
 
-Include octave identifiers wherever register matters. For example, B3 up one semitone reaches C4. The displayed keyboard range remains a presentation decision; it is distinct from the maximum movement distance.
+Include octave identifiers wherever register matters. For example, B3 up one semitone reaches C4. Before octave-boundary movement is available, show the single keyboard register containing the question. After it becomes available, show the full three-register keyboard range. The displayed range remains distinct from the maximum movement distance.
 
 ## Learning coverage
 
@@ -69,14 +69,22 @@ Focus is the director's intent to challenge skills, expressed through question s
 - Every question involves movement: **1–12 semitones inclusive**, ascending or descending.
 - One octave is the absolute maximum, not merely an introductory limit. Compound intervals are out of scope.
 - Zero-distance and repeated-note questions are excluded.
-- Octave-boundary crossings are allowed within the distance limit.
+- Octave-boundary crossings are allowed within the distance limit after the relevant register repertoire becomes available.
 - Use natural notes, single sharps, and single flats. **Double accidentals are excluded at every difficulty.**
 
-Do not add a natural-note-only introductory gate. E up one whole tone may yield F♯ even at low settings. There is no separate accidental control or unlock rule.
+Do not add a natural-note-only introductory gate. E up one whole tone may yield F♯ even at low settings. Ordinary sharps and flats do not require a separate accidental control or unlock.
 
 For numerical movement, default to sharps ascending and flats descending. This is a presentation convention, not a correctness restriction. Named intervals instead require the spelling determined by their letter span and pitch distance.
 
-Valid spellings such as E♯, B♯, C♭, and F♭ remain available. Generate named-interval anchors whose correct endpoints fit the allowed spelling vocabulary. For example, use E♭ to G for a major third rather than D♯ to F𝄪; do not substitute G for F𝄪 and call D♯–G a major third.
+Edge enharmonic spellings E♯, B♯, C♭, and F♭ become available only after strong readiness in the relevant numerical-navigation and interval-name skill. Once available, they remain valid anchors and destinations, and the keyboard label must preserve the spelling used by the question. Generate named-interval anchors whose correct endpoints fit the allowed spelling vocabulary. For example, use E♭ to G for a major third rather than D♯ to F𝄪; do not substitute G for F𝄪 and call D♯–G a major third.
+
+### Assessment-gated register repertoire
+
+Before the relevant numerical-navigation skill is familiar, both notes must remain within the same C–B octave register. Forward eligibility derives from numerical destination construction; reverse eligibility derives from numerical distance identification. Forward and reverse readiness remain separate.
+
+Once that skill is familiar with sufficient certainty, octave-boundary crossings join the cumulative repertoire. Navigation demand then controls which eligible movements are sampled. Run pressure and high control settings must not override repertoire readiness. If a selected distance has no valid within-register placement, exclude that distance until crossings are available rather than silently crossing the boundary.
+
+Register readiness is not another tracked skill or difficulty control. It is a puzzle-specific eligibility rule derived from the existing assessment. Likewise, edge enharmonic readiness is a later eligibility rule rather than an exposure counter or first-run exception.
 
 ## Navigation-demand progression
 
@@ -125,7 +133,7 @@ This covers every allowed pitch distance. Other augmented and diminished interva
 
 ### Numerical support
 
-Introduce new names with numerical equivalents, then require recall at later milestones. Retain earlier vocabulary. For example:
+Introduce new names with one numerical equivalent, then require recall at later milestones. Use a unit already available in the navigation repertoire for that direction; do not introduce semitone terminology through support before semitone movement is available. When both units can express the movement, prefer the first available supporting category rather than showing both equivalents. Retain earlier vocabulary. For example:
 
 | Level of support | Forward question | Reverse answer vocabulary |
 | --- | --- | --- |
@@ -181,7 +189,7 @@ Random distinct incorrect answers are sufficient. Plausible-mistake distractors 
 
 Distractors may include intervals beyond the current correct-answer repertoire, but within the overall vocabulary. This lets answer-choice breadth grow independently of how many names have been introduced as correct answers.
 
-When numerical reminders are enabled, provide them for every interval option, including distractors. For example: major second — 1 whole tone; major third — 2 whole tones; perfect fourth — 2½ whole tones. Fractional whole-tone reminders do not expand the integer-only whole-tone question category.
+When numerical reminders are enabled, provide them for every interval option, including distractors, using the same single unit as the question. For example: major second — 1 whole tone; major third — 2 whole tones; perfect fourth — 2½ whole tones. Fractional whole-tone reminders do not expand the integer-only whole-tone question category.
 
 ## Feedback and run outcomes
 
@@ -199,7 +207,8 @@ Behavior above is the baseline. Tune during implementation and playtesting:
 - Exact interval-name milestones and support-removal thresholds along that control.
 - Skill-target mappings to question form and the three controls, including how answer-choice breadth affects demand and evidence.
 - Question-form coverage and named-interval sampling within the permitted intersection.
-- Starting-note and register selection within the eventual displayed keyboard range.
+- Exact familiarity and strong-readiness thresholds for octave crossings and edge enharmonic spellings.
+- Sampling frequency for newly available octave crossings and edge enharmonic spellings.
 - Shared director formulas and ceiling representation, as listed in [[Run director]].
 
-Detailed UX, keyboard layout/range, and persistent curriculum unlock or world-progress milestones are not settled here. Validate that the generated questions and changing demands sustain enjoyable runs; multiple-choice correctness alone does not establish engagement or comprehensive mastery.
+Detailed control layout and persistent curriculum unlock or world-progress milestones are not settled here. Validate that the generated questions and changing demands sustain enjoyable runs; multiple-choice correctness alone does not establish engagement or comprehensive mastery.

@@ -51,6 +51,8 @@ Focal skill demands start somewhat below estimated capability, providing an appr
 
 Non-focal demands start at personalized, very comfortable levels, clearly below estimated capability rather than merely at the expected level. Familiar demands need not reset to zero. They may still increase later under the challenge-selection rules.
 
+A puzzle type may also define assessment-gated repertoire eligibility for a qualitatively new demand, such as crossing an octave boundary. These gates derive from relevant proficiency and certainty, not exposure counts or a first-run branch. Run pressure and high difficulty-control settings do not override unavailable repertoire. Eligibility is distinct from persistent world or curriculum unlocks and does not automatically create another tracked skill or control.
+
 The exact mapping from skill assessments and safety margins to generation controls remains to be designed.
 
 ## Continuous player assessment
