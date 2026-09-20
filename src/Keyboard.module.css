@@ -1,0 +1,161 @@
+.keyboard {
+  --key-face: #eef1db;
+  --key-face-pressed: #e2e6ca;
+  --key-face-disabled: #daddc8;
+  --disabled-white-touch-face: #d0d3c0;
+  --disabled-black-touch-face: #30312b;
+  --white-touch-center: #dfe3c7;
+  --white-touch-middle: #e9ecd5;
+  --white-touch-rim: #f5f6ea;
+  --black-touch-center: #030303;
+  --black-touch-middle: #0a0a0a;
+  --black-touch-rim: #292929;
+  --black-touch-edge: #111;
+  --touch-cast-shadow: rgb(0 0 0 / 35%);
+  --touch-top-highlight: rgb(255 255 255 / 30%);
+  --touch-inner-shadow: rgb(0 0 0 / 20%);
+  --touch-inner-highlight: rgb(255 255 255 / 14%);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  gap: var(--keyboard-gutter, 2px);
+}
+
+.row + .row {
+  margin-top: var(--keyboard-gutter, 2px);
+}
+
+.keySlot {
+  min-width: 0;
+}
+
+.key {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+  touch-action: manipulation;
+  border: 0;
+  border-radius: 2px;
+  color: var(--black-touch-edge);
+  background-color: var(--key-face);
+  transition:
+    transform 120ms ease-out,
+    background-color 120ms ease-out;
+}
+
+.key:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--key-face);
+  outline-offset: 2px;
+}
+
+.key:disabled {
+  cursor: not-allowed;
+  background-color: var(--key-face-disabled);
+}
+
+.key:disabled .dot {
+  box-shadow: none;
+}
+
+.key:disabled .dot > span {
+  opacity: 0.45;
+}
+
+.key:active:not(:disabled) {
+  transform: translateY(1px);
+  background-color: var(--key-face-pressed);
+}
+
+.whiteKey,
+.centered {
+  grid-column: span 2;
+  aspect-ratio: 1;
+}
+
+.wideLeft,
+.wideRight {
+  grid-column: span 3;
+}
+
+.dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  width: auto;
+  height: 72%;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  box-shadow:
+    0 3px 5px var(--touch-cast-shadow),
+    0 -1px 2px var(--touch-top-highlight),
+    inset 0 3px 5px var(--touch-inner-shadow),
+    inset 0 -2px 4px var(--touch-inner-highlight);
+  transition: box-shadow 120ms ease-out;
+}
+
+.key:active:not(:disabled) .dot {
+  box-shadow:
+    0 1px 2px var(--touch-cast-shadow),
+    0 -1px 1px var(--touch-top-highlight),
+    inset 0 4px 6px var(--touch-inner-shadow),
+    inset 0 -1px 2px var(--touch-inner-highlight);
+}
+
+.wideLeft .dot {
+  left: 33.333%;
+}
+
+.wideRight .dot {
+  left: 66.667%;
+}
+
+.whiteDot {
+  background: radial-gradient(
+    circle,
+    var(--white-touch-center) 0%,
+    var(--white-touch-middle) 45%,
+    var(--white-touch-rim) 72%,
+    var(--key-face) 100%
+  );
+}
+
+.blackDot {
+  color: var(--key-face);
+  background: radial-gradient(
+    circle,
+    var(--black-touch-center) 0%,
+    var(--black-touch-middle) 45%,
+    var(--black-touch-rim) 72%,
+    var(--black-touch-edge) 100%
+  );
+}
+
+.key:disabled .whiteDot {
+  color: var(--black-touch-edge);
+  background: var(--disabled-white-touch-face);
+}
+
+.key:disabled .blackDot {
+  color: var(--key-face);
+  background: var(--disabled-black-touch-face);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .key,
+  .dot {
+    transition: none;
+  }
+}
