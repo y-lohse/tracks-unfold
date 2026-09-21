@@ -1,20 +1,44 @@
 .keyboard {
   --key-face: var(--color-instrument-face);
-  --key-face-pressed: #e2e6ca;
-  --key-face-disabled: var(--color-instrument-face-muted);
-  --disabled-white-touch-face: #d0d3c0;
-  --disabled-black-touch-face: #30312b;
-  --white-touch-center: #dfe3c7;
-  --white-touch-middle: #e9ecd5;
-  --white-touch-rim: #f5f6ea;
-  --black-touch-center: #030303;
-  --black-touch-middle: #0a0a0a;
-  --black-touch-rim: #292929;
-  --black-touch-edge: #111;
-  --touch-cast-shadow: rgb(0 0 0 / 35%);
-  --touch-top-highlight: rgb(255 255 255 / 30%);
-  --touch-inner-shadow: rgb(0 0 0 / 20%);
-  --touch-inner-highlight: rgb(255 255 255 / 14%);
+  --key-face-pressed: var(--color-canvas);
+  --key-face-disabled: var(--color-rule);
+  --disabled-white-touch-face: var(--color-rule);
+  --disabled-black-touch-face: color-mix(
+    in srgb,
+    var(--color-ink) 80%,
+    var(--key-face)
+  );
+  --white-touch-center: color-mix(
+    in srgb,
+    var(--key-face) 92%,
+    var(--color-ink)
+  );
+  --white-touch-middle: var(--key-face);
+  --white-touch-rim: color-mix(
+    in srgb,
+    var(--key-face) 45%,
+    var(--color-surface-warm)
+  );
+  --black-touch-center: var(--color-ink);
+  --black-touch-middle: color-mix(
+    in srgb,
+    var(--color-ink) 96%,
+    var(--key-face)
+  );
+  --black-touch-rim: color-mix(in srgb, var(--color-ink) 84%, var(--key-face));
+  --black-touch-edge: var(--color-ink);
+  --touch-cast-shadow: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  --touch-top-highlight: color-mix(
+    in srgb,
+    var(--color-surface-warm) 30%,
+    transparent
+  );
+  --touch-inner-shadow: color-mix(in srgb, var(--color-ink) 20%, transparent);
+  --touch-inner-highlight: color-mix(
+    in srgb,
+    var(--color-surface-warm) 14%,
+    transparent
+  );
 }
 
 .row {

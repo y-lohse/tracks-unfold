@@ -2,10 +2,10 @@
 .centeredScreen {
   --panel-surface: var(--color-instrument-face);
   --panel-edge: var(--color-ink);
-  --positive-signal: #4d7c63;
-  --negative-signal: #a34f3f;
-  --question-screen: #171817;
-  --question-text: #fff;
+  --positive-signal: var(--color-success);
+  --negative-signal: var(--color-error);
+  --question-screen: var(--color-ink);
+  --question-text: var(--color-surface-warm);
 
   min-height: 100svh;
   color: var(--color-ink);

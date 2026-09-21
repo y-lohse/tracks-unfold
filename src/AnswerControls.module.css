@@ -1,10 +1,10 @@
 .choiceGrid,
 .composer,
 .bank {
-  --control-face: #e4e7d1;
+  --control-face: var(--color-instrument-face);
   --control-edge: var(--color-ink);
-  --control-shadow: rgb(0 0 0 / 24%);
-  --control-lamp-off: #77796c;
+  --control-shadow: color-mix(in srgb, var(--color-ink) 24%, transparent);
+  --control-lamp-off: var(--color-muted);
   --control-lamp-on: var(--color-accent);
   --control-selected-halo: color-mix(
     in srgb,
@@ -78,7 +78,8 @@
   background: var(--control-lamp-on);
   box-shadow:
     0 0 0 3px var(--control-selected-halo),
-    inset 0 1px 1px rgb(255 255 255 / 30%);
+    inset 0 1px 1px
+      color-mix(in srgb, var(--color-surface-warm) 30%, transparent);
 }
 
 .engaged .lamp::after {
@@ -123,7 +124,7 @@
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--color-display-ink);
+  color: var(--color-ink);
   border: 2px solid var(--control-edge);
   border-radius: 3px;
   background: var(--color-display);

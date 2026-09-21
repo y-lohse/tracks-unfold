@@ -1,15 +1,34 @@
 @import "tailwindcss";
 
+:root {
+  --palette-black: #000000;
+  --palette-parchment: #f5e8d5;
+  --palette-ivory: #eef1db;
+  --palette-bone: #e3e1c9;
+  --palette-sage-gray: #c9c7af;
+  --palette-peach: #f69d71;
+  --palette-espresso: #4f3130;
+  --palette-coral: #e5636d;
+  --palette-dusty-rose: #cd6c8b;
+  --palette-mauve: #996782;
+  --palette-blue: #2d7dd2;
+  --palette-slate: #485b63;
+  --palette-green: #0a8754;
+  --palette-mint: #8cfbde;
+  --palette-yellow: #edd664;
+}
+
 @theme {
-  --color-canvas: oklch(0.97 0.01 85);
-  --color-ink: oklch(0.25 0.015 75);
-  --color-muted: oklch(0.55 0.015 75);
-  --color-rule: oklch(0.85 0.015 80);
-  --color-accent: oklch(0.68 0.16 45);
-  --color-display: oklch(0.78 0.07 135);
-  --color-display-ink: oklch(0.24 0.035 135);
-  --color-instrument-face: #eef1db;
-  --color-instrument-face-muted: #daddc8;
+  --color-ink: var(--palette-black);
+  --color-surface-warm: var(--palette-parchment);
+  --color-instrument-face: var(--palette-ivory);
+  --color-canvas: var(--palette-bone);
+  --color-rule: var(--palette-sage-gray);
+  --color-muted: var(--palette-slate);
+  --color-accent: var(--palette-dusty-rose);
+  --color-success: var(--palette-green);
+  --color-error: var(--palette-coral);
+  --color-display: var(--palette-mint);
   --font-sans:
     "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;

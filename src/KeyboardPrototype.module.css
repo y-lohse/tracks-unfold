@@ -1,5 +1,5 @@
 .keyboardBackdrop {
-  --keyboard-stage-surface: #000;
+  --keyboard-stage-surface: var(--color-ink);
   --keyboard-gutter: 2px;
 
   padding: var(--keyboard-gutter);
