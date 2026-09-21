@@ -17,11 +17,12 @@
   --touch-inner-shadow: rgb(0 0 0 / 20%);
   --touch-inner-highlight: rgb(255 255 255 / 14%);
   --keyboard-gutter: 2px;
+  --keyboard-section-gap: calc(var(--keyboard-gutter) * 3);
 
   display: grid;
   box-sizing: border-box;
   width: 100%;
-  gap: 3px;
+  gap: var(--keyboard-section-gap);
   margin: 0 0 1rem;
   padding: 3px;
   background: var(--black-touch-edge);
@@ -180,7 +181,6 @@
 
 @media (min-width: 640px) {
   .instrument {
-    gap: 4px;
     padding: 4px;
   }
 }

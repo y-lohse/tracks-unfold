@@ -43,10 +43,16 @@ describe("App", () => {
       1,
     );
     const assessments = screen.getByLabelText("Skill assessments");
+    expect(assessments).not.toHaveAttribute("open");
+    fireEvent.click(within(assessments).getByText("Debug"));
+    expect(assessments).toHaveAttribute("open");
     expect(within(assessments).getByText("Finding a note")).toBeInTheDocument();
     expect(
-      within(assessments).getAllByText(/P 0\.\d{2} · C 0\.\d{2}/),
+      within(assessments).getAllByText(/P 0\.\d{2} · C 0\.\d{2} · CH 0\.\d{2}/),
     ).toHaveLength(4);
+    expect(within(assessments).getByText("Navigation")).toBeInTheDocument();
+    expect(within(assessments).getByText("Interval names")).toBeInTheDocument();
+    expect(within(assessments).getByText("Answer breadth")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Submit" })).toBeDisabled();
 
     const choices = screen.getAllByRole("button", { pressed: false });

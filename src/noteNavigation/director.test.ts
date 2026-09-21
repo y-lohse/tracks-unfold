@@ -151,6 +151,68 @@ describe("run director", () => {
     expect(state.puzzlesPresented).toBe(3);
   });
 
+  it("advances about one progression step after three supported correct answers", () => {
+    function proficiencyAfterThreeAnswers({
+      skill,
+      weight,
+      support,
+      challengeForAttempt,
+    }: {
+      skill: (typeof SKILLS)[number];
+      weight: number;
+      support: number;
+      challengeForAttempt: (attempt: number) => number;
+    }) {
+      let state = startRun(
+        createProfile(),
+        createSeededRng(31),
+        `calibration-${skill}`,
+      );
+      const rng = createSeededRng(32);
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        const prepared = prepareNextQuestion(state, rng);
+        const question = {
+          ...prepared.question,
+          demands: [
+            {
+              skill,
+              weight,
+              support,
+              challenge: challengeForAttempt(attempt),
+            },
+          ],
+        };
+        state = answerQuestion(
+          prepared.state,
+          question,
+          correctSubmission(question),
+        ).state;
+      }
+      return state.profile[skill].proficiency;
+    }
+
+    const threeChoiceSupport =
+      NOTE_NAVIGATION_TUNING.assessment.curatedChoiceSupport.three;
+    const navigation = proficiencyAfterThreeAnswers({
+      skill: "numericalDestination",
+      weight: 1,
+      support: threeChoiceSupport,
+      challengeForAttempt: runPressure,
+    });
+    expect(navigation).toBeGreaterThanOrEqual(1 / 11);
+    expect(navigation).toBeLessThan(2 / 11);
+
+    const vocabulary = proficiencyAfterThreeAnswers({
+      skill: "intervalInterpretation",
+      weight:
+        NOTE_NAVIGATION_TUNING.assessment.unsupportedNamedVocabularyWeight,
+      support: threeChoiceSupport,
+      challengeForAttempt: () => 0.1,
+    });
+    expect(vocabulary).toBeGreaterThanOrEqual(1 / 13);
+    expect(vocabulary).toBeLessThan(2 / 13);
+  });
+
   it("builds certainty from zero when an answer supplies evidence", () => {
     const state = startRun(createProfile(), createSeededRng(21), "certainty");
     const prepared = prepareNextQuestion(state, createSeededRng(22));

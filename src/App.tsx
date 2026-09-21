@@ -180,20 +180,51 @@ function RunView({
           <span>Puzzle {puzzleNumber}</span>
         </header>
 
-        <aside
+        <details
           className={styles.debugAssessments}
           aria-label="Skill assessments"
         >
-          {SKILLS.map((skill) => (
-            <div key={skill}>
-              <span>{skillLabels[skill]}</span>
-              <span>
-                P {session.run.profile[skill].proficiency.toFixed(2)} · C{" "}
-                {session.run.profile[skill].certainty.toFixed(2)}
-              </span>
-            </div>
-          ))}
-        </aside>
+          <summary>Debug</summary>
+          <div className={styles.debugBody}>
+            <section className={styles.debugGroup} aria-label="Skill levels">
+              <strong>Skills</strong>
+              {SKILLS.map((skill) => (
+                <div className={styles.debugRow} key={skill}>
+                  <span>{skillLabels[skill]}</span>
+                  <span>
+                    P {session.run.profile[skill].proficiency.toFixed(2)} · C{" "}
+                    {session.run.profile[skill].certainty.toFixed(2)} · CH{" "}
+                    {session.run.assignedChallenge[skill].toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </section>
+            <section
+              className={styles.debugGroup}
+              aria-label="Question controls"
+            >
+              <strong>Question controls</strong>
+              <div className={styles.debugRow}>
+                <span>Navigation</span>
+                <span>
+                  {session.question.controls.navigationDemand.toFixed(2)}
+                </span>
+              </div>
+              <div className={styles.debugRow}>
+                <span>Interval names</span>
+                <span>
+                  {session.question.controls.intervalNameDemand.toFixed(2)}
+                </span>
+              </div>
+              <div className={styles.debugRow}>
+                <span>Answer breadth</span>
+                <span>
+                  {session.question.controls.answerChoiceBreadth.toFixed(2)}
+                </span>
+              </div>
+            </section>
+          </div>
+        </details>
 
         <section className={styles.question} aria-labelledby="question-prompt">
           <PuzzleKeyboard

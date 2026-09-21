@@ -19,11 +19,6 @@ export function answerChoiceCount(breadth: number): 3 | 4 | 6 | "full" {
   return 3;
 }
 
-function numericalLabel(value: number, unit: DistanceUnit): string {
-  const singular = unit === "semitones" ? "semitone" : "whole tone";
-  return `${value} ${value === 1 ? singular : `${singular}s`}`;
-}
-
 function correctChoice(
   answer: CorrectAnswer,
   reminderUnit: DistanceUnit | undefined,
@@ -42,7 +37,7 @@ function correctChoice(
       id: `${answer.unit}:${answer.value}`,
       value: answer.value,
       unit: answer.unit,
-      label: numericalLabel(answer.value, answer.unit),
+      label: String(answer.value),
     };
   }
   return {
@@ -88,7 +83,7 @@ function distractorPool(
         id: `${answer.unit}:${value}`,
         value,
         unit: answer.unit,
-        label: numericalLabel(value, answer.unit),
+        label: String(value),
       }));
   }
   return NAMED_INTERVALS.filter((interval) => {

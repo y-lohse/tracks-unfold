@@ -191,6 +191,23 @@ describe("question generation", () => {
     expect(curated.demands[0]?.support).toBeGreaterThan(
       full.demands[0]?.support ?? 0,
     );
+
+    const numerical = generateQuestion({
+      id: "numerical-labels",
+      controls: {
+        navigationDemand: 0,
+        intervalNameDemand: 0,
+        answerChoiceBreadth: 0,
+      },
+      targetSkill: "numericalDistance",
+      rng: createSeededRng(3),
+    });
+    if (numerical.choices.mode !== "curated") {
+      throw new Error("Expected curated numerical choices");
+    }
+    expect(
+      numerical.choices.options.every((choice) => /^\d+$/.test(choice.label)),
+    ).toBe(true);
   });
 
   it("never offers an enharmonic-equivalent destination as an incorrect competitor", () => {
