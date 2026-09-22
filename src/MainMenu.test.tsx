@@ -3,8 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { MainMenu } from "./MainMenu";
 
-const areas = [
-  "Note navigation",
+const dormantAreas = [
   "Imitation",
   "Tonal contours",
   "Rhythm performance",
@@ -19,7 +18,11 @@ describe("MainMenu", () => {
       screen.getByRole("heading", { level: 1, name: "Tracks Unfold" }),
     ).toBeInTheDocument();
 
-    for (const area of areas) {
+    expect(
+      screen.getByRole("button", { name: /note navigation/i }),
+    ).toHaveTextContent("01Navigation");
+
+    for (const area of dormantAreas) {
       expect(screen.getByText(area)).toBeInTheDocument();
     }
 

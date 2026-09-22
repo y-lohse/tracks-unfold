@@ -1,0 +1,379 @@
+.menu {
+  --compass-panel: var(--palette-ivory);
+  --compass-line: var(--palette-black);
+  --compass-route-primary: var(--palette-dusty-rose);
+  --compass-route-secondary: var(--palette-mauve);
+  --compass-route-tertiary: var(--palette-coral);
+  --compass-lock: var(--palette-espresso);
+  --compass-glow: var(--palette-mint);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.activeArea {
+  margin-top: 2.5rem;
+  padding: 0.75rem 0.75rem 1rem;
+  border: 1px solid var(--compass-line);
+  background: var(--compass-panel);
+  box-shadow: 0 0 1rem color-mix(in srgb, var(--compass-line) 24%, transparent);
+}
+
+.compass {
+  position: relative;
+  width: min(100%, 23rem);
+  margin: 0 auto 0.75rem;
+  aspect-ratio: 1;
+}
+
+.dial {
+  position: absolute;
+  inset: 5%;
+  overflow: hidden;
+  border: 2px solid var(--compass-line);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--compass-glow) 18%, transparent) 0 10%,
+      transparent 26%
+    ),
+    var(--compass-panel);
+  box-shadow:
+    inset 0 0 0 5px var(--compass-panel),
+    inset 0 0 0 6px var(--compass-line),
+    inset 0 0 1.8rem color-mix(in srgb, var(--compass-line) 14%, transparent),
+    0 0 0.75rem color-mix(in srgb, var(--compass-line) 30%, transparent);
+}
+
+.tickField {
+  position: absolute;
+  z-index: 0;
+  inset: 1.5%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from -0.5deg,
+    var(--compass-line) 0deg 0.5deg,
+    transparent 0.5deg 2.5deg
+  );
+  mask: radial-gradient(circle, transparent 0 91%, var(--compass-line) 91.5%);
+  opacity: 0.66;
+}
+
+.compassGrid,
+.routes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.compassGrid {
+  z-index: 1;
+}
+
+.track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--compass-line) 40%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.track:nth-child(2) {
+  stroke-dasharray: 2 4;
+}
+
+.radials line {
+  stroke: color-mix(in srgb, var(--compass-line) 24%, transparent);
+  stroke-dasharray: 1 5;
+  stroke-linecap: round;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.radials line:nth-child(3n + 1) {
+  stroke: color-mix(in srgb, var(--compass-line) 48%, transparent);
+  stroke-dasharray: none;
+}
+
+.noteRing {
+  --ring-radius: 43%;
+
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  pointer-events: none;
+}
+
+.notePosition {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--ring-radius);
+  height: 1px;
+  transform: rotate(var(--note-angle));
+  transform-origin: left center;
+}
+
+.note {
+  position: absolute;
+  top: 50%;
+  right: -0.7rem;
+  min-width: 1.4rem;
+  padding: 0.13rem 0.18rem;
+  color: var(--compass-line);
+  background: color-mix(in srgb, var(--compass-panel) 94%, transparent);
+  font-size: 0.58rem;
+  font-weight: 750;
+  line-height: 1;
+  text-align: center;
+  transform: translateY(-50%) rotate(var(--note-counter-angle));
+}
+
+.routes {
+  z-index: 3;
+}
+
+.routeGuides path,
+.route {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.routeGuides path {
+  stroke: color-mix(in srgb, var(--compass-line) 38%, transparent);
+  stroke-dasharray: 1 5;
+  stroke-width: 1.5;
+}
+
+.route {
+  stroke-dasharray: 25 103;
+  stroke-dashoffset: 25;
+  stroke-width: 4;
+  animation: snake-route 13s linear infinite backwards;
+}
+
+.routePrimary {
+  stroke: var(--compass-route-primary);
+}
+
+.routeSecondary {
+  stroke: var(--compass-route-secondary);
+  animation-delay: 4.333s;
+}
+
+.routeTertiary {
+  stroke: var(--compass-route-tertiary);
+  animation-delay: 8.667s;
+}
+
+.stationBases circle {
+  fill: var(--compass-panel);
+  stroke: var(--compass-line);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.stations circle {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  animation: station-light 13s linear infinite;
+  animation-delay: var(--station-delay);
+}
+
+.stationPrimary {
+  --station-color: var(--compass-route-primary);
+}
+
+.stationSecondary {
+  --station-color: var(--compass-route-secondary);
+}
+
+.stationTertiary {
+  --station-color: var(--compass-route-tertiary);
+}
+
+.lockCore {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 23%;
+  place-items: center;
+  aspect-ratio: 1;
+  color: var(--compass-panel);
+  border: 2px solid var(--compass-line);
+  border-radius: 50%;
+  background: var(--compass-lock);
+  box-shadow:
+    0 0 0.65rem color-mix(in srgb, var(--compass-line) 38%, transparent),
+    0 0 0 5px var(--compass-panel),
+    0 0 0 6px var(--compass-line),
+    0 0 0 12px color-mix(in srgb, var(--compass-route-primary) 22%, transparent);
+  transform: translate(-50%, -50%);
+}
+
+.corePulse {
+  position: absolute;
+  inset: -27%;
+  border: 1px dotted var(--compass-route-primary);
+  border-radius: 50%;
+  animation: core-scan 6.4s ease-out infinite;
+}
+
+.lockIcon {
+  width: 47%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.lockIcon rect {
+  fill: color-mix(in srgb, var(--compass-panel) 10%, transparent);
+}
+
+.navigationButton {
+  display: grid;
+  width: 100%;
+  min-height: 3.75rem;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  font: inherit;
+  color: var(--compass-panel);
+  border: 1px solid var(--compass-line);
+  border-radius: 2px;
+  background: var(--compass-line);
+  box-shadow: 0 0 0.7rem
+    color-mix(in srgb, var(--compass-line) 30%, transparent);
+}
+
+.navigationButton:hover .buttonArrow {
+  transform: translateX(0.2rem);
+}
+
+.navigationButton:active {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+.navigationButton:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.buttonIndex {
+  display: grid;
+  width: 2.1rem;
+  place-items: center;
+  aspect-ratio: 1;
+  color: var(--compass-line);
+  border-radius: 50%;
+  background: var(--color-accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.buttonTitle {
+  font-size: 0.9rem;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.buttonArrow {
+  font-size: 1.2rem;
+  transition: transform 140ms ease-out;
+}
+
+.dormantAreas {
+  margin: 2.5rem 0 0;
+  padding: 0;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-rule);
+  list-style: none;
+}
+
+.dormantAreas li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem 0;
+  font-size: 0.72rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.dormantState {
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .activeArea {
+    margin-top: 3.5rem;
+    padding: 0.9rem 0.9rem 1.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route,
+  .stations circle,
+  .corePulse {
+    animation: none;
+  }
+
+  .buttonArrow {
+    transition: none;
+  }
+}
+
+@keyframes snake-route {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes station-light {
+  0%,
+  19% {
+    fill: var(--station-color);
+    stroke: var(--station-color);
+    filter: drop-shadow(
+      0 0 3px color-mix(in srgb, var(--station-color) 72%, transparent)
+    );
+  }
+
+  20%,
+  100% {
+    fill: transparent;
+    stroke: transparent;
+    filter: none;
+  }
+}
+
+@keyframes core-scan {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.72);
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
