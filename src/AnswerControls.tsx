@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import {
   ACCIDENTALS,
@@ -22,7 +22,18 @@ type AnswerControlsProps = {
   onSelect: (answer: SubmittedAnswer | null) => void;
 };
 
-type RadioState = "idle" | "selected" | "correct" | "incorrect";
+type ControlState = "idle" | "selected" | "correct" | "incorrect";
+
+function controlState(
+  selected: boolean,
+  correct: boolean,
+  result: AnswerResult | null,
+): ControlState {
+  if (!result) return selected ? "selected" : "idle";
+  if (result.correct) return selected ? "correct" : "idle";
+  if (correct) return "correct";
+  return selected ? "incorrect" : "idle";
+}
 
 function choiceToAnswer(choice: AnswerChoice): SubmittedAnswer {
   if (choice.kind === "note") return { kind: "note", value: choice.note };
@@ -58,17 +69,19 @@ function RadioButton({
   label,
   detail,
   onClick,
+  pressed,
   state,
 }: {
   disabled: boolean;
   label: string;
   detail?: string;
   onClick: () => void;
-  state: RadioState;
+  pressed: boolean;
+  state: ControlState;
 }) {
   return (
     <button
-      aria-pressed={state === "selected"}
+      aria-pressed={pressed}
       className={`${styles.radio} ${styles[state]}`}
       data-answer-state={state}
       disabled={disabled}
@@ -104,15 +117,7 @@ function CuratedChoices({
       {question.choices.options.map((choice) => {
         const selectedChoice = isSelected(choice, selected);
         const correctChoice = isSelected(choice, choiceToAnswerFor(question));
-        const state: RadioState = result
-          ? correctChoice
-            ? "correct"
-            : selectedChoice
-              ? "incorrect"
-              : "idle"
-          : selectedChoice
-            ? "selected"
-            : "idle";
+        const state = controlState(selectedChoice, correctChoice, result);
 
         return (
           <RadioButton
@@ -123,6 +128,7 @@ function CuratedChoices({
             key={choice.id}
             label={choice.label}
             onClick={() => onSelect(choiceToAnswer(choice))}
+            pressed={selectedChoice}
             state={state}
           />
         );
@@ -154,6 +160,8 @@ function SelectorBank<T extends string | number>({
   value,
   disabled,
   render,
+  correctValue,
+  result,
   onChange,
 }: {
   label: string;
@@ -161,35 +169,48 @@ function SelectorBank<T extends string | number>({
   value: T | null;
   disabled: boolean;
   render?: (value: T) => string;
+  correctValue: T | null;
+  result: AnswerResult | null;
   onChange: (value: T) => void;
 }) {
   return (
     <fieldset className={styles.bank} disabled={disabled}>
       <legend>{label}</legend>
       <div className={styles.bankButtons}>
-        {values.map((option) => (
-          <button
-            aria-pressed={value === option}
-            className={`${styles.selector} ${value === option ? styles.engaged : ""}`}
-            key={option}
-            onClick={() => onChange(option)}
-            type="button"
-          >
-            {render?.(option) ?? option}
-          </button>
-        ))}
+        {values.map((option) => {
+          const selected = value === option;
+          const state = controlState(selected, correctValue === option, result);
+
+          return (
+            <button
+              aria-pressed={selected}
+              className={`${styles.selector} ${styles[state]}`}
+              data-answer-state={state}
+              key={option}
+              onClick={() => onChange(option)}
+              type="button"
+            >
+              {render?.(option) ?? option}
+            </button>
+          );
+        })}
       </div>
     </fieldset>
   );
 }
 
 function FullNoteControl({
+  question,
   disabled,
+  result,
   onSelect,
-}: Pick<AnswerControlsProps, "disabled" | "onSelect">) {
+}: AnswerControlsProps) {
   const [letter, setLetter] = useState<NoteLetter | null>(null);
   const [accidental, setAccidental] = useState<Accidental | null>(null);
   const [octave, setOctave] = useState<number | null>(null);
+
+  if (question.answer.kind !== "note") return null;
+  const correctNote = question.answer.note;
 
   const update = (
     nextLetter: NoteLetter | null,
@@ -216,16 +237,19 @@ function FullNoteControl({
         {octave ?? "–"}
       </output>
       <SelectorBank
+        correctValue={correctNote.letter}
         disabled={disabled}
         label="Note"
         onChange={(value) => {
           setLetter(value);
           update(value, accidental, octave);
         }}
+        result={result}
         value={letter}
         values={noteLetters}
       />
       <SelectorBank
+        correctValue={correctNote.accidental}
         disabled={disabled}
         label="Accidental"
         onChange={(value) => {
@@ -233,16 +257,19 @@ function FullNoteControl({
           update(letter, value, octave);
         }}
         render={(value) => accidentalLabels[value]}
+        result={result}
         value={accidental}
         values={ACCIDENTALS}
       />
       <SelectorBank
+        correctValue={correctNote.octave}
         disabled={disabled}
         label="Octave"
         onChange={(value) => {
           setOctave(value);
           update(letter, accidental, value);
         }}
+        result={result}
         value={octave}
         values={[3, 4, 5]}
       />
@@ -254,6 +281,7 @@ function FullNumericalControl({
   question,
   disabled,
   selected,
+  result,
   onSelect,
 }: AnswerControlsProps) {
   if (question.answer.kind !== "numericalDistance") return null;
@@ -263,6 +291,7 @@ function FullNumericalControl({
 
   return (
     <SelectorBank
+      correctValue={question.answer.value}
       disabled={disabled}
       label={
         question.answer.unit === "wholeTones" ? "Whole tones" : "Semitones"
@@ -270,6 +299,7 @@ function FullNumericalControl({
       onChange={(value) =>
         onSelect({ kind: "numericalDistance", value: Number(value) })
       }
+      result={result}
       value={selectedValue}
       values={Array.from({ length: maximum }, (_, index) => index + 1)}
     />
@@ -287,23 +317,28 @@ type Quality = (typeof qualities)[number];
 const intervalNumbers = [2, 3, 4, 5, 6, 7, 8] as const;
 
 function FullIntervalControl({
+  question,
   disabled,
+  result,
   onSelect,
-}: Pick<AnswerControlsProps, "disabled" | "onSelect">) {
+}: AnswerControlsProps) {
   const [quality, setQuality] = useState<Quality | null>(null);
   const [number, setNumber] = useState<number | null>(null);
   const [tritone, setTritone] = useState(false);
 
-  const selectedInterval = useMemo(
-    () =>
-      quality === null || number === null
-        ? undefined
-        : NAMED_INTERVALS.find(
-            (interval) =>
-              interval.number === number && interval.name.startsWith(quality),
-          ),
-    [number, quality],
-  );
+  if (question.answer.kind !== "namedInterval") return null;
+  const correctInterval = question.answer.interval;
+  const correctQuality =
+    qualities.find((quality) => correctInterval.name.startsWith(quality)) ??
+    null;
+
+  const selectedInterval =
+    quality === null || number === null
+      ? undefined
+      : NAMED_INTERVALS.find(
+          (interval) =>
+            interval.number === number && interval.name.startsWith(quality),
+        );
 
   const update = (nextQuality: Quality | null, nextNumber: number | null) => {
     const interval =
@@ -331,9 +366,11 @@ function FullIntervalControl({
           setNumber(null);
           onSelect({ kind: "namedInterval", value: "tritone" });
         }}
-        state={tritone ? "selected" : "idle"}
+        pressed={tritone}
+        state={controlState(tritone, correctInterval.id === "tritone", result)}
       />
       <SelectorBank
+        correctValue={correctQuality}
         disabled={disabled}
         label="Quality"
         onChange={(value) => {
@@ -341,10 +378,12 @@ function FullIntervalControl({
           setQuality(value);
           update(value, number);
         }}
+        result={result}
         value={quality}
         values={qualities}
       />
       <SelectorBank
+        correctValue={correctInterval.number}
         disabled={disabled}
         label="Number"
         onChange={(value) => {
@@ -352,6 +391,7 @@ function FullIntervalControl({
           setNumber(value);
           update(quality, value);
         }}
+        result={result}
         value={number}
         values={intervalNumbers}
       />
@@ -364,14 +404,10 @@ export function AnswerControls(props: AnswerControlsProps) {
     return <CuratedChoices {...props} />;
   }
   if (props.question.requestedAnswer === "note") {
-    return (
-      <FullNoteControl disabled={props.disabled} onSelect={props.onSelect} />
-    );
+    return <FullNoteControl {...props} />;
   }
   if (props.question.requestedAnswer === "numericalDistance") {
     return <FullNumericalControl {...props} />;
   }
-  return (
-    <FullIntervalControl disabled={props.disabled} onSelect={props.onSelect} />
-  );
+  return <FullIntervalControl {...props} />;
 }
