@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const synth = vi.hoisted(() => ({
@@ -45,17 +45,7 @@ describe("App", () => {
     expect(document.querySelectorAll('[aria-label^="Octave "]')).toHaveLength(
       1,
     );
-    const assessments = screen.getByLabelText("Skill assessments");
-    expect(assessments).not.toHaveAttribute("open");
-    fireEvent.click(within(assessments).getByText("Debug"));
-    expect(assessments).toHaveAttribute("open");
-    expect(within(assessments).getByText("Finding a note")).toBeInTheDocument();
-    expect(
-      within(assessments).getAllByText(/P 0\.\d{2} · C 0\.\d{2} · CH 0\.\d{2}/),
-    ).toHaveLength(4);
-    expect(within(assessments).getByText("Navigation")).toBeInTheDocument();
-    expect(within(assessments).getByText("Interval names")).toBeInTheDocument();
-    expect(within(assessments).getByText("Answer breadth")).toBeInTheDocument();
+    expect(screen.queryByText("Debug")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Submit" })).toBeDisabled();
 
     const choices = screen.getAllByRole("button", { pressed: false });
