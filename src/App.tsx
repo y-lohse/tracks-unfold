@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { AnswerControls } from "./AnswerControls";
+import { Button } from "./Button";
 import { MainMenu } from "./MainMenu";
 import { PuzzleKeyboard } from "./PuzzleKeyboard";
 import { keyboardSynth } from "./keyboardSynth";
@@ -77,14 +78,6 @@ function questionPrompt(question: NavigationQuestion) {
   return `Name the interval from ${start} ${direction} to ${end}`;
 }
 
-function correctAnswerLabel(question: NavigationQuestion) {
-  if (question.answer.kind === "note") return renderNote(question.answer.note);
-  if (question.answer.kind === "numericalDistance") {
-    return displayUnit(question.answer.value, question.answer.unit);
-  }
-  return question.answer.interval.name;
-}
-
 function wrongAnswerExplanation(question: NavigationQuestion) {
   const start = renderNote(question.start);
   const end = renderNote(destinationFor(question));
@@ -135,24 +128,38 @@ function playReveal(question: NavigationQuestion) {
   }, 760);
 }
 
-function ActionButton({
-  children,
-  disabled = false,
-  onClick,
-}: {
-  children: React.ReactNode;
-  disabled?: boolean;
-  onClick: () => void;
-}) {
+function Lives({ remaining }: { remaining: number }) {
   return (
-    <button
-      className={styles.action}
-      disabled={disabled}
-      onClick={onClick}
-      type="button"
-    >
-      {children}
-    </button>
+    <div className={styles.lives} aria-label={`${remaining} lives remaining`}>
+      {[0, 1, 2].map((index) => (
+        <span
+          aria-hidden="true"
+          className={index < remaining ? styles.lifeActive : styles.lifeLost}
+          key={index}
+        />
+      ))}
+    </div>
+  );
+}
+
+function PuzzleVents({ count }: { count: number }) {
+  const groups = Array.from({ length: Math.ceil(count / 5) }, (_, group) =>
+    Array.from(
+      { length: Math.min(5, count - group * 5) },
+      (_, index) => group * 5 + index + 1,
+    ),
+  );
+
+  return (
+    <div className={styles.puzzleVents} aria-label={`Puzzle ${count}`}>
+      {groups.map((group) => (
+        <span className={styles.ventGroup} key={group[0]}>
+          {group.map((puzzle) => (
+            <span aria-hidden="true" className={styles.vent} key={puzzle} />
+          ))}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -161,11 +168,13 @@ function RunView({
   onSelect,
   onSubmit,
   onContinue,
+  onExit,
 }: {
   session: RunSession;
   onSelect: (answer: SubmittedAnswer | null) => void;
   onSubmit: () => void;
   onContinue: () => void;
+  onExit: () => void;
 }) {
   const feedback = session.result;
   const destination = destinationFor(session.question);
@@ -176,9 +185,40 @@ function RunView({
     <main className={styles.runScreen}>
       <div className={styles.runShell}>
         <header className={styles.runStatus}>
-          <span>Lives {session.run.lives}</span>
-          <span>Puzzle {puzzleNumber}</span>
+          <Lives remaining={session.run.lives} />
+          <PuzzleVents count={puzzleNumber} />
+          <button
+            aria-label="Exit run"
+            className={styles.exitRun}
+            onClick={onExit}
+            type="button"
+          >
+            <svg aria-hidden="true" viewBox="0 0 16 16">
+              <path d="M3 3l10 10M13 3L3 13" />
+            </svg>
+          </button>
         </header>
+
+        <section className={styles.question} aria-labelledby="question-prompt">
+          <PuzzleKeyboard
+            destination={destination}
+            octaves={
+              session.question.keyboardMode === "singleRegister"
+                ? [NOTE_NAVIGATION_TUNING.singleRegisterOctave]
+                : [3, 4, 5]
+            }
+            revealDestinationLabel={
+              session.question.form === "reverse" || feedback !== null
+            }
+            start={session.question.start}
+          />
+          <h1 id="question-prompt">{questionPrompt(session.question)}</h1>
+          {feedback && !feedback.correct ? (
+            <div className={styles.feedback} role="status">
+              <p>{wrongAnswerExplanation(session.question)}</p>
+            </div>
+          ) : null}
+        </section>
 
         <details
           className={styles.debugAssessments}
@@ -226,54 +266,22 @@ function RunView({
           </div>
         </details>
 
-        <section className={styles.question} aria-labelledby="question-prompt">
-          <PuzzleKeyboard
-            destination={destination}
-            octaves={
-              session.question.keyboardMode === "singleRegister"
-                ? [NOTE_NAVIGATION_TUNING.singleRegisterOctave]
-                : [3, 4, 5]
-            }
-            revealDestinationLabel={
-              session.question.form === "reverse" || feedback !== null
-            }
-            start={session.question.start}
-          />
-          <h1 id="question-prompt">{questionPrompt(session.question)}</h1>
-          {feedback ? (
-            <div
-              className={`${styles.feedback} ${feedback.correct ? styles.correct : styles.incorrect}`}
-              role="status"
-            >
-              <strong>{feedback.correct ? "Correct" : "Mistake"}</strong>
-              {!feedback.correct ? (
-                <p>
-                  Correct answer: {correctAnswerLabel(session.question)}.{" "}
-                  {wrongAnswerExplanation(session.question)}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-        </section>
-
         <section className={styles.answerArea} aria-label="Answer">
           <AnswerControls
             disabled={feedback !== null}
             key={session.question.id}
             onSelect={onSelect}
             question={session.question}
+            result={session.result}
             selected={session.selected}
           />
 
           {feedback ? (
-            <ActionButton onClick={onContinue}>Continue</ActionButton>
+            <Button onClick={onContinue}>Continue</Button>
           ) : (
-            <ActionButton
-              disabled={session.selected === null}
-              onClick={onSubmit}
-            >
+            <Button disabled={session.selected === null} onClick={onSubmit}>
               Submit
-            </ActionButton>
+            </Button>
           )}
         </section>
       </div>
@@ -299,7 +307,9 @@ function Introduction({
         <h1>Note navigation</h1>
         <p>Read the marked keys, then choose the note or distance.</p>
         <p>Three wrong answers end the run.</p>
-        <ActionButton onClick={onBegin}>Begin run</ActionButton>
+        <Button className={styles.panelAction} onClick={onBegin}>
+          Begin run
+        </Button>
         <button className={styles.reset} onClick={onReset} type="button">
           Reset learning data
         </button>
@@ -336,7 +346,7 @@ function Results({
           ))}
         </dl>
         <div className={styles.resultActions}>
-          <ActionButton onClick={onAgain}>Play again</ActionButton>
+          <Button onClick={onAgain}>Play again</Button>
           <button className={styles.textButton} onClick={onMenu} type="button">
             Return to instrument
           </button>
@@ -408,6 +418,12 @@ export function App() {
     setProfile(createDefaultProfile());
   };
 
+  const exitRun = () => {
+    stopReveal();
+    setSession(null);
+    setScreen("menu");
+  };
+
   if (screen === "menu") {
     return <MainMenu onOpenNoteNavigation={() => setScreen("introduction")} />;
   }
@@ -433,6 +449,7 @@ export function App() {
   return (
     <RunView
       onContinue={continueRun}
+      onExit={exitRun}
       onSelect={(selected) => setSession({ ...session, selected })}
       onSubmit={submitAnswer}
       session={session}

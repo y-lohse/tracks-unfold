@@ -3,13 +3,19 @@
 .bank {
   --control-face: var(--color-instrument-face);
   --control-edge: var(--color-ink);
-  --control-shadow: color-mix(in srgb, var(--color-ink) 24%, transparent);
-  --control-lamp-off: var(--color-muted);
-  --control-lamp-on: var(--color-accent);
-  --control-selected-halo: color-mix(
+  --control-shadow: color-mix(in srgb, var(--color-ink) 30%, transparent);
+  --control-selected: var(--color-accent);
+  --control-correct: var(--color-success);
+  --control-incorrect: var(--color-error);
+  --touch-center: color-mix(
     in srgb,
-    var(--control-lamp-on) 32%,
-    transparent
+    var(--control-face) 92%,
+    var(--control-edge)
+  );
+  --touch-rim: color-mix(
+    in srgb,
+    var(--control-face) 45%,
+    var(--color-surface-warm)
   );
 }
 
@@ -18,44 +24,31 @@
   gap: 0.5rem;
 }
 
-.radio,
-.selector {
-  min-height: 2.75rem;
-  cursor: pointer;
-  font: inherit;
-  color: var(--color-ink);
-  border: 1px solid var(--control-edge);
-  border-radius: 3px;
-  background: var(--control-face);
-  box-shadow: 0 2px 0 var(--control-edge);
+.choiceGrid[data-layout="half"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .radio {
   display: grid;
-  grid-template-columns: 0.75rem 1fr;
-  gap: 0.75rem;
+  min-width: 0;
+  min-height: 2rem;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: 0.5rem;
   align-items: center;
   width: 100%;
-  padding: 0.65rem 0.8rem;
+  padding: 2px 0.5rem 2px 2px;
+  cursor: pointer;
+  font: inherit;
   text-align: left;
-}
-
-.radio:active:not(:disabled),
-.selector:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: none;
-}
-
-.engaged {
-  border-color: var(--control-lamp-on);
-  box-shadow:
-    0 2px 0 var(--control-edge),
-    inset 0 0 0 2px var(--control-selected-halo);
+  color: var(--control-face);
+  border: 0;
+  border-radius: 4px;
+  background: var(--control-edge);
 }
 
 .radio:focus-visible,
 .selector:focus-visible {
-  outline: 2px solid var(--control-lamp-on);
+  outline: 2px solid var(--control-selected);
   outline-offset: 2px;
 }
 
@@ -64,50 +57,105 @@
   cursor: default;
 }
 
+.switch {
+  --switch-color: var(--control-face);
+
+  position: relative;
+  display: grid;
+  width: 4rem;
+  height: 2.5rem;
+  overflow: hidden;
+  place-items: center;
+  border: 2px solid var(--control-edge);
+  border-radius: 2px;
+  background-color: var(--switch-color);
+  transition:
+    background-color 240ms ease,
+    box-shadow 240ms ease,
+    transform 240ms ease;
+}
+
+.switch::before {
+  position: absolute;
+  inset: -30%;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--switch-color) 78%, var(--control-face)),
+    color-mix(in srgb, var(--switch-color) 88%, var(--control-edge)),
+    color-mix(in srgb, var(--switch-color) 76%, var(--control-face))
+  );
+  background-position: 10% 35%;
+  background-size: 220% 220%;
+  content: "";
+  transition: filter 240ms ease;
+}
+
+.selected .switch,
+.correct .switch,
+.incorrect .switch {
+  transform: translateY(1px);
+  box-shadow: inset 0 3px 5px var(--control-shadow);
+}
+
+.selected .switch {
+  --switch-color: var(--control-selected);
+}
+
+.correct .switch {
+  --switch-color: var(--control-correct);
+}
+
+.incorrect .switch {
+  --switch-color: var(--control-incorrect);
+}
+
+.selected .switch::before,
+.correct .switch::before,
+.incorrect .switch::before {
+  animation: switch-flow 8s ease-in-out infinite alternate;
+}
+
 .lamp {
   position: relative;
-  width: 0.7rem;
-  height: 0.7rem;
-  border: 1px solid var(--control-edge);
+  z-index: 1;
+  width: auto;
+  height: 72%;
+  aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--control-lamp-off);
-  box-shadow: inset 0 1px 2px var(--control-shadow);
-}
-
-.engaged .lamp {
-  background: var(--control-lamp-on);
+  background: radial-gradient(
+    circle,
+    var(--touch-center) 0%,
+    var(--control-face) 48%,
+    var(--touch-rim) 74%,
+    var(--control-face) 100%
+  );
   box-shadow:
-    0 0 0 3px var(--control-selected-halo),
-    inset 0 1px 1px
-      color-mix(in srgb, var(--color-surface-warm) 30%, transparent);
+    0 2px 4px var(--control-shadow),
+    inset 0 2px 4px color-mix(in srgb, var(--control-edge) 20%, transparent),
+    inset 0 -2px 3px
+      color-mix(in srgb, var(--color-surface-warm) 18%, transparent);
 }
 
-.engaged .lamp::after {
-  position: absolute;
-  width: 0.2rem;
-  height: 0.2rem;
-  border-radius: 50%;
-  background: var(--control-face);
-  content: "";
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
-}
-
+.radioText,
 .radioLabel,
 .radioDetail {
   display: block;
+  min-width: 0;
 }
 
 .radioLabel {
-  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+  font-size: 1.1rem;
   font-weight: 650;
+  line-height: 1.1;
   text-transform: capitalize;
 }
 
 .radioDetail {
-  margin-top: 0.15rem;
-  color: var(--color-muted);
-  font-size: 0.68rem;
+  margin-top: 0.25rem;
+  color: var(--color-rule);
+  font-size: 0.62rem;
+  line-height: 1.15;
 }
 
 .composer {
@@ -121,6 +169,7 @@
   overflow: hidden;
   font-size: 1.15rem;
   font-weight: 700;
+  line-height: 1;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -154,21 +203,61 @@
 
 .selector {
   min-width: 2.65rem;
+  min-height: 2.75rem;
   flex: 1 1 2.65rem;
   padding: 0.45rem;
+  cursor: pointer;
+  font: inherit;
   font-size: 0.78rem;
+  line-height: 1;
   text-transform: capitalize;
+  color: var(--color-ink);
+  border: 1px solid var(--control-edge);
+  border-radius: 2px;
+  background: var(--control-face);
+  box-shadow: 0 2px 0 var(--control-edge);
 }
 
-@media (min-width: 480px) {
-  .choiceGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.selector:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.selector.engaged {
+  border-color: var(--control-selected);
+  background: var(--control-selected);
+  box-shadow: inset 0 2px 4px var(--control-shadow);
+}
+
+@keyframes switch-flow {
+  0% {
+    background-position: 10% 35%;
+    filter: brightness(0.96) saturate(0.94);
+    transform: rotate(-2deg) scale(1.03);
+  }
+
+  50% {
+    background-position: 88% 62%;
+    filter: brightness(1.06) saturate(1.04);
+    transform: rotate(2deg) scale(1.07);
+  }
+
+  100% {
+    background-position: 35% 88%;
+    filter: brightness(1) saturate(1);
+    transform: rotate(-1deg) scale(1.04);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .radio,
-  .selector {
+  .selected .switch::before,
+  .correct .switch::before,
+  .incorrect .switch::before {
+    animation: none;
+  }
+
+  .switch,
+  .switch::before {
     transition: none;
   }
 }

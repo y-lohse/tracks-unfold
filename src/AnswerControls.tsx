@@ -7,6 +7,7 @@ import {
   noteKey,
   type Accidental,
   type AnswerChoice,
+  type AnswerResult,
   type NavigationQuestion,
   type NoteLetter,
   type SubmittedAnswer,
@@ -17,8 +18,11 @@ type AnswerControlsProps = {
   question: NavigationQuestion;
   disabled: boolean;
   selected: SubmittedAnswer | null;
+  result: AnswerResult | null;
   onSelect: (answer: SubmittedAnswer | null) => void;
 };
+
+type RadioState = "idle" | "selected" | "correct" | "incorrect";
 
 function choiceToAnswer(choice: AnswerChoice): SubmittedAnswer {
   if (choice.kind === "note") return { kind: "note", value: choice.note };
@@ -50,28 +54,31 @@ function isSelected(choice: AnswerChoice, selected: SubmittedAnswer | null) {
 }
 
 function RadioButton({
-  active,
   disabled,
   label,
   detail,
   onClick,
+  state,
 }: {
-  active: boolean;
   disabled: boolean;
   label: string;
   detail?: string;
   onClick: () => void;
+  state: RadioState;
 }) {
   return (
     <button
-      aria-pressed={active}
-      className={`${styles.radio} ${active ? styles.engaged : ""}`}
+      aria-pressed={state === "selected"}
+      className={`${styles.radio} ${styles[state]}`}
+      data-answer-state={state}
       disabled={disabled}
       onClick={onClick}
       type="button"
     >
-      <span className={styles.lamp} aria-hidden="true" />
-      <span>
+      <span className={styles.switch} aria-hidden="true">
+        <span className={styles.lamp} />
+      </span>
+      <span className={styles.radioText}>
         <span className={styles.radioLabel}>{label}</span>
         {detail ? <span className={styles.radioDetail}>{detail}</span> : null}
       </span>
@@ -83,24 +90,55 @@ function CuratedChoices({
   question,
   disabled,
   selected,
+  result,
   onSelect,
 }: AnswerControlsProps) {
   if (question.choices.mode !== "curated") return null;
 
   return (
-    <div className={styles.choiceGrid} aria-label="Answer choices">
-      {question.choices.options.map((choice) => (
-        <RadioButton
-          active={isSelected(choice, selected)}
-          detail={choice.kind === "namedInterval" ? choice.reminder : undefined}
-          disabled={disabled}
-          key={choice.id}
-          label={choice.label}
-          onClick={() => onSelect(choiceToAnswer(choice))}
-        />
-      ))}
+    <div
+      className={styles.choiceGrid}
+      data-layout={question.choices.options.length === 3 ? "full" : "half"}
+      aria-label="Answer choices"
+    >
+      {question.choices.options.map((choice) => {
+        const selectedChoice = isSelected(choice, selected);
+        const correctChoice = isSelected(choice, choiceToAnswerFor(question));
+        const state: RadioState = result
+          ? correctChoice
+            ? "correct"
+            : selectedChoice
+              ? "incorrect"
+              : "idle"
+          : selectedChoice
+            ? "selected"
+            : "idle";
+
+        return (
+          <RadioButton
+            detail={
+              choice.kind === "namedInterval" ? choice.reminder : undefined
+            }
+            disabled={disabled}
+            key={choice.id}
+            label={choice.label}
+            onClick={() => onSelect(choiceToAnswer(choice))}
+            state={state}
+          />
+        );
+      })}
     </div>
   );
+}
+
+function choiceToAnswerFor(question: NavigationQuestion): SubmittedAnswer {
+  if (question.answer.kind === "note") {
+    return { kind: "note", value: question.answer.note };
+  }
+  if (question.answer.kind === "numericalDistance") {
+    return { kind: "numericalDistance", value: question.answer.value };
+  }
+  return { kind: "namedInterval", value: question.answer.interval.id };
 }
 
 const noteLetters = ["A", "B", "C", "D", "E", "F", "G"] as const;
@@ -285,7 +323,6 @@ function FullIntervalControl({
         {tritone ? "Tritone" : (selectedInterval?.name ?? "—")}
       </output>
       <RadioButton
-        active={tritone}
         disabled={disabled}
         label="Tritone"
         onClick={() => {
@@ -294,6 +331,7 @@ function FullIntervalControl({
           setNumber(null);
           onSelect({ kind: "namedInterval", value: "tritone" });
         }}
+        state={tritone ? "selected" : "idle"}
       />
       <SelectorBank
         disabled={disabled}

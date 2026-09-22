@@ -3,6 +3,7 @@
 ## Scope
 
 - Build only abstractions required by current behavior. Do not add placeholder services, stores, routers, or domain layers for anticipated features.
+- Existing reuse is a current requirement, not speculative architecture. When multiple current call sites share a meaningful behavioral or visual contract, extract a focused shared component or module instead of keeping the implementation local. Keep its API limited to capabilities those call sites need; do not add hypothetical variants or configuration.
 - The application targets current mobile browsers, with portrait phone layouts as the primary design target.
 
 ## Styling

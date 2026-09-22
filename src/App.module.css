@@ -5,7 +5,7 @@
   --positive-signal: var(--color-success);
   --negative-signal: var(--color-error);
   --question-screen: var(--color-ink);
-  --question-text: var(--color-surface-warm);
+  --question-text: #fff;
 
   min-height: 100svh;
   color: var(--color-ink);
@@ -22,19 +22,88 @@
   min-height: 100svh;
   margin: 0 auto;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.75rem;
 }
 
 .runStatus {
+  position: relative;
   display: flex;
+  min-height: 22px;
+  align-items: center;
   justify-content: space-between;
-  margin: 1rem 1rem 0;
-  padding-bottom: 0.65rem;
-  font-size: 0.72rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--color-rule);
+  margin: 0.25rem 1rem 0;
+}
+
+.lives,
+.puzzleVents,
+.ventGroup {
+  display: flex;
+  align-items: center;
+}
+
+.lives {
+  gap: 0.25rem;
+}
+
+.lifeActive,
+.lifeLost {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-ink);
+  border-radius: 1px;
+}
+
+.lifeActive {
+  background: var(--positive-signal);
+}
+
+.lifeLost {
+  background: var(--negative-signal);
+}
+
+.puzzleVents {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  gap: 0.5rem;
+  transform: translate(-50%, -50%);
+}
+
+.ventGroup {
+  gap: 0.18rem;
+}
+
+.vent {
+  width: 3px;
+  height: 22px;
+  border-radius: 1px;
+  background: var(--color-ink);
+}
+
+.exitRun {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  padding: 2px;
+  cursor: pointer;
+  place-items: center;
+  color: var(--color-ink);
+  border: 0;
+  background: transparent;
+}
+
+.exitRun svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: square;
+  stroke-width: 1.5;
+}
+
+.exitRun:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .debugAssessments {
@@ -95,15 +164,19 @@
 }
 
 .question h1 {
+  display: flex;
   box-sizing: border-box;
   width: min(calc(100% - 2rem), 34rem);
-  min-height: 4.5rem;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   font-size: clamp(0.9rem, 4vw, 1.2rem);
   font-weight: 650;
-  line-height: 1.45;
+  line-height: 1;
   letter-spacing: 0.055em;
+  text-align: center;
   text-transform: uppercase;
   color: var(--question-text);
   background: var(--question-screen);
@@ -116,67 +189,24 @@
   margin: auto auto 1rem;
 }
 
-.action {
-  min-height: 3rem;
-  padding: 0.65rem 1rem;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--panel-surface);
-  border: 1px solid var(--panel-edge);
-  border-radius: 3px;
-  background: var(--panel-edge);
-  box-shadow: 0 3px 0 var(--color-muted);
-}
-
-.action:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: none;
-}
-
-.action:focus-visible,
 .textButton:focus-visible,
 .reset:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
-.action:disabled {
-  cursor: not-allowed;
-  opacity: 0.38;
-}
-
 .feedback {
   box-sizing: border-box;
   width: min(calc(100% - 2rem), 34rem);
   margin: 0 auto;
-  padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--color-rule);
-  border-left: 4px solid;
-  background: var(--panel-surface);
-}
-
-.feedback strong {
-  display: block;
-  font-size: 0.82rem;
+  padding: 0.65rem 1rem 0;
 }
 
 .feedback p {
-  margin: 0.45rem 0 0;
+  margin: 0;
   color: var(--color-muted);
   font-size: 0.75rem;
-  line-height: 1.5;
-}
-
-.correct {
-  border-color: var(--positive-signal);
-}
-
-.incorrect {
-  border-color: var(--negative-signal);
+  line-height: 1.45;
 }
 
 .centeredScreen {
@@ -206,7 +236,7 @@
   line-height: 1.55;
 }
 
-.panel > .action {
+.panelAction {
   margin-top: 2rem;
 }
 
@@ -261,10 +291,4 @@
 
 .resultActions .textButton {
   justify-self: center;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .action {
-    transition: none;
-  }
 }

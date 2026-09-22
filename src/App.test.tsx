@@ -37,8 +37,11 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
     fireEvent.click(screen.getByRole("button", { name: "Begin run" }));
 
-    expect(screen.getByText("Lives 3")).toBeInTheDocument();
-    expect(screen.getByText("Puzzle 1")).toBeInTheDocument();
+    expect(screen.getByLabelText("3 lives remaining")).toBeInTheDocument();
+    const puzzleVents = screen.getByLabelText("Puzzle 1");
+    expect(puzzleVents).toBeInTheDocument();
+    expect(puzzleVents.firstElementChild?.children).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Exit run" })).toBeEnabled();
     expect(document.querySelectorAll('[aria-label^="Octave "]')).toHaveLength(
       1,
     );
@@ -64,7 +67,17 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Submit" }));
 
     expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(
+      document.querySelectorAll('[data-answer-state="correct"]'),
+    ).toHaveLength(1);
+    expect(screen.queryByText("Correct")).not.toBeInTheDocument();
+    expect(screen.queryByText("Mistake")).not.toBeInTheDocument();
     expect(synth.noteOn).toHaveBeenCalledOnce();
     expect(window.localStorage.length).toBe(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Exit run" }));
+    expect(
+      screen.getByRole("button", { name: /note navigation/i }),
+    ).toBeInTheDocument();
   });
 });
