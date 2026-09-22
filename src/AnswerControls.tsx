@@ -107,11 +107,18 @@ function CuratedChoices({
   onSelect,
 }: AnswerControlsProps) {
   if (question.choices.mode !== "curated") return null;
+  const hasIntervalTranslations = question.choices.options.some(
+    (choice) => choice.kind === "namedInterval" && choice.reminder,
+  );
 
   return (
     <div
       className={styles.choiceGrid}
-      data-layout={question.choices.options.length === 3 ? "full" : "half"}
+      data-layout={
+        question.choices.options.length === 3 || hasIntervalTranslations
+          ? "full"
+          : "half"
+      }
       aria-label="Answer choices"
     >
       {question.choices.options.map((choice) => {

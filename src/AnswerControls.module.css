@@ -136,7 +136,14 @@
       color-mix(in srgb, var(--color-surface-warm) 18%, transparent);
 }
 
-.radioText,
+.radioText {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
 .radioLabel,
 .radioDetail {
   display: block;
@@ -145,17 +152,16 @@
 
 .radioLabel {
   overflow-wrap: anywhere;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 650;
   line-height: 1.1;
   text-transform: capitalize;
 }
 
 .radioDetail {
-  margin-top: 0.25rem;
   color: var(--color-rule);
-  font-size: 0.62rem;
-  line-height: 1.15;
+  font-size: 0.85rem;
+  line-height: 1.1;
 }
 
 .composer {
