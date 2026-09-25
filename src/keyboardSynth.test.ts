@@ -26,6 +26,14 @@ beforeEach(() => {
 });
 
 describe("keyboardSynth", () => {
+  it("unlocks audio from an initiating user gesture", async () => {
+    tone.start.mockResolvedValue();
+
+    await keyboardSynth.unlock();
+
+    expect(tone.start).toHaveBeenCalledOnce();
+  });
+
   it("attacks and releases a note after audio starts", async () => {
     tone.start.mockResolvedValue();
 

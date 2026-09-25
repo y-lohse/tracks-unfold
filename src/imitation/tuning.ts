@@ -1,32 +1,20 @@
-import { MIDI_B5, MIDI_C3 } from "../music";
-import { clampUnit } from "../utils/numbers";
+import type { RunDirectorTuning } from "../run/director";
 import type { SkillAssessment } from "./types";
 
-export const NOTE_NAVIGATION_TUNING = {
-  displayMidiMin: MIDI_C3,
-  displayMidiMax: MIDI_B5,
-  singleRegisterOctave: 4,
-  navigationMilestoneCount: 11,
-  intervalProgressionSteps: 12,
-  curatedChoiceThresholds: {
-    four: 0.34,
-    six: 0.67,
-    full: 1,
+/** Numerical values here are provisional and intended for playtesting. */
+export const IMITATION_TUNING = {
+  provisional: true,
+  generation: {
+    maximumAttempts: 128,
   },
-  assessment: {
-    curatedChoiceSupport: {
-      three: 0.35,
-      four: 0.25,
-      six: 0.12,
-      full: 0,
-    },
-    unsupportedNamedNumericalWeight: 0.25,
-    unsupportedNamedVocabularyWeight: 0.75,
+  focusConvergence: {
+    startsAtChallenge: 0,
+    completesAtChallenge: 0.8,
   },
   director: {
     initialLives: 3,
     ceilingCorrectAnswersRequired: 3,
-    ceilingPuzzle: 13,
+    ceilingPuzzle: 15,
     pressureExponent: 3.2,
     familiarProficiency: 0.45,
     familiarCertainty: 0.4,
@@ -44,15 +32,13 @@ export const NOTE_NAVIGATION_TUNING = {
     surprisePenaltyRate: 0.18,
     surpriseChallengeGap: 0.2,
     expectedSuccessSlope: 4,
-  },
+  } satisfies RunDirectorTuning,
   defaultAssessment: {
     proficiency: 0,
     certainty: 0,
   } satisfies SkillAssessment,
   persistence: {
-    key: "tracks-unfold.note-navigation.profile",
+    key: "tracks-unfold.imitation.profile",
     version: 1,
   },
 } as const;
-
-export const clamp01 = clampUnit;

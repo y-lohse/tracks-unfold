@@ -32,6 +32,17 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "Begin run" })).toBeEnabled();
   });
 
+  it("opens Imitation as a playable second area", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /imitation/i }));
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Imitation" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Begin run" })).toBeEnabled();
+  });
+
   it("starts a three-life run and requires selection before submission", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));

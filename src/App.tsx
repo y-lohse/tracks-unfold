@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 
 import { AnswerControls } from "./AnswerControls";
 import { Button } from "./Button";
+import { ImitationGame } from "./imitation/ImitationGame";
 import { MainMenu } from "./MainMenu";
 import { PuzzleKeyboard } from "./PuzzleKeyboard";
 import { keyboardSynth } from "./keyboardSynth";
+import { RunShell } from "./run";
 import {
   NOTE_NAVIGATION_TUNING,
   SKILLS,
@@ -29,7 +31,7 @@ import {
 } from "./noteNavigation";
 import styles from "./App.module.css";
 
-type AppScreen = "menu" | "introduction" | "run" | "results";
+type AppScreen = "menu" | "introduction" | "run" | "results" | "imitation";
 
 type RunSession = {
   run: RunState;
@@ -128,41 +130,6 @@ function playReveal(question: NavigationQuestion) {
   }, 760);
 }
 
-function Lives({ remaining }: { remaining: number }) {
-  return (
-    <div className={styles.lives} aria-label={`${remaining} lives remaining`}>
-      {[0, 1, 2].map((index) => (
-        <span
-          aria-hidden="true"
-          className={index < remaining ? styles.lifeActive : styles.lifeLost}
-          key={index}
-        />
-      ))}
-    </div>
-  );
-}
-
-function PuzzleVents({ count }: { count: number }) {
-  const groups = Array.from({ length: Math.ceil(count / 5) }, (_, group) =>
-    Array.from(
-      { length: Math.min(5, count - group * 5) },
-      (_, index) => group * 5 + index + 1,
-    ),
-  );
-
-  return (
-    <div className={styles.puzzleVents} aria-label={`Puzzle ${count}`}>
-      {groups.map((group) => (
-        <span className={styles.ventGroup} key={group[0]}>
-          {group.map((puzzle) => (
-            <span aria-hidden="true" className={styles.vent} key={puzzle} />
-          ))}
-        </span>
-      ))}
-    </div>
-  );
-}
-
 function RunView({
   session,
   onSelect,
@@ -182,45 +149,9 @@ function RunView({
     session.run.puzzlesPresented + (feedback === null ? 1 : 0);
 
   return (
-    <main className={styles.runScreen}>
-      <div className={styles.runShell}>
-        <header className={styles.runStatus}>
-          <Lives remaining={session.run.lives} />
-          <PuzzleVents count={puzzleNumber} />
-          <button
-            aria-label="Exit run"
-            className={styles.exitRun}
-            onClick={onExit}
-            type="button"
-          >
-            <svg aria-hidden="true" viewBox="0 0 16 16">
-              <path d="M3 3l10 10M13 3L3 13" />
-            </svg>
-          </button>
-        </header>
-
-        <section className={styles.question} aria-labelledby="question-prompt">
-          <PuzzleKeyboard
-            destination={destination}
-            octaves={
-              session.question.keyboardMode === "singleRegister"
-                ? [NOTE_NAVIGATION_TUNING.singleRegisterOctave]
-                : [3, 4, 5]
-            }
-            revealDestinationLabel={
-              session.question.form === "reverse" || feedback !== null
-            }
-            start={session.question.start}
-          />
-          <h1 id="question-prompt">{questionPrompt(session.question)}</h1>
-          {feedback && !feedback.correct ? (
-            <div className={styles.feedback} role="status">
-              <p>{wrongAnswerExplanation(session.question)}</p>
-            </div>
-          ) : null}
-        </section>
-
-        <section className={styles.answerArea} aria-label="Answer">
+    <RunShell
+      answer={
+        <>
           <AnswerControls
             disabled={feedback !== null}
             key={session.question.id}
@@ -229,7 +160,6 @@ function RunView({
             result={session.result}
             selected={session.selected}
           />
-
           {feedback ? (
             <Button onClick={onContinue}>Continue</Button>
           ) : (
@@ -237,9 +167,43 @@ function RunView({
               Submit
             </Button>
           )}
-        </section>
-      </div>
-    </main>
+        </>
+      }
+      lives={session.run.lives}
+      onExit={onExit}
+      puzzleNumber={puzzleNumber}
+      question={
+        <>
+          <PuzzleKeyboard
+            markers={[
+              {
+                label: renderNote(session.question.start),
+                pitch: noteToMidi(session.question.start),
+                role: "primary",
+              },
+              {
+                ...(session.question.form === "reverse" || feedback !== null
+                  ? { label: renderNote(destination) }
+                  : {}),
+                pitch: noteToMidi(destination),
+                role: "secondary",
+              },
+            ]}
+            octaves={
+              session.question.keyboardMode === "singleRegister"
+                ? [NOTE_NAVIGATION_TUNING.singleRegisterOctave]
+                : [3, 4, 5]
+            }
+          />
+          <h1 id="question-prompt">{questionPrompt(session.question)}</h1>
+          {feedback && !feedback.correct ? (
+            <div className={styles.feedback} role="status">
+              <p>{wrongAnswerExplanation(session.question)}</p>
+            </div>
+          ) : null}
+        </>
+      }
+    />
   );
 }
 
@@ -379,7 +343,15 @@ export function App() {
   };
 
   if (screen === "menu") {
-    return <MainMenu onOpenNoteNavigation={() => setScreen("introduction")} />;
+    return (
+      <MainMenu
+        onOpenImitation={() => setScreen("imitation")}
+        onOpenNoteNavigation={() => setScreen("introduction")}
+      />
+    );
+  }
+  if (screen === "imitation") {
+    return <ImitationGame onExit={() => setScreen("menu")} />;
   }
   if (screen === "introduction") {
     return (

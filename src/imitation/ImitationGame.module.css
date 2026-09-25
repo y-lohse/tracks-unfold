@@ -1,0 +1,352 @@
+.panel,
+.puzzleConsole {
+  --imitation-face: var(--color-instrument-face);
+  --imitation-edge: var(--color-ink);
+  --imitation-selected: var(--color-accent);
+  --imitation-exact: var(--color-success);
+  --imitation-error: var(--color-error);
+  --imitation-near: var(--palette-yellow);
+  --imitation-variation: var(--color-display);
+  --reference-action: var(--palette-blue);
+  --imitation-shadow: color-mix(in srgb, var(--color-ink) 24%, transparent);
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--imitation-edge);
+  background: var(--imitation-face);
+  box-shadow: 0 0.5rem 0 var(--imitation-edge);
+}
+
+.panel h1,
+.panel p {
+  margin: 0;
+}
+
+.panel h1 {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.panel p {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.eyebrow {
+  font-size: 0.65rem !important;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.primaryAction {
+  margin-top: 0.5rem;
+}
+
+.textButton,
+.resetButton {
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-ink);
+  border: 0;
+  background: transparent;
+}
+
+.textButton,
+.resetButton {
+  justify-self: start;
+  font-size: 0.72rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.resetButton {
+  color: var(--color-muted);
+}
+
+.textButton:focus-visible,
+.resetButton:focus-visible,
+.slot:focus-visible {
+  outline: 2px solid var(--imitation-selected);
+  outline-offset: 2px;
+}
+
+.profileSummary,
+.skillResults {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.profileSummary div,
+.skillResults div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.profileSummary dt,
+.skillResults dt {
+  color: var(--color-muted);
+  font-size: 0.7rem;
+}
+
+.profileSummary dd,
+.skillResults dd {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.profileSummary dd::after {
+  content: "%";
+}
+
+.skillResults dd {
+  display: grid;
+  gap: 0.2rem;
+  text-align: right;
+}
+
+.resultActions,
+.actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.puzzleConsole {
+  display: grid;
+  width: min(calc(100% - 2rem), 34rem);
+  gap: 0.65rem;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.slots {
+  display: grid;
+  min-width: 0;
+  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slots[data-slot-count="4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.slotItem {
+  display: flex;
+  min-width: 0;
+}
+
+.slot {
+  --slot-signal: var(--imitation-face);
+
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 6rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.3rem;
+  box-sizing: border-box;
+  padding: 0.55rem 0.4rem;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-ink);
+  border: 1px solid var(--imitation-edge);
+  border-radius: 2px;
+  background: var(--slot-signal);
+  box-shadow: 0 2px 0 var(--imitation-edge);
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.slot[aria-pressed="true"] {
+  --slot-signal: color-mix(
+    in srgb,
+    var(--imitation-selected) 44%,
+    var(--imitation-face)
+  );
+
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 3px var(--imitation-shadow);
+}
+
+.slot::after {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 0.4rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--imitation-edge);
+  content: "";
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 80ms ease,
+    transform 80ms ease;
+}
+
+.slot[data-playback-source="reference"]::after,
+.slot[data-playback-source="target"]::after,
+.slot[data-playback-source="response"]::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.slot[data-playback-source="anchor"] {
+  box-shadow:
+    inset 0 0 0 3px var(--imitation-selected),
+    0 2px 0 var(--imitation-edge),
+    0 0 0 3px color-mix(in srgb, var(--imitation-selected) 42%, transparent);
+}
+
+.slot[data-review-state="exact"] {
+  --slot-signal: var(--imitation-exact);
+
+  color: var(--color-on-success);
+}
+
+.slot[data-review-state="variation"] {
+  --slot-signal: color-mix(
+    in srgb,
+    var(--imitation-variation) 18%,
+    var(--imitation-face)
+  );
+}
+
+.slot[data-review-state="near"] {
+  --slot-signal: color-mix(
+    in srgb,
+    var(--imitation-near) 58%,
+    var(--imitation-face)
+  );
+}
+
+.slot[data-review-state="error"] {
+  --slot-signal: var(--imitation-error);
+}
+
+.slot[data-review-state="anchor"] {
+  --slot-signal: color-mix(
+    in srgb,
+    var(--imitation-selected) 28%,
+    var(--imitation-face)
+  );
+}
+
+.slot:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.slotPitch {
+  display: flex;
+  min-height: 1.1rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.18rem;
+  font-size: clamp(0.85rem, 3.8vw, 1.05rem);
+  line-height: 1.1;
+}
+
+.enteredPitch,
+.expectedPitch {
+  padding: 0.08rem 0.18rem;
+  border-radius: 2px;
+  transition:
+    color 100ms ease,
+    background-color 100ms ease,
+    box-shadow 100ms ease,
+    transform 100ms ease;
+}
+
+.slot[data-playback-source="target"] .expectedPitch,
+.slot[data-playback-source="target"] .enteredPitch:only-child,
+.slot[data-playback-source="response"] .enteredPitch {
+  color: var(--color-ink);
+  background: var(--color-surface-warm);
+  box-shadow: 0 0 0 2px var(--imitation-edge);
+  transform: scale(1.12);
+}
+
+.pitchArrow {
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+.expectedPitch {
+  font-weight: 800;
+}
+
+.relationship {
+  display: block;
+  margin: auto 0;
+  font-size: clamp(0.68rem, 2.8vw, 0.78rem);
+  font-weight: 750;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.liveMessage {
+  min-height: 1rem;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.62rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.referenceButton {
+  --button-base: var(--reference-action);
+
+  justify-content: space-between;
+}
+
+.referenceButton strong {
+  min-width: 1.5rem;
+  font-size: 0.92rem;
+}
+
+.auditionAllowance {
+  margin: -0.55rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.62rem;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.auditionAllowance strong {
+  color: var(--color-ink);
+  font-size: 0.78rem;
+}
+
+.actions {
+  grid-template-columns: 1fr;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot,
+  .enteredPitch,
+  .expectedPitch {
+    transition: none;
+  }
+}

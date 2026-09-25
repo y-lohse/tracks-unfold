@@ -1,9 +1,10 @@
 .instrument {
   --key-face: var(--color-instrument-face);
-  --start-flow-deep: var(--color-accent);
-  --start-flow-light: var(--palette-peach);
-  --destination-flow-deep: var(--palette-blue);
-  --destination-flow-light: var(--palette-mint);
+  --primary-flow-deep: var(--color-accent);
+  --primary-flow-light: var(--palette-peach);
+  --secondary-flow-deep: var(--palette-blue);
+  --secondary-flow-light: var(--palette-mint);
+  --sounding-ring: var(--color-success);
   --white-touch-center: color-mix(
     in srgb,
     var(--key-face) 92%,
@@ -75,9 +76,13 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  padding: 0;
+  border: 0;
   border-radius: 2px;
   color: var(--black-touch-edge);
+  font: inherit;
   background: var(--key-face);
+  appearance: none;
 }
 
 .whiteKey,
@@ -139,8 +144,8 @@
   );
 }
 
-.start::before,
-.destination::before {
+.primary::before,
+.secondary::before {
   position: absolute;
   inset: -24%;
   background-position: 15% 35%;
@@ -149,25 +154,47 @@
   animation: key-flow 8s ease-in-out infinite alternate;
 }
 
-.start::before {
+.primary::before {
   background-image: linear-gradient(
     128deg,
-    var(--start-flow-deep) 0%,
-    var(--start-flow-light) 38%,
-    var(--start-flow-deep) 67%,
-    var(--start-flow-light) 100%
+    var(--primary-flow-deep) 0%,
+    var(--primary-flow-light) 38%,
+    var(--primary-flow-deep) 67%,
+    var(--primary-flow-light) 100%
   );
 }
 
-.destination::before {
+.secondary::before {
   background-image: linear-gradient(
     48deg,
-    var(--destination-flow-deep) 0%,
-    var(--destination-flow-light) 42%,
-    var(--destination-flow-deep) 72%,
-    var(--destination-flow-light) 100%
+    var(--secondary-flow-deep) 0%,
+    var(--secondary-flow-light) 42%,
+    var(--secondary-flow-deep) 72%,
+    var(--secondary-flow-light) 100%
   );
   animation-delay: -4s;
+}
+
+.key:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.unavailable {
+  cursor: default;
+}
+
+.unavailable .dot {
+  opacity: 0.45;
+}
+
+.sounding .dot {
+  box-shadow:
+    0 0 0 2px var(--sounding-ring),
+    0 2px 4px var(--touch-cast-shadow),
+    0 -1px 2px var(--touch-top-highlight),
+    inset 0 2px 4px var(--touch-inner-shadow),
+    inset 0 -2px 3px var(--touch-inner-highlight);
 }
 
 .label {
@@ -205,8 +232,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .start::before,
-  .destination::before {
+  .primary::before,
+  .secondary::before {
     animation: none;
   }
 }

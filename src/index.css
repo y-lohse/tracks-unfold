@@ -2,6 +2,7 @@
 
 :root {
   --palette-black: #000000;
+  --palette-white: #ffffff;
   --palette-parchment: #f5e8d5;
   --palette-ivory: #eef1db;
   --palette-bone: #e3e1c9;
@@ -27,6 +28,7 @@
   --color-muted: var(--palette-slate);
   --color-accent: var(--palette-dusty-rose);
   --color-success: var(--palette-green);
+  --color-on-success: var(--palette-white);
   --color-error: var(--palette-coral);
   --color-display: var(--palette-mint);
   --font-sans:

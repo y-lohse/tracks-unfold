@@ -9,6 +9,10 @@ function getSynth() {
   return synth;
 }
 
+function unlock(): Promise<void> {
+  return start();
+}
+
 function noteOn(pitch: string) {
   activePitches.add(pitch);
   const instrument = getSynth();
@@ -43,4 +47,4 @@ function releaseAll() {
   }
 }
 
-export const keyboardSynth = { noteOn, noteOff, releaseAll };
+export const keyboardSynth = { unlock, noteOn, noteOff, releaseAll };

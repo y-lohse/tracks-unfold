@@ -241,6 +241,11 @@
   fill: color-mix(in srgb, var(--compass-panel) 10%, transparent);
 }
 
+.areaButtons {
+  display: grid;
+  gap: 0.55rem;
+}
+
 .navigationButton {
   display: grid;
   width: 100%;

@@ -1,3 +1,10 @@
+import type {
+  RunProfile,
+  RunState as SharedRunState,
+  RunStatus as SharedRunStatus,
+  SkillAssessment as SharedSkillAssessment,
+} from "../run/director";
+
 export const SKILLS = [
   "numericalDestination",
   "numericalDistance",
@@ -54,12 +61,9 @@ export interface GenerationRepertoire {
   readonly edgeEnharmonics: boolean;
 }
 
-export interface SkillAssessment {
-  readonly proficiency: number;
-  readonly certainty: number;
-}
+export type SkillAssessment = SharedSkillAssessment;
 
-export type PlayerProfile = Readonly<Record<Skill, SkillAssessment>>;
+export type PlayerProfile = RunProfile<Skill>;
 
 export interface SkillDemand {
   readonly skill: Skill;
@@ -169,20 +173,9 @@ export interface AnswerResult {
   readonly proficiencyChanges: readonly SkillProficiencyChange[];
 }
 
-export type RunStatus = "active" | "succeeded" | "failed";
+export type RunStatus = SharedRunStatus;
 
-export interface RunState {
-  readonly runId: string;
-  readonly status: RunStatus;
-  readonly lives: number;
-  readonly puzzlesPresented: number;
-  readonly ceilingCorrectAnswers: number;
-  readonly focus: readonly Skill[];
-  readonly focusWeights: Readonly<Record<Skill, number>>;
-  readonly startingChallenge: Readonly<Record<Skill, number>>;
-  readonly assignedChallenge: Readonly<Record<Skill, number>>;
-  readonly profile: PlayerProfile;
-}
+export type RunState = SharedRunState<Skill>;
 
 export interface AnswerTransition {
   readonly state: RunState;

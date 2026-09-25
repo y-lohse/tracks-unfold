@@ -3,7 +3,6 @@ import { type CSSProperties } from "react";
 import styles from "./MainMenu.module.css";
 
 const dormantAreas = [
-  "Imitation",
   "Tonal contours",
   "Rhythm performance",
   "Interval identification",
@@ -35,6 +34,7 @@ type StationStyle = CSSProperties & {
 
 type MainMenuProps = {
   onOpenNoteNavigation?: () => void;
+  onOpenImitation?: () => void;
 };
 
 const routeDuration = 13;
@@ -202,16 +202,26 @@ function NoteCompass() {
   );
 }
 
-function NavigationButton({ onClick }: { onClick?: () => void }) {
+function AreaButton({
+  index,
+  label,
+  name,
+  onClick,
+}: {
+  index: string;
+  label?: string;
+  name: string;
+  onClick?: () => void;
+}) {
   return (
     <button
-      aria-label="Open Note navigation"
+      aria-label={`Open ${label ?? name}`}
       className={styles.navigationButton}
       onClick={onClick}
       type="button"
     >
-      <span className={styles.buttonIndex}>01</span>
-      <span className={styles.buttonTitle}>Navigation</span>
+      <span className={styles.buttonIndex}>{index}</span>
+      <span className={styles.buttonTitle}>{name}</span>
       <span className={styles.buttonArrow} aria-hidden="true">
         →
       </span>
@@ -219,7 +229,10 @@ function NavigationButton({ onClick }: { onClick?: () => void }) {
   );
 }
 
-export function MainMenu({ onOpenNoteNavigation }: MainMenuProps) {
+export function MainMenu({
+  onOpenNoteNavigation,
+  onOpenImitation,
+}: MainMenuProps) {
   return (
     <main
       className={`${styles.menu} bg-canvas text-ink min-h-svh px-4 py-8 sm:px-8 sm:py-12`}
@@ -229,7 +242,15 @@ export function MainMenu({ onOpenNoteNavigation }: MainMenuProps) {
 
         <section className={styles.activeArea}>
           <NoteCompass />
-          <NavigationButton onClick={onOpenNoteNavigation} />
+          <div className={styles.areaButtons}>
+            <AreaButton
+              index="01"
+              label="Note navigation"
+              name="Navigation"
+              onClick={onOpenNoteNavigation}
+            />
+            <AreaButton index="02" name="Imitation" onClick={onOpenImitation} />
+          </div>
         </section>
 
         <ul

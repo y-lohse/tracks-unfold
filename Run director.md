@@ -65,7 +65,7 @@ Updates account for challenge relative to the existing assessment. Failing far a
 
 ## Selecting each puzzle's challenge
 
-For each new puzzle, the director combines current skill assessments with exponentially increasing run pressure. Conceptually, challenge follows an exponential curve, and the director selects a position along it. The curve and mapping to question forms and control settings remain to be designed.
+For each new puzzle, the director combines current skill assessments with exponentially increasing run pressure. Conceptually, challenge follows an exponential curve, and the director selects a position along it. Puzzle-type adapters translate that smooth pressure into question forms and categorical controls. They should stage qualitative setting changes rather than allowing several aligned control thresholds to create an unintended difficulty cliff.
 
 A separate post-failure easing modifier is optional, not an agreed requirement. If used, it should taper off during the run. Profile updates may already provide enough early correction without this modifier.
 
@@ -85,7 +85,7 @@ A run has a success condition for players who can handle the available challenge
 
 Successful completion requires three correct answers at maximum challenge, not necessarily consecutive, together with a global ceiling requirement: every skill must be at maximum challenge difficulty, including skills not exercised by those three questions. Maxing only the current focus or the skills present in the final questions is insufficient. Mistakes continue to cost lives rather than resetting a separate success streak.
 
-Maximum challenge refers to the difficulty the director assigns to each skill, not a requirement that stored proficiency estimates reach 100%. Count qualifying correct answers only after the global challenge ceiling has been reached; earlier successes do not count toward the three-answer condition. Each counted answer must be generated using the applicable maximum-challenge settings. Qualification depends on those settings, not on the randomly sampled question being the longest movement or otherwise the hardest individual example in the repertoire. Keep the ordinary generation and sampling rules; do not add a special final exam or a hardest-example filter.
+Maximum challenge refers to the difficulty the director assigns to each skill, not a requirement that stored proficiency estimates reach 100%. It also does not require every difficulty control to be numerically maximal in the same question: controls are puzzle-generation mechanisms, and puzzle-specific mappings determine the applicable settings for maximum skill challenge. Count qualifying correct answers only after the global skill-challenge ceiling has been reached; earlier successes do not count toward the three-answer condition. Each counted answer must use the applicable ceiling mapping. Qualification depends on those settings, not on the randomly sampled question being the longest movement or otherwise the hardest individual example in the repertoire. Keep the ordinary generation and sampling rules; do not add a special final exam or a hardest-example filter.
 
 The concrete representation of per-skill challenge ceilings remains to be designed. Run completion remains distinct from continuously updated proficiency and certainty estimates; it is not a declaration of comprehensive mastery.
 

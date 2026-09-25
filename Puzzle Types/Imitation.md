@@ -72,11 +72,11 @@ Store exact generated features as well as normalized control settings, including
 
 A turn is a reversal between successive nonzero movement directions. Repetitions do not themselves count as turns. Settings that require repetitions or turns must actually generate them rather than merely permit them.
 
-Phrase length, reference plays and pitch auditions increase task difficulty or reduce support; they do not define a separately tracked memory or limited-listening skill.
+Phrase length, reference plays and pitch auditions increase task difficulty or reduce support; they do not define a separately tracked memory or limited-listening skill. Their demand follows the run balance, but maximum skill challenge does not require every general support control to use its harshest setting in the same puzzle.
 
 Interval precision determines both the answer contract and whether interval-size reproduction is required. Direction-only questions do not penalize nonexact movement sizes.
 
-Pitch-selection demand is contextual rather than a raw enabled-key count. Generation accounts for the active relationship contract, invalid alternatives and valid-solution breadth. A broader supply is not automatically harder when it mostly adds valid answers.
+Pitch-selection demand is contextual rather than a raw enabled-key count. Generation accounts for the active relationship contract, invalid alternatives and valid-solution breadth. Even the most curated supply includes at least two more choices in each direction from the anchor than there are editable slots, so recognizing direction alone does not determine the response. A broader supply is not automatically harder when it mostly adds valid answers.
 
 Reference movement range is also skill-specific. Small movements can be more difficult for pitch-direction discrimination, while broader and larger movements increase interval-size reproduction and pitch-navigation demand. At broader range settings, include at least one non-repeated movement from the newly available range.
 
@@ -88,6 +88,10 @@ Transposition is a pragmatic progression rather than a claim that every shift ca
 4. An overlapping non-octave placement leaves original pitches as plausible nearby choices that must be suppressed.
 
 For even phrase lengths, either central slot may be selected as a middle anchor.
+
+Use control-specific categorical thresholds rather than treating every ladder as equally spaced. Introduce the focal demand early while other supports remain generous. When several desired settings cross boundaries together, stage at most two categorical control changes in one new puzzle and carry the remaining changes forward. A control advances at most one category at a time. Continuous values may continue moving within the current category.
+
+Resolve feasibility while staging related controls. In particular, do not combine separated non-octave placement with the wide movement range: defer the wide range until overlapping placement is active.
 
 ## Relationship contract
 
@@ -156,7 +160,7 @@ For an exact correct response, automatically play the entered response once. For
 
 ## Review feedback
 
-Keep feedback inside the response slots rather than placing interval results between slots.
+Keep feedback inside the response slots rather than placing interval results between slots. Show at most three equal-sized slots per row so complete student-facing corrections remain readable.
 
 Relationship feedback is primary. Show what relationship was expected and how the submitted movement differed:
 
@@ -164,9 +168,9 @@ Relationship feedback is primary. Show what relationship was expected and how th
 - expected and entered signed movements for tolerant or exact failures; and
 - tolerance proximity for accepted movements close to rejection.
 
-The exact anchored target note and the submitted pitch's signed offset from it are secondary comparison information. Absolute offset is not the pass rule: tolerance applies to adjacent movements, and accumulated absolute offsets may exceed the tolerance while every movement remains valid.
+When the submitted pitch differs from the exact anchored reconstruction, show the entered and expected pitches together in the slot's primary pitch area. Do not add a separate `Exact note` label or expose an absolute semitone offset. The expected pitch is secondary comparison information, not the pass rule: tolerance applies to adjacent movements, and accumulated absolute differences may grow while every movement remains valid.
 
-Attach a movement's feedback to an editable endpoint, preferring its destination slot. If the destination is the locked anchor, attach feedback to the editable source instead. Never style the supplied anchor as though its pitch were wrong. An editable slot may summarize problems involving both neighbors.
+Attach a movement's feedback to an editable endpoint. When exactly one endpoint differs from the exact anchored reconstruction, attach the movement feedback to that differing pitch. Otherwise prefer the destination slot. If the destination is the locked anchor, attach feedback to the editable source instead. Never style the supplied anchor as though its pitch were wrong. Assessment may still consider both neighboring movements, but show at most one relationship message in a slot. Show the most actionable status represented by the slot: failed corrections before near-boundary feedback, and near-boundary feedback before comfortable accepted variation. When both neighboring movements have that status, prefer the movement from the preceding note; the expected pitch remains the complete correction.
 
 Communicate the overall result unambiguously:
 
@@ -243,7 +247,7 @@ Follow the shared [[Run director]]:
 - one life lost per failed puzzle; and
 - successful run completion after the shared ceiling condition is met.
 
-For Imitation, ceiling-generated questions assign maximum challenge to all four puzzle-type skills and use the applicable maximum-demand control settings. Ordinary feasible generation and variation continue; there is no separate final exam or requirement to sample one uniquely hardest phrase.
+For Imitation, ceiling-generated questions assign maximum challenge to all four puzzle-type skills and use the applicable focus-weighted control settings. Maximum skill challenge does not mean setting all nine controls to `1`; the controls are generation mechanisms rather than nine additional skills. Ordinary feasible generation and variation continue, including staged control changes; there is no separate final exam or requirement to combine every harshest setting in one puzzle.
 
 ## Learning coverage
 
