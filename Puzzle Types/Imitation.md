@@ -156,7 +156,7 @@ After any submitted response:
 - the enabled pitch supply remains unchanged; and
 - the submitted response remains locked.
 
-For an exact correct response, automatically play the entered response once. For a correct nonexact variation or an incorrect response, automatically play the exact anchored reconstruction followed by the entered response. A manual comparison action may repeat the appropriate review playback.
+For an exact correct response, automatically play the entered response once. For a correct nonexact variation or an incorrect response, automatically play the entered response followed by the exact anchored reconstruction. A manual comparison action repeats the appropriate review playback. During review, tapping a response slot plays its entered pitch followed by its exact corrected pitch; when those pitches match, play the shared pitch only once.
 
 ## Review feedback
 

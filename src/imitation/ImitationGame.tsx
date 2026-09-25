@@ -115,8 +115,8 @@ function reviewSections(
 ): readonly PlaybackSection[] {
   if (exact) return [{ pitches: response, source: "response" }];
   return [
-    { pitches: puzzle.exactReconstruction, source: "target" },
     { pitches: response, source: "response" },
+    { pitches: puzzle.exactReconstruction, source: "target" },
   ];
 }
 
@@ -183,7 +183,7 @@ function SlotStrip({
               data-anchor={anchor || undefined}
               data-playback-source={playbackSource}
               data-review-state={state}
-              disabled={disabled || result !== null}
+              disabled={disabled}
               onClick={() => onSelect(index)}
               type="button"
             >
@@ -411,6 +411,27 @@ export function ImitationGame({
   };
 
   const selectSlot = (slotIndex: number) => {
+    if (session?.result) {
+      if (playback) return;
+      const response = completeResponse(session.attempt);
+      if (!response) return;
+      const enteredPitch = response[slotIndex];
+      const correctedPitch = session.puzzle.exactReconstruction[slotIndex];
+      if (enteredPitch === undefined || correctedPitch === undefined) return;
+      const slotIndices = [slotIndex];
+      const sections: PlaybackSection[] = [
+        { pitches: [enteredPitch], source: "response", slotIndices },
+      ];
+      if (correctedPitch !== enteredPitch) {
+        sections.push({
+          pitches: [correctedPitch],
+          source: "target",
+          slotIndices,
+        });
+      }
+      play("review", sections);
+      return;
+    }
     if (playback?.kind === "audition") {
       playbackController.cancel();
       setPlayback(null);

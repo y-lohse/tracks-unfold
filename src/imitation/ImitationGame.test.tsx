@@ -244,6 +244,10 @@ describe("ImitationGame", () => {
     const submit = screen.getByRole("button", { name: "Submit response" });
     expect(submit).toBeEnabled();
     fireEvent.click(submit);
+    act(() => vi.advanceTimersByTime(0));
+    expect(
+      screen.getAllByRole("button", { name: /Response slot/ })[0],
+    ).toHaveAttribute("data-playback-source", "response");
 
     expect(values.has(IMITATION_TUNING.persistence.key)).toBe(true);
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
@@ -278,5 +282,42 @@ describe("ImitationGame", () => {
 
     finishPlayback();
     expect(reviewPlayback).toBeEnabled();
+
+    const reviewedSlots = screen.getAllByRole("button", {
+      name: /Response slot/,
+    });
+    for (const slot of reviewedSlots) expect(slot).toBeEnabled();
+
+    const correctedSlot = reviewedSlots.find((slot) =>
+      slot.textContent?.includes("→"),
+    );
+    if (!correctedSlot) throw new Error("Expected a corrected response slot");
+    const soundCountBeforeSlotComparison = synth.noteOn.mock.calls.length;
+    fireEvent.click(correctedSlot);
+    act(() => vi.advanceTimersByTime(0));
+    expect(correctedSlot).toHaveAttribute("data-playback-source", "response");
+    act(() =>
+      vi.advanceTimersByTime(
+        PLAYBACK_TIMING.noteDuration + PLAYBACK_TIMING.sectionPause,
+      ),
+    );
+    expect(correctedSlot).toHaveAttribute("data-playback-source", "target");
+    expect(synth.noteOn).toHaveBeenCalledTimes(
+      soundCountBeforeSlotComparison + 2,
+    );
+    finishPlayback();
+
+    const reviewedAnchor = screen
+      .getAllByRole("button", { name: /Response slot/ })
+      .find((slot) =>
+        slot.getAttribute("aria-label")?.includes("supplied anchor"),
+      );
+    if (!reviewedAnchor) throw new Error("Expected a reviewed anchor slot");
+    const soundCountBeforeSharedNote = synth.noteOn.mock.calls.length;
+    fireEvent.click(reviewedAnchor);
+    act(() => vi.advanceTimersByTime(0));
+    expect(reviewedAnchor).toHaveAttribute("data-playback-source", "response");
+    finishPlayback();
+    expect(synth.noteOn).toHaveBeenCalledTimes(soundCountBeforeSharedNote + 1);
   });
 });
