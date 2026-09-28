@@ -35,16 +35,20 @@ describe("MainMenu", () => {
   it("opens each playable area", () => {
     const onOpenNoteNavigation = vi.fn();
     const onOpenImitation = vi.fn();
+    const onOpenSettings = vi.fn();
     render(
       <MainMenu
         onOpenImitation={onOpenImitation}
         onOpenNoteNavigation={onOpenNoteNavigation}
+        onOpenSettings={onOpenSettings}
       />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
     fireEvent.click(screen.getByRole("button", { name: /imitation/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
 
+    expect(onOpenSettings).toHaveBeenCalledOnce();
     expect(onOpenNoteNavigation).toHaveBeenCalledOnce();
     expect(onOpenImitation).toHaveBeenCalledOnce();
   });

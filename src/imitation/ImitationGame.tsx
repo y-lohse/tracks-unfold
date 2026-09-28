@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "../Button";
+import { Introduction } from "../Introduction";
 import { keyboardSynth } from "../keyboardSynth";
 import { displayPitch, type Pitch } from "../music";
 import { PuzzleKeyboard } from "../PuzzleKeyboard";
 import { RunShell } from "../run";
+import { imitationTheoryTip } from "./theoryTips";
 import {
-  clearImitationProfile,
   loadImitationProfile,
   saveImitationProfile,
   type ImitationStorage,
 } from "./persistence";
-import { createImitationProfile } from "./profile";
+
 import {
   prepareNextImitationPuzzle,
   startImitationRun,
@@ -208,59 +209,6 @@ function SlotStrip({
         );
       })}
     </ol>
-  );
-}
-
-function Introduction({
-  onBegin,
-  onExit,
-  onReset,
-  profile,
-  resetMessage,
-}: {
-  readonly onBegin: () => void;
-  readonly onExit: () => void;
-  readonly onReset: () => void;
-  readonly profile: ImitationProfile;
-  readonly resetMessage: string;
-}) {
-  return (
-    <main className="bg-canvas text-ink min-h-svh px-4 py-8 sm:px-8 sm:py-12">
-      <section className={`${styles.panel} mx-auto w-full max-w-md`}>
-        <button className={styles.textButton} onClick={onExit} type="button">
-          ← Back
-        </button>
-        <p className={styles.eyebrow}>Instrument 02</p>
-        <h1>Imitation</h1>
-        <p>
-          Hear a phrase, then rebuild its pitch relationships from the supplied
-          anchor.
-        </p>
-        <p>
-          Select a response slot before entering silently. With no slot
-          selected, the keyboard plays an audition.
-        </p>
-        <Button className={styles.primaryAction} onClick={onBegin}>
-          Begin run
-        </Button>
-        <dl className={styles.profileSummary} aria-label="Imitation profile">
-          {Object.entries(skillLabels).map(([skill, label]) => (
-            <div key={skill}>
-              <dt>{label}</dt>
-              <dd>
-                {Math.round(profile[skill as ImitationSkill].proficiency * 100)}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <button className={styles.resetButton} onClick={onReset} type="button">
-          Reset Imitation profile
-        </button>
-        <p className={styles.liveMessage} aria-live="polite">
-          {resetMessage}
-        </p>
-      </section>
-    </main>
   );
 }
 
@@ -534,20 +482,15 @@ export function ImitationGame({
     setPlayback({ kind: "opening", cue: null });
   };
 
-  const resetProfile = () => {
-    clearImitationProfile(storage);
-    setProfile(createImitationProfile());
-    setMessage("Imitation profile reset.");
-  };
-
   if (screen === "introduction") {
     return (
       <Introduction
-        onBegin={beginRun}
-        onExit={leaveFeature}
-        onReset={resetProfile}
-        profile={profile}
-        resetMessage={message}
+        onBack={leaveFeature}
+        onContinue={beginRun}
+        title="Imitation"
+        instruction="Listen to a melody, then recreate its pattern on the keyboard."
+        theoryTip={imitationTheoryTip(profile)}
+        message={message}
       />
     );
   }

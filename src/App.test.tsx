@@ -10,6 +10,16 @@ const synth = vi.hoisted(() => ({
 vi.mock("./keyboardSynth", () => ({ keyboardSynth: synth }));
 
 import { App } from "./App";
+import {
+  loadImitationProfile,
+  saveImitationProfile,
+} from "./imitation/persistence";
+import { createImitationProfile } from "./imitation/profile";
+import {
+  createDefaultProfile,
+  loadProfile,
+  saveProfile,
+} from "./noteNavigation";
 
 describe("App", () => {
   beforeEach(() => {
@@ -29,7 +39,19 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Note navigation" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Begin run" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(
+      screen.getByText(
+        "Learn to identify the direction and distance between notes.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/a whole tone is two semitones/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Three wrong answers/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /reset/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("opens Imitation as a playable second area", () => {
@@ -40,13 +62,48 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Imitation" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Begin run" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "← Back" })).toBeEnabled();
+    expect(
+      screen.queryByRole("button", { name: /reset/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("erases both puzzle profiles from settings without clearing unrelated data", () => {
+    const navigation = createDefaultProfile();
+    const imitation = createImitationProfile();
+    saveProfile(navigation, window.localStorage);
+    saveImitationProfile(imitation, window.localStorage);
+    window.localStorage.setItem("unrelated", "keep");
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Erase all progress" }));
+    expect(window.localStorage.length).toBe(3);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Confirm erase all progress" }),
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "All progress erased.",
+    );
+    expect(window.localStorage.length).toBe(1);
+    expect(window.localStorage.getItem("unrelated")).toBe("keep");
+    expect(loadProfile(window.localStorage)).toEqual(createDefaultProfile());
+    expect(loadImitationProfile(window.localStorage)).toEqual(
+      createImitationProfile(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "← Back" }));
+    fireEvent.click(screen.getByRole("button", { name: /imitation/i }));
+    expect(
+      screen.getByRole("heading", { name: "Imitation" }),
+    ).toBeInTheDocument();
   });
 
   it("starts a three-life run and requires selection before submission", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Begin run" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     expect(screen.getByLabelText("3 lives remaining")).toBeInTheDocument();
     const puzzleVents = screen.getByLabelText("Puzzle 1");

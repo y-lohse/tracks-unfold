@@ -35,6 +35,7 @@ type StationStyle = CSSProperties & {
 type MainMenuProps = {
   onOpenNoteNavigation?: () => void;
   onOpenImitation?: () => void;
+  onOpenSettings?: () => void;
 };
 
 const routeDuration = 13;
@@ -232,13 +233,23 @@ function AreaButton({
 export function MainMenu({
   onOpenNoteNavigation,
   onOpenImitation,
+  onOpenSettings,
 }: MainMenuProps) {
   return (
     <main
       className={`${styles.menu} bg-canvas text-ink min-h-svh px-4 py-8 sm:px-8 sm:py-12`}
     >
       <div className="mx-auto w-full max-w-md">
-        <h1 className="text-2xl font-medium tracking-tight">Tracks Unfold</h1>
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-2xl font-medium tracking-tight">Tracks Unfold</h1>
+          <button
+            className="text-muted focus-visible:outline-accent cursor-pointer py-2 text-xs underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+            onClick={onOpenSettings}
+            type="button"
+          >
+            Settings
+          </button>
+        </div>
 
         <section className={styles.activeArea}>
           <NoteCompass />

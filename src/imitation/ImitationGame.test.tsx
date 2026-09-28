@@ -121,7 +121,7 @@ describe("ImitationGame", () => {
     vi.useRealTimers();
   });
 
-  it("owns its introduction and resets only the persisted Imitation profile", () => {
+  it("shows the shared introduction and leaves saved progress alone on back", () => {
     const { storage, values } = memoryStorage();
     values.set(IMITATION_TUNING.persistence.key, "saved");
     const onExit = vi.fn();
@@ -129,17 +129,21 @@ describe("ImitationGame", () => {
     render(<ImitationGame onExit={onExit} storage={storage} />);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Imitation" }),
+      screen.getByRole("heading", { name: "Imitation" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Imitation profile")).toBeInTheDocument();
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Reset Imitation profile" }),
-    );
-    expect(values.has(IMITATION_TUNING.persistence.key)).toBe(false);
-    expect(screen.getByText("Imitation profile reset.")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Listen to a melody, then recreate its pattern on the keyboard.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/melody's contour/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(
+      screen.queryByRole("button", { name: /reset/i }),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "← Back" }));
+    expect(values.get(IMITATION_TUNING.persistence.key)).toBe("saved");
     expect(onExit).toHaveBeenCalledOnce();
   });
 
@@ -149,7 +153,7 @@ describe("ImitationGame", () => {
     render(<ImitationGame rng={createSeededRng(19)} storage={storage} />);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Begin run" }));
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     });
 
     expect(
@@ -165,7 +169,7 @@ describe("ImitationGame", () => {
     render(<ImitationGame rng={createSeededRng(19)} storage={storage} />);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Begin run" }));
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     });
 
     expect(screen.getByLabelText("3 lives remaining")).toBeInTheDocument();

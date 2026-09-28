@@ -3,10 +3,14 @@ import { useEffect, useState } from "react";
 import { AnswerControls } from "./AnswerControls";
 import { Button } from "./Button";
 import { ImitationGame } from "./imitation/ImitationGame";
+import { clearImitationProfile } from "./imitation/persistence";
+import { Introduction } from "./Introduction";
 import { MainMenu } from "./MainMenu";
 import { PuzzleKeyboard } from "./PuzzleKeyboard";
 import { keyboardSynth } from "./keyboardSynth";
 import { RunShell } from "./run";
+import { Settings } from "./Settings";
+import { navigationTheoryTip } from "./noteNavigation/theoryTips";
 import {
   NOTE_NAVIGATION_TUNING,
   SKILLS,
@@ -31,7 +35,8 @@ import {
 } from "./noteNavigation";
 import styles from "./App.module.css";
 
-type AppScreen = "menu" | "introduction" | "run" | "results" | "imitation";
+type AppScreen =
+  "menu" | "settings" | "introduction" | "run" | "results" | "imitation";
 
 type RunSession = {
   run: RunState;
@@ -207,35 +212,6 @@ function RunView({
   );
 }
 
-function Introduction({
-  onBack,
-  onBegin,
-  onReset,
-}: {
-  onBack: () => void;
-  onBegin: () => void;
-  onReset: () => void;
-}) {
-  return (
-    <main className={styles.centeredScreen}>
-      <div className={styles.panel}>
-        <button className={styles.textButton} onClick={onBack} type="button">
-          ← Back
-        </button>
-        <h1>Note navigation</h1>
-        <p>Read the marked keys, then choose the note or distance.</p>
-        <p>Three wrong answers end the run.</p>
-        <Button className={styles.panelAction} onClick={onBegin}>
-          Begin run
-        </Button>
-        <button className={styles.reset} onClick={onReset} type="button">
-          Reset learning data
-        </button>
-      </div>
-    </main>
-  );
-}
-
 function Results({
   session,
   onAgain,
@@ -331,9 +307,11 @@ export function App() {
     });
   };
 
-  const resetProfile = () => {
+  const eraseProgress = () => {
     clearSavedProfile(window.localStorage);
+    clearImitationProfile(window.localStorage);
     setProfile(createDefaultProfile());
+    setSession(null);
   };
 
   const exitRun = () => {
@@ -347,6 +325,15 @@ export function App() {
       <MainMenu
         onOpenImitation={() => setScreen("imitation")}
         onOpenNoteNavigation={() => setScreen("introduction")}
+        onOpenSettings={() => setScreen("settings")}
+      />
+    );
+  }
+  if (screen === "settings") {
+    return (
+      <Settings
+        onBack={() => setScreen("menu")}
+        onEraseProgress={eraseProgress}
       />
     );
   }
@@ -357,8 +344,10 @@ export function App() {
     return (
       <Introduction
         onBack={() => setScreen("menu")}
-        onBegin={beginRun}
-        onReset={resetProfile}
+        onContinue={beginRun}
+        title="Note navigation"
+        instruction="Learn to identify the direction and distance between notes."
+        theoryTip={navigationTheoryTip(profile)}
       />
     );
   }

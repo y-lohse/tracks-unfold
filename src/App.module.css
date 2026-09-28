@@ -7,8 +7,7 @@
   background: var(--color-canvas);
 }
 
-.textButton:focus-visible,
-.reset:focus-visible {
+.textButton:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
@@ -54,12 +53,7 @@
   line-height: 1.55;
 }
 
-.panelAction {
-  margin-top: 2rem;
-}
-
-.textButton,
-.reset {
+.textButton {
   width: fit-content;
   cursor: pointer;
   font: inherit;
@@ -71,15 +65,6 @@
 .textButton {
   padding: 0.35rem 0;
   font-size: 0.76rem;
-}
-
-.reset {
-  align-self: center;
-  margin-top: 1.5rem;
-  padding: 0.35rem;
-  font-size: 0.65rem;
-  text-decoration: underline;
-  text-underline-offset: 0.2rem;
 }
 
 .scores {
