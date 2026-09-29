@@ -1,280 +1,189 @@
-import { type CSSProperties } from "react";
-
+import { useState } from "react";
+import { PuzzleIcon, type PuzzleIconName } from "./PuzzleIcon";
 import styles from "./MainMenu.module.css";
 
-const dormantAreas = [
-  "Tonal contours",
-  "Rhythm performance",
-  "Interval identification",
-] as const;
-
-const chromaticNotes = [
-  "C",
-  "C♯",
-  "D",
-  "D♯",
-  "E",
-  "F",
-  "F♯",
-  "G",
-  "G♯",
-  "A",
-  "A♯",
-  "B",
-] as const;
-
-type NoteStyle = CSSProperties & {
-  "--note-angle": string;
-  "--note-counter-angle": string;
-};
-
-type StationStyle = CSSProperties & {
-  "--station-delay": string;
-};
+const puzzles: readonly {
+  id: PuzzleIconName;
+  title: string;
+  label: string;
+  placement: string;
+}[] = [
+  {
+    id: "navigation",
+    title: "Navigation",
+    label: "Note navigation",
+    placement: "col-start-2 row-start-1",
+  },
+  {
+    id: "imitation",
+    title: "Imitation",
+    label: "Imitation",
+    placement: "col-start-1 row-start-2",
+  },
+  {
+    id: "rhythm",
+    title: "Rhythm",
+    label: "Rhythm performance",
+    placement: "col-start-2 row-start-2",
+  },
+  {
+    id: "contours",
+    title: "Contours",
+    label: "Tonal contours",
+    placement: "col-start-3 row-start-2",
+  },
+  {
+    id: "intervals",
+    title: "Intervals",
+    label: "Interval identification",
+    placement: "col-start-1 row-start-3",
+  },
+];
 
 type MainMenuProps = {
+  navigationProgress?: number;
+  imitationProgress?: number;
   onOpenNoteNavigation?: () => void;
   onOpenImitation?: () => void;
   onOpenSettings?: () => void;
 };
 
-const routeDuration = 13;
-const routeTravelDuration = (routeDuration * 100) / 124;
-const stationRoutes = [
-  {
-    className: styles.stationPrimary,
-    startDelay: 0,
-    points: [
-      [160, 38, 0],
-      [221, 54.3, 0.228],
-      [204, 83.8, 0.349],
-      [236.2, 116, 0.513],
-      [248, 160, 0.677],
-      [216, 160, 0.791],
-      [208.5, 188, 0.894],
-      [188, 208.5, 1],
-    ],
-  },
-  {
-    className: styles.stationSecondary,
-    startDelay: routeDuration / 3,
-    points: [
-      [54.3, 221, 0],
-      [38, 160, 0.17],
-      [54.3, 99, 0.339],
-      [111.5, 132, 0.514],
-      [132, 111.5, 0.592],
-      [160, 104, 0.67],
-      [160, 72, 0.755],
-      [204, 83.8, 0.877],
-      [236.2, 116, 1],
-    ],
-  },
-  {
-    className: styles.stationTertiary,
-    startDelay: (routeDuration * 2) / 3,
-    points: [
-      [204, 236.2, 0],
-      [160, 248, 0.16],
-      [116, 236.2, 0.32],
-      [99, 265.7, 0.438],
-      [54.3, 221, 0.66],
-      [38, 160, 0.882],
-      [72, 160, 1],
-    ],
-  },
-] as const;
-
-const stationPoints = Array.from(
-  new Map(
-    stationRoutes.flatMap((route) =>
-      route.points.map(([cx, cy]) => [`${cx}-${cy}`, [cx, cy] as const]),
-    ),
-  ).values(),
-);
-
-function NoteCompass() {
-  return (
-    <figure
-      aria-label="A locked note compass with a chromatic rim and melodic routes"
-      className={styles.compass}
-    >
-      <div className={styles.dial}>
-        <div className={styles.tickField} aria-hidden="true" />
-
-        <svg
-          aria-hidden="true"
-          className={styles.compassGrid}
-          viewBox="0 0 320 320"
-        >
-          <circle className={styles.track} cx="160" cy="160" r="122" />
-          <circle className={styles.track} cx="160" cy="160" r="88" />
-          <circle className={styles.track} cx="160" cy="160" r="56" />
-          <g className={styles.radials}>
-            {chromaticNotes.map((note, index) => (
-              <line
-                key={note}
-                transform={`rotate(${index * 30} 160 160)`}
-                x1="160"
-                x2="160"
-                y1="98"
-                y2="25"
-              />
-            ))}
-          </g>
-        </svg>
-
-        <div className={styles.noteRing} aria-hidden="true">
-          {chromaticNotes.map((note, index) => (
-            <span
-              className={styles.notePosition}
-              key={note}
-              style={
-                {
-                  "--note-angle": `${index * 30 - 90}deg`,
-                  "--note-counter-angle": `${90 - index * 30}deg`,
-                } as NoteStyle
-              }
-            >
-              <span className={styles.note}>{note}</span>
-            </span>
-          ))}
-        </div>
-
-        <svg aria-hidden="true" className={styles.routes} viewBox="0 0 320 320">
-          <g className={styles.routeGuides}>
-            <path d="M160 38 A122 122 0 0 1 221 54.3 L204 83.8 A88 88 0 0 1 248 160 L216 160 A56 56 0 0 1 188 208.5" />
-            <path d="M54.3 221 A122 122 0 0 1 54.3 99 L111.5 132 A56 56 0 0 1 160 104 L160 72 A88 88 0 0 1 236.2 116" />
-            <path d="M204 236.2 A88 88 0 0 1 116 236.2 L99 265.7 A122 122 0 0 1 38 160 L72 160" />
-          </g>
-          <g className={styles.routeSnakes}>
-            <path
-              className={`${styles.route} ${styles.routePrimary}`}
-              d="M160 38 A122 122 0 0 1 221 54.3 L204 83.8 A88 88 0 0 1 248 160 L216 160 A56 56 0 0 1 188 208.5"
-              pathLength="100"
-            />
-            <path
-              className={`${styles.route} ${styles.routeSecondary}`}
-              d="M54.3 221 A122 122 0 0 1 54.3 99 L111.5 132 A56 56 0 0 1 160 104 L160 72 A88 88 0 0 1 236.2 116"
-              pathLength="100"
-            />
-            <path
-              className={`${styles.route} ${styles.routeTertiary}`}
-              d="M204 236.2 A88 88 0 0 1 116 236.2 L99 265.7 A122 122 0 0 1 38 160 L72 160"
-              pathLength="100"
-            />
-          </g>
-          <g className={styles.stationBases}>
-            {stationPoints.map(([cx, cy]) => (
-              <circle cx={cx} cy={cy} key={`${cx}-${cy}`} r="3" />
-            ))}
-          </g>
-          <g className={styles.stations}>
-            {stationRoutes.flatMap((route) =>
-              route.points.map(([cx, cy, progress], index) => (
-                <circle
-                  className={route.className}
-                  cx={cx}
-                  cy={cy}
-                  key={`${route.className}-${cx}-${cy}`}
-                  r={index === 0 || index === route.points.length - 1 ? 4 : 3}
-                  style={
-                    {
-                      "--station-delay": `${route.startDelay + progress * routeTravelDuration}s`,
-                    } as StationStyle
-                  }
-                />
-              )),
-            )}
-          </g>
-        </svg>
-
-        <div className={styles.lockCore} aria-hidden="true">
-          <span className={styles.corePulse} />
-          <svg className={styles.lockIcon} viewBox="0 0 48 48">
-            <path d="M15 21v-5a9 9 0 0 1 18 0v5" />
-            <rect height="19" rx="3" width="28" x="10" y="20" />
-            <path d="M24 27v6" />
-            <circle cx="24" cy="27" r="2" />
-          </svg>
-        </div>
-      </div>
-    </figure>
-  );
-}
-
-function AreaButton({
-  index,
-  label,
-  name,
-  onClick,
-}: {
-  index: string;
-  label?: string;
-  name: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      aria-label={`Open ${label ?? name}`}
-      className={styles.navigationButton}
-      onClick={onClick}
-      type="button"
-    >
-      <span className={styles.buttonIndex}>{index}</span>
-      <span className={styles.buttonTitle}>{name}</span>
-      <span className={styles.buttonArrow} aria-hidden="true">
-        →
-      </span>
-    </button>
-  );
-}
-
 export function MainMenu({
+  navigationProgress = 0,
+  imitationProgress = 0,
   onOpenNoteNavigation,
   onOpenImitation,
   onOpenSettings,
 }: MainMenuProps) {
+  const [upcoming, setUpcoming] = useState<PuzzleIconName | null>(null);
+  const branchOpen = navigationProgress >= 0.2;
+  const intervalsOpen = branchOpen && imitationProgress >= 0.6;
+  const selected = puzzles.find((puzzle) => puzzle.id === upcoming);
+
+  if (selected) {
+    const requirement =
+      selected.id === "intervals"
+        ? "Reach 60% in Imitation to unlock."
+        : "Reach 20% in Navigation to unlock.";
+    const met = selected.id === "intervals" ? intervalsOpen : branchOpen;
+    return (
+      <main className="bg-canvas text-ink min-h-svh px-6 py-8">
+        <div className="mx-auto max-w-md">
+          <button
+            type="button"
+            onClick={() => setUpcoming(null)}
+            className="text-muted focus-visible:outline-accent min-h-11 cursor-pointer text-sm focus-visible:outline-2"
+          >
+            ← Back
+          </button>
+          <PuzzleIcon
+            name={selected.id}
+            className="text-accent mt-10 h-16 w-16"
+          />
+          <h1 className="mt-6 text-2xl font-semibold">{selected.label}</h1>
+          <p className="text-muted mt-4 text-sm">Coming soon.</p>
+          {!met && <p className="text-muted mt-4 text-sm">{requirement}</p>}
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main
-      className={`${styles.menu} bg-canvas text-ink min-h-svh px-4 py-8 sm:px-8 sm:py-12`}
+      className={`${styles.menu} bg-canvas text-ink min-h-svh px-4 py-8 sm:px-8`}
     >
-      <div className="mx-auto w-full max-w-md">
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-medium tracking-tight">Tracks Unfold</h1>
+      <div className="mx-auto max-w-lg">
+        <header className="relative flex min-h-11 items-center justify-center px-11">
+          <h1 className="text-center text-xl font-medium tracking-tight">
+            Tracks Unfold
+          </h1>
           <button
-            className="text-muted focus-visible:outline-accent cursor-pointer py-2 text-xs underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
-            onClick={onOpenSettings}
             type="button"
+            onClick={onOpenSettings}
+            aria-label="Settings"
+            className="text-muted focus-visible:outline-accent absolute top-0 right-0 flex size-11 cursor-pointer items-center justify-center rounded-full focus-visible:outline-2"
           >
-            Settings
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className={`${styles.lockIcon} size-5`}
+            >
+              <path
+                d="M9.5 3h5l.6 2.5 2 1.2 2.5-.8 2.5 4.2-1.9 1.9v2.3l1.9 1.8-2.5 4.3-2.5-.8-2 1.1-.6 2.5h-5l-.6-2.5-2-1.1-2.5.8L1.9 16l1.9-1.8V12l-1.9-1.9 2.5-4.2 2.5.8 2-1.2Z"
+                transform="translate(1.2 -.6) scale(.9)"
+              />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </button>
-        </div>
-
-        <section className={styles.activeArea}>
-          <NoteCompass />
-          <div className={styles.areaButtons}>
-            <AreaButton
-              index="01"
-              label="Note navigation"
-              name="Navigation"
-              onClick={onOpenNoteNavigation}
-            />
-            <AreaButton index="02" name="Imitation" onClick={onOpenImitation} />
-          </div>
-        </section>
-
-        <ul
-          aria-label="Dormant instrument areas"
-          className={styles.dormantAreas}
+        </header>
+        <section
+          aria-label="Puzzle tree"
+          className="relative mt-14 grid grid-cols-3 gap-y-20"
         >
-          {dormantAreas.map((area) => (
-            <li key={area}>
-              <span>{area}</span>
-              <span className={styles.dormantState}>Dormant</span>
-            </li>
-          ))}
-        </ul>
+          <svg
+            aria-hidden="true"
+            className={`${styles.connections} pointer-events-none absolute inset-0 h-full w-full`}
+            viewBox="0 0 300 496"
+            preserveAspectRatio="none"
+          >
+            <path
+              className={branchOpen ? styles.openConnection : undefined}
+              d="M150 112 V148 M50 192 V148 H250 V192 M150 148 V192"
+            />
+            <path
+              className={intervalsOpen ? styles.openConnection : undefined}
+              d="M50 304 V384"
+            />
+          </svg>
+          {puzzles.map((puzzle) => {
+            const locked =
+              puzzle.id === "navigation"
+                ? false
+                : puzzle.id === "intervals"
+                  ? !intervalsOpen
+                  : !branchOpen;
+            const available =
+              puzzle.id === "navigation" || puzzle.id === "imitation";
+            const onClick =
+              puzzle.id === "navigation"
+                ? onOpenNoteNavigation
+                : puzzle.id === "imitation"
+                  ? onOpenImitation
+                  : () => setUpcoming(puzzle.id);
+            return (
+              <button
+                key={puzzle.id}
+                type="button"
+                onClick={onClick}
+                aria-label={`Open ${puzzle.label}${locked ? ", locked" : !available ? ", coming soon" : ""}`}
+                className={`${puzzle.placement} ${styles.treeNode} focus-visible:outline-accent relative flex h-28 min-w-0 cursor-pointer flex-col items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4`}
+              >
+                <span
+                  className={`${styles.tile} ${locked ? styles.locked : ""} relative flex h-18 w-18 shrink-0 items-center justify-center rounded-2xl`}
+                >
+                  <PuzzleIcon name={puzzle.id} className="h-12 w-12" />
+                  {locked && (
+                    <span className="bg-canvas text-muted absolute -right-1 -bottom-1 rounded-full p-1.5">
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 16 16"
+                        className={`${styles.lockIcon} h-3 w-3`}
+                      >
+                        <rect x="4" y="7" width="8" height="7" rx="1" />
+                        <path d="M5 7 V5 A3 3 0 0 1 11 5 V7" />
+                      </svg>
+                    </span>
+                  )}
+                </span>
+                <span
+                  className={`bg-canvas px-1 text-xs ${locked ? "text-muted" : "text-ink"}`}
+                >
+                  {puzzle.title}
+                </span>
+              </button>
+            );
+          })}
+        </section>
       </div>
     </main>
   );

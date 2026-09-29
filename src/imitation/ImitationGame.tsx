@@ -5,6 +5,7 @@ import { Introduction } from "../Introduction";
 import { keyboardSynth } from "../keyboardSynth";
 import { displayPitch, type Pitch } from "../music";
 import { PuzzleKeyboard } from "../PuzzleKeyboard";
+import { PuzzleIcon } from "../PuzzleIcon";
 import { RunShell } from "../run";
 import { imitationTheoryTip } from "./theoryTips";
 import {
@@ -45,7 +46,7 @@ import {
 import styles from "./ImitationGame.module.css";
 import { movementFeedback } from "./slotFeedbackPresentation";
 
-type GameScreen = "introduction" | "run" | "results";
+type GameScreen = "introduction" | "run";
 type PlaybackKind = "opening" | "reference" | "review" | "audition";
 
 interface PlaybackState {
@@ -66,6 +67,7 @@ export interface ImitationGameProps {
   readonly onExit?: () => void;
   readonly rng?: Rng;
   readonly storage?: ImitationStorage;
+  readonly lockedReason?: string;
 }
 
 const skillLabels: Readonly<Record<ImitationSkill, string>> = {
@@ -212,60 +214,11 @@ function SlotStrip({
   );
 }
 
-function Results({
-  session,
-  onAgain,
-  onExit,
-}: {
-  readonly session: ImitationSession;
-  readonly onAgain: () => void;
-  readonly onExit: () => void;
-}) {
-  return (
-    <main className="bg-canvas text-ink min-h-svh px-4 py-8 sm:px-8 sm:py-12">
-      <section className={`${styles.panel} mx-auto w-full max-w-md`}>
-        <p className={styles.eyebrow}>Imitation profile</p>
-        <h1>
-          {session.run.status === "succeeded" ? "Run complete" : "Run ended"}
-        </h1>
-        <p>{session.run.puzzlesPresented} phrases completed.</p>
-        <dl className={styles.skillResults}>
-          {Object.entries(skillLabels).map(([key, label]) => {
-            const skill = key as ImitationSkill;
-            const before = session.startingProfile[skill];
-            const after = session.run.profile[skill];
-            return (
-              <div key={skill}>
-                <dt>{label}</dt>
-                <dd>
-                  <span>
-                    Skill {Math.round(before.proficiency * 100)} →{" "}
-                    {Math.round(after.proficiency * 100)}
-                  </span>
-                  <span>
-                    Certainty {Math.round(before.certainty * 100)} →{" "}
-                    {Math.round(after.certainty * 100)}
-                  </span>
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
-        <div className={styles.resultActions}>
-          <Button onClick={onAgain}>Play again</Button>
-          <button className={styles.textButton} onClick={onExit} type="button">
-            Leave Imitation
-          </button>
-        </div>
-      </section>
-    </main>
-  );
-}
-
 export function ImitationGame({
   onExit,
   rng = Math.random,
   storage: suppliedStorage,
+  lockedReason,
 }: ImitationGameProps) {
   const storage = suppliedStorage ?? defaultStorage();
   const [screen, setScreen] = useState<GameScreen>("introduction");
@@ -313,6 +266,7 @@ export function ImitationGame({
   useEffect(() => () => playbackController.cancel(), [playbackController]);
 
   const beginRun = async () => {
+    if (lockedReason) return;
     playbackController.cancel();
     try {
       await keyboardSynth.unlock();
@@ -459,7 +413,9 @@ export function ImitationGame({
   const continueRun = () => {
     if (!session?.result || playback) return;
     if (session.run.status !== "active") {
-      setScreen("results");
+      playbackController.cancel();
+      setPlayback(null);
+      setScreen("introduction");
       return;
     }
     const prepared = prepareNextImitationPuzzle(
@@ -483,6 +439,13 @@ export function ImitationGame({
   };
 
   if (screen === "introduction") {
+    const runSummary =
+      session && session.run.status !== "active"
+        ? {
+            status: session.run.status,
+            puzzlesPlayed: session.run.puzzlesPresented,
+          }
+        : undefined;
     return (
       <Introduction
         onBack={leaveFeature}
@@ -490,16 +453,24 @@ export function ImitationGame({
         title="Imitation"
         instruction="Listen to a melody, then recreate its pattern on the keyboard."
         theoryTip={imitationTheoryTip(profile)}
+        icon={<PuzzleIcon name="imitation" className="h-full w-full" />}
+        skills={Object.entries(skillLabels).map(([key, label]) => ({
+          label,
+          proficiency: profile[key as ImitationSkill].proficiency,
+          ...(runSummary && session
+            ? {
+                previousProficiency:
+                  session.startingProfile[key as ImitationSkill].proficiency,
+              }
+            : {}),
+        }))}
+        runSummary={runSummary}
+        lockedReason={lockedReason}
         message={message}
       />
     );
   }
   if (!session) return null;
-  if (screen === "results") {
-    return (
-      <Results onAgain={beginRun} onExit={leaveFeature} session={session} />
-    );
-  }
 
   const response = completeResponse(session.attempt);
   const inReview = session.result !== null;
@@ -544,7 +515,7 @@ export function ImitationGame({
           <div className={styles.actions}>
             {inReview ? (
               <Button disabled={playback !== null} onClick={continueRun}>
-                {session.run.status === "active" ? "Continue" : "View results"}
+                Continue
               </Button>
             ) : (
               <Button

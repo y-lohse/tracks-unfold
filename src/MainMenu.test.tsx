@@ -3,36 +3,32 @@ import { describe, expect, it, vi } from "vitest";
 
 import { MainMenu } from "./MainMenu";
 
-const dormantAreas = [
-  "Tonal contours",
-  "Rhythm performance",
-  "Interval identification",
-];
-
 describe("MainMenu", () => {
-  it("shows two playable areas and three dormant areas", () => {
+  it("shows a five-puzzle tree with Navigation initially unlocked", () => {
     render(<MainMenu />);
-
     expect(
-      screen.getByRole("heading", { level: 1, name: "Tracks Unfold" }),
+      screen.getByRole("heading", { name: "Tracks Unfold" }),
     ).toBeInTheDocument();
-
     expect(
-      screen.getByRole("button", { name: /note navigation/i }),
-    ).toHaveTextContent("01Navigation");
-
+      screen.getByRole("region", { name: "Puzzle tree" }),
+    ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /imitation/i }),
-    ).toHaveTextContent("02Imitation");
-
-    for (const area of dormantAreas) {
-      expect(screen.getByText(area)).toBeInTheDocument();
+      screen.getByRole("button", { name: "Open Note navigation" }),
+    ).toHaveTextContent("Navigation");
+    for (const name of [
+      "Imitation",
+      "Rhythm performance",
+      "Tonal contours",
+      "Interval identification",
+    ]) {
+      expect(
+        screen.getByRole("button", { name: `Open ${name}, locked` }),
+      ).toBeEnabled();
     }
-
-    expect(screen.getAllByText("Dormant")).toHaveLength(3);
+    expect(screen.queryByText("Dormant")).not.toBeInTheDocument();
   });
 
-  it("opens each playable area", () => {
+  it("keeps locked introductions inspectable and opens Settings", () => {
     const onOpenNoteNavigation = vi.fn();
     const onOpenImitation = vi.fn();
     const onOpenSettings = vi.fn();
@@ -43,13 +39,65 @@ describe("MainMenu", () => {
         onOpenSettings={onOpenSettings}
       />,
     );
-
     fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
     fireEvent.click(screen.getByRole("button", { name: /imitation/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    const settings = screen.getByRole("button", { name: "Settings" });
+    expect(settings.closest("header")).not.toBeNull();
+    expect(settings.querySelector("svg")).not.toBeNull();
 
+    expect(screen.queryByText("Settings")).not.toBeInTheDocument();
+    fireEvent.click(settings);
     expect(onOpenSettings).toHaveBeenCalledOnce();
     expect(onOpenNoteNavigation).toHaveBeenCalledOnce();
     expect(onOpenImitation).toHaveBeenCalledOnce();
+  });
+
+  it("applies exact prerequisite thresholds without making future puzzles playable", () => {
+    const { rerender } = render(
+      <MainMenu navigationProgress={0.199} imitationProgress={0.6} />,
+    );
+    expect(
+      screen.getByRole("button", { name: "Open Imitation, locked" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Open Interval identification, locked",
+      }),
+    ).toBeInTheDocument();
+    rerender(<MainMenu navigationProgress={0.2} imitationProgress={0.599} />);
+    expect(
+      screen.getByRole("button", { name: "Open Imitation" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Open Interval identification, locked",
+      }),
+    ).toBeInTheDocument();
+    rerender(<MainMenu navigationProgress={0.2} imitationProgress={0.6} />);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Open Interval identification, coming soon",
+      }),
+    );
+    expect(
+      screen.getByRole("heading", { name: "Interval identification" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Coming soon.")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Start" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "← Back" }));
+    expect(
+      screen.getByRole("region", { name: "Puzzle tree" }),
+    ).toBeInTheDocument();
+  });
+
+  it("explains prerequisites for an upcoming locked puzzle", () => {
+    render(<MainMenu />);
+    fireEvent.click(screen.getByRole("button", { name: /tonal contours/i }));
+    expect(
+      screen.getByText("Reach 20% in Navigation to unlock."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Coming soon.")).toBeInTheDocument();
   });
 });

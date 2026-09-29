@@ -1,4 +1,3 @@
-.panel,
 .puzzleConsole {
   --imitation-face: var(--color-instrument-face);
   --imitation-edge: var(--color-ink);
@@ -11,94 +10,11 @@
   --imitation-shadow: color-mix(in srgb, var(--color-ink) 24%, transparent);
 }
 
-.panel {
-  display: grid;
-  gap: 1rem;
-  padding: 1.25rem;
-  border: 1px solid var(--imitation-edge);
-  background: var(--imitation-face);
-  box-shadow: 0 0.5rem 0 var(--imitation-edge);
-}
-
-.panel h1,
-.panel p {
-  margin: 0;
-}
-
-.panel h1 {
-  font-size: 1.75rem;
-  line-height: 1;
-}
-
-.panel p {
-  color: var(--color-muted);
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.eyebrow {
-  font-size: 0.65rem !important;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.textButton {
-  padding: 0;
-  cursor: pointer;
-  font: inherit;
-  color: var(--color-ink);
-  border: 0;
-  background: transparent;
-}
-
-.textButton {
-  justify-self: start;
-  font-size: 0.72rem;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-.textButton:focus-visible,
 .slot:focus-visible {
   outline: 2px solid var(--imitation-selected);
   outline-offset: 2px;
 }
 
-.skillResults {
-  display: grid;
-  gap: 0;
-  margin: 0;
-  border-top: 1px solid var(--color-rule);
-}
-
-.skillResults div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.65rem 0;
-  border-bottom: 1px solid var(--color-rule);
-}
-
-.skillResults dt {
-  color: var(--color-muted);
-  font-size: 0.7rem;
-}
-
-.skillResults dd {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.skillResults dd {
-  display: grid;
-  gap: 0.2rem;
-  text-align: right;
-}
-
-.resultActions,
 .actions {
   display: grid;
   gap: 0.55rem;

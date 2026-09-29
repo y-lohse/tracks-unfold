@@ -3,10 +3,14 @@ import { useEffect, useState } from "react";
 import { AnswerControls } from "./AnswerControls";
 import { Button } from "./Button";
 import { ImitationGame } from "./imitation/ImitationGame";
-import { clearImitationProfile } from "./imitation/persistence";
+import {
+  clearImitationProfile,
+  loadImitationProfile,
+} from "./imitation/persistence";
 import { Introduction } from "./Introduction";
 import { MainMenu } from "./MainMenu";
 import { PuzzleKeyboard } from "./PuzzleKeyboard";
+import { PuzzleIcon } from "./PuzzleIcon";
 import { keyboardSynth } from "./keyboardSynth";
 import { RunShell } from "./run";
 import { Settings } from "./Settings";
@@ -35,8 +39,7 @@ import {
 } from "./noteNavigation";
 import styles from "./App.module.css";
 
-type AppScreen =
-  "menu" | "settings" | "introduction" | "run" | "results" | "imitation";
+type AppScreen = "menu" | "settings" | "introduction" | "run" | "imitation";
 
 type RunSession = {
   run: RunState;
@@ -212,41 +215,12 @@ function RunView({
   );
 }
 
-function Results({
-  session,
-  onAgain,
-  onMenu,
-}: {
-  session: RunSession;
-  onAgain: () => void;
-  onMenu: () => void;
-}) {
+// Use current estimates for prerequisite checks, not a permanent unlock ledger.
+// Reward completion remains separate from these curriculum thresholds.
+function profileProgress(profile: Record<string, { proficiency: number }>) {
+  const skills = Object.values(profile);
   return (
-    <main className={styles.centeredScreen}>
-      <div className={styles.panel}>
-        <h1>
-          {session.run.status === "succeeded" ? "Run complete" : "Run ended"}
-        </h1>
-        <p>{session.run.puzzlesPresented} puzzles played.</p>
-        <dl className={styles.scores}>
-          {SKILLS.map((skill) => (
-            <div key={skill}>
-              <dt>{skillLabels[skill]}</dt>
-              <dd>
-                {Math.round(session.startingProfile[skill].proficiency * 100)} →{" "}
-                {Math.round(session.run.profile[skill].proficiency * 100)}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <div className={styles.resultActions}>
-          <Button onClick={onAgain}>Play again</Button>
-          <button className={styles.textButton} onClick={onMenu} type="button">
-            Return to instrument
-          </button>
-        </div>
-      </div>
-    </main>
+    skills.reduce((sum, skill) => sum + skill.proficiency, 0) / skills.length
   );
 }
 
@@ -256,6 +230,7 @@ export function App() {
     loadProfile(window.localStorage),
   );
   const [session, setSession] = useState<RunSession | null>(null);
+  const navigationProgress = profileProgress(profile);
 
   useEffect(() => stopReveal, []);
 
@@ -294,7 +269,7 @@ export function App() {
     if (!session?.result) return;
     stopReveal();
     if (session.run.status !== "active") {
-      setScreen("results");
+      setScreen("introduction");
       return;
     }
     const prepared = prepareNextQuestion(session.run, Math.random);
@@ -323,6 +298,10 @@ export function App() {
   if (screen === "menu") {
     return (
       <MainMenu
+        navigationProgress={navigationProgress}
+        imitationProgress={profileProgress(
+          loadImitationProfile(window.localStorage),
+        )}
         onOpenImitation={() => setScreen("imitation")}
         onOpenNoteNavigation={() => setScreen("introduction")}
         onOpenSettings={() => setScreen("settings")}
@@ -338,29 +317,47 @@ export function App() {
     );
   }
   if (screen === "imitation") {
-    return <ImitationGame onExit={() => setScreen("menu")} />;
+    return (
+      <ImitationGame
+        onExit={() => setScreen("menu")}
+        lockedReason={
+          navigationProgress < 0.2
+            ? "Reach 20% in Navigation to unlock."
+            : undefined
+        }
+      />
+    );
   }
   if (screen === "introduction") {
     return (
       <Introduction
-        onBack={() => setScreen("menu")}
+        onBack={exitRun}
         onContinue={beginRun}
         title="Note navigation"
         instruction="Learn to identify the direction and distance between notes."
         theoryTip={navigationTheoryTip(profile)}
+        icon={<PuzzleIcon name="navigation" className="h-full w-full" />}
+        skills={SKILLS.map((skill) => ({
+          label: skillLabels[skill],
+          proficiency: profile[skill].proficiency,
+          previousProficiency:
+            session?.run.status !== "active"
+              ? session?.startingProfile[skill].proficiency
+              : undefined,
+        }))}
+        runSummary={
+          session && session.run.status !== "active"
+            ? {
+                status: session.run.status,
+                puzzlesPlayed: session.run.puzzlesPresented,
+              }
+            : undefined
+        }
       />
     );
   }
   if (!session) return null;
-  if (screen === "results") {
-    return (
-      <Results
-        onAgain={beginRun}
-        onMenu={() => setScreen("menu")}
-        session={session}
-      />
-    );
-  }
+
   return (
     <RunView
       onContinue={continueRun}

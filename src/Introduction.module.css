@@ -1,0 +1,20 @@
+.track::before {
+  content: "";
+  position: absolute;
+  /* Equal-width milestone columns put the outer centers one sixth in. */
+  inset-inline: calc(100% / 6);
+  top: calc(var(--spacing) * 1.5);
+  height: 1px;
+  background: var(--color-rule);
+  transform: translateY(-50%);
+}
+
+.marker {
+  border: 1px solid var(--color-muted);
+  background: var(--color-canvas);
+}
+
+.finalMarker {
+  border-color: var(--color-accent);
+  transform: rotate(45deg);
+}

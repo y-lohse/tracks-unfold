@@ -137,7 +137,7 @@ describe("ImitationGame", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText(/melody's contour/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
     expect(
       screen.queryByRole("button", { name: /reset/i }),
     ).not.toBeInTheDocument();
@@ -147,13 +147,34 @@ describe("ImitationGame", () => {
     expect(onExit).toHaveBeenCalledOnce();
   });
 
+  it("Exit during an active run cancels audio and returns without a summary", async () => {
+    const { storage, values } = memoryStorage();
+    render(<ImitationGame rng={createSeededRng(19)} storage={storage} />);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Start" }));
+    });
+    act(() => vi.advanceTimersByTime(0));
+    const notes = synth.noteOn.mock.calls.length;
+    const releases = synth.releaseAll.mock.calls.length;
+
+    fireEvent.click(screen.getByRole("button", { name: "Exit run" }));
+
+    expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
+    expect(screen.queryByRole("button", { name: "Play again" })).toBeNull();
+    expect(values.has(IMITATION_TUNING.persistence.key)).toBe(false);
+    expect(synth.releaseAll.mock.calls.length).toBeGreaterThan(releases);
+    finishPlayback();
+    expect(synth.noteOn).toHaveBeenCalledTimes(notes);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("does not create or charge an attempt when mobile audio cannot unlock", async () => {
     const { storage } = memoryStorage();
     synth.unlock.mockRejectedValueOnce(new Error("blocked"));
     render(<ImitationGame rng={createSeededRng(19)} storage={storage} />);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+      fireEvent.click(screen.getByRole("button", { name: "Start" }));
     });
 
     expect(
@@ -169,7 +190,7 @@ describe("ImitationGame", () => {
     render(<ImitationGame rng={createSeededRng(19)} storage={storage} />);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+      fireEvent.click(screen.getByRole("button", { name: "Start" }));
     });
 
     expect(screen.getByLabelText("3 lives remaining")).toBeInTheDocument();
