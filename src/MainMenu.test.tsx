@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { MainMenu } from "./MainMenu";
+import { reconcileUnlocks } from "./progression";
 
 describe("MainMenu", () => {
   it("shows a five-puzzle tree with Navigation initially unlocked", () => {
@@ -54,7 +55,7 @@ describe("MainMenu", () => {
 
   it("applies exact prerequisite thresholds without making future puzzles playable", () => {
     const { rerender } = render(
-      <MainMenu navigationProgress={0.199} imitationProgress={0.6} />,
+      <MainMenu unlocks={reconcileUnlocks([], { navigation: 0.199 })} />,
     );
     expect(
       screen.getByRole("button", { name: "Open Imitation, locked" }),
@@ -64,7 +65,11 @@ describe("MainMenu", () => {
         name: "Open Interval identification, locked",
       }),
     ).toBeInTheDocument();
-    rerender(<MainMenu navigationProgress={0.2} imitationProgress={0.599} />);
+    const branchUnlocks = reconcileUnlocks([], {
+      navigation: 0.2,
+      imitation: 0.599,
+    });
+    rerender(<MainMenu unlocks={branchUnlocks} />);
     expect(
       screen.getByRole("button", { name: "Open Imitation" }),
     ).toBeInTheDocument();
@@ -73,7 +78,12 @@ describe("MainMenu", () => {
         name: "Open Interval identification, locked",
       }),
     ).toBeInTheDocument();
-    rerender(<MainMenu navigationProgress={0.2} imitationProgress={0.6} />);
+    const unlocks = reconcileUnlocks(branchUnlocks, { imitation: 0.6 });
+    rerender(
+      <MainMenu
+        unlocks={reconcileUnlocks(unlocks, { navigation: 0, imitation: 0 })}
+      />,
+    );
     fireEvent.click(
       screen.getByRole("button", {
         name: "Open Interval identification, coming soon",

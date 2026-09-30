@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { Introduction } from "./Introduction";
 import styles from "./Introduction.module.css";
+import { rewardMilestones } from "./progression";
 
 const props = {
   title: "Note navigation",
@@ -183,6 +184,111 @@ describe("Introduction", () => {
     expect(within(track).queryByRole("progressbar")).not.toBeInTheDocument();
     expect(
       within(track).queryByText(/earned|unlocked/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("retains earned rewards when current progress retreats", () => {
+    const milestones = rewardMilestones("navigation", ["reward:navigation:33"]);
+    const { rerender } = render(
+      <Introduction {...props} progress={0.5} milestones={milestones} />,
+    );
+    const earned = screen.getByRole("img", {
+      name: "33% placeholder sound reward, unlocked",
+    });
+    expect(earned).toHaveClass(styles.earnedMarker);
+    expect(
+      screen.getByRole("img", {
+        name: "66% placeholder sound reward, locked",
+      }),
+    ).not.toHaveClass(styles.earnedMarker);
+
+    rerender(
+      <Introduction {...props} progress={0.1} milestones={milestones} />,
+    );
+    expect(
+      screen.getByRole("progressbar", { name: "Overall progress" }),
+    ).toHaveAttribute("aria-valuenow", "10");
+    expect(
+      screen.getByRole("img", {
+        name: "33% placeholder sound reward, unlocked",
+      }),
+    ).toHaveClass(styles.earnedMarker);
+    expect(screen.getByText(props.instruction)).toBeInTheDocument();
+    expect(screen.getByText(props.theoryTip)).toBeInTheDocument();
+  });
+
+  it.each([0, 0.33, 0.66, 0.9999, 1])(
+    "represents progress %s on a full zero-to-100 meter without rounding up",
+    (progress) => {
+      render(<Introduction {...props} progress={progress} milestones={[]} />);
+      const meter = screen.getByRole("progressbar", {
+        name: "Overall progress",
+      });
+      expect(meter).toHaveAttribute("aria-valuemin", "0");
+      expect(meter).toHaveAttribute("aria-valuemax", "100");
+      expect(meter).toHaveAttribute("aria-valuenow", String(progress * 100));
+      expect(meter).toHaveAttribute(
+        "aria-valuetext",
+        `${Math.floor(progress * 100)}%`,
+      );
+      expect(meter.firstElementChild).toHaveClass(styles.progressFill);
+      expect(meter.firstElementChild).toHaveStyle({
+        "--progress": `${progress * 100}%`,
+      });
+      expect(screen.getByText(`${Math.floor(progress * 100)}%`)).toBeVisible();
+      expect(
+        screen.queryByRole("region", { name: "Sound unlocks" }),
+      ).not.toBeInTheDocument();
+    },
+  );
+
+  it("unlocks the final diamond only from earned state, independently of completion", () => {
+    const locked = rewardMilestones("navigation", []);
+    const earned = rewardMilestones("navigation", ["reward:navigation:100"]);
+    const { rerender } = render(
+      <Introduction {...props} progress={1} milestones={locked} />,
+    );
+    expect(
+      screen.getByRole("img", {
+        name: "100% placeholder sound reward, locked",
+      }),
+    ).not.toHaveClass(styles.earnedMarker);
+
+    rerender(<Introduction {...props} progress={1} milestones={earned} />);
+    expect(
+      screen.getByRole("img", {
+        name: "100% placeholder sound reward, unlocked",
+      }),
+    ).toHaveClass(styles.finalMarker, styles.earnedMarker);
+    expect(screen.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuetext",
+      "100%",
+    );
+
+    rerender(<Introduction {...props} progress={0.9999} milestones={earned} />);
+    expect(screen.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuetext",
+      "99%",
+    );
+    expect(
+      screen.getByRole("img", {
+        name: "100% placeholder sound reward, unlocked",
+      }),
+    ).toHaveClass(styles.finalMarker, styles.earnedMarker);
+  });
+
+  it("shows supplied reward states without inventing current progress", () => {
+    render(
+      <Introduction
+        {...props}
+        milestones={rewardMilestones("navigation", [])}
+      />,
+    );
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("img")).toHaveLength(3);
+    expect(screen.getByRole("list")).toHaveStyle({ "--milestone-count": "3" });
+    expect(
+      screen.queryByRole("button", { name: /reward|sound/i }),
     ).not.toBeInTheDocument();
   });
 

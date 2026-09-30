@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 
 import { Button } from "./Button";
 import styles from "./Introduction.module.css";
@@ -16,6 +16,8 @@ type IntroductionProps = {
     proficiency: number;
     previousProficiency?: number;
   }[];
+  progress?: number;
+  milestones?: readonly { id: string; threshold: number; earned: boolean }[];
   lockedReason?: string;
   runSummary?: { status: "succeeded" | "failed"; puzzlesPlayed: number };
 };
@@ -29,10 +31,24 @@ export function Introduction({
   message,
   icon,
   skills,
+  progress,
+  milestones,
   lockedReason,
   runSummary,
 }: IntroductionProps) {
   const id = useId();
+  const currentProgress =
+    progress === undefined
+      ? undefined
+      : Number.isFinite(progress)
+        ? Math.max(0, Math.min(1, progress))
+        : 0;
+  const percentage = Math.floor((currentProgress ?? 0) * 100);
+  const rewards = milestones ?? [
+    { id: "33", threshold: 0.33, earned: false },
+    { id: "66", threshold: 0.66, earned: false },
+    { id: "100", threshold: 1, earned: false },
+  ];
 
   return (
     <main className="bg-canvas text-ink flex min-h-svh justify-center px-6 py-8">
@@ -60,69 +76,123 @@ export function Introduction({
               : instruction}
           </p>
         </header>
-        {skills?.length ? (
+        {skills?.length ||
+        progress !== undefined ||
+        milestones !== undefined ? (
           <div className="border-rule mt-7 border-t pt-5">
-            <section aria-labelledby={`${id}-skills`}>
-              <h2
-                id={`${id}-skills`}
-                className="text-muted text-xs font-semibold tracking-wide uppercase"
-              >
-                Your skills
-              </h2>
-              <dl className="mt-3 space-y-3 text-sm">
-                {skills.map(({ label, proficiency, previousProficiency }) => (
+            {skills?.length ? (
+              <section aria-labelledby={`${id}-skills`}>
+                <h2
+                  id={`${id}-skills`}
+                  className="text-muted text-xs font-semibold tracking-wide uppercase"
+                >
+                  Your skills
+                </h2>
+                <dl className="mt-3 space-y-3 text-sm">
+                  {skills.map(({ label, proficiency, previousProficiency }) => (
+                    <div
+                      key={label}
+                      className="flex items-baseline justify-between gap-4"
+                    >
+                      <dt className="min-w-0 break-words">{label}</dt>
+                      <dd className="shrink-0 tabular-nums">
+                        {runSummary && previousProficiency !== undefined ? (
+                          <>
+                            <span className="sr-only">Before run: </span>
+                            <span className="text-muted">
+                              {Math.round(previousProficiency * 100)}%
+                            </span>
+                            <span aria-hidden="true"> → </span>
+                            <span className="sr-only">; now: </span>
+                          </>
+                        ) : null}
+                        {Math.round(proficiency * 100)}%
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            ) : null}
+            {currentProgress !== undefined ? (
+              <div className={skills?.length ? "mt-6" : undefined}>
+                <p
+                  id={`${id}-progress`}
+                  className="text-muted flex justify-between text-xs"
+                >
+                  <span>Overall progress</span>
+                  <span className="tabular-nums">{percentage}%</span>
+                </p>
+                <div
+                  role="progressbar"
+                  aria-label="Overall progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={currentProgress * 100}
+                  aria-valuetext={`${percentage}%`}
+                  className="bg-rule mt-2 h-1 overflow-hidden rounded-full"
+                >
                   <div
-                    key={label}
-                    className="flex items-baseline justify-between gap-4"
-                  >
-                    <dt className="min-w-0 break-words">{label}</dt>
-                    <dd className="shrink-0 tabular-nums">
-                      {runSummary && previousProficiency !== undefined ? (
-                        <>
-                          <span className="sr-only">Before run: </span>
-                          <span className="text-muted">
-                            {Math.round(previousProficiency * 100)}%
-                          </span>
-                          <span aria-hidden="true"> → </span>
-                          <span className="sr-only">; now: </span>
-                        </>
-                      ) : null}
-                      {Math.round(proficiency * 100)}%
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-            <section className="mt-6" aria-labelledby={`${id}-unlocks`}>
-              <h2
-                id={`${id}-unlocks`}
-                className="text-muted text-xs font-semibold tracking-wide uppercase"
-              >
-                Sound unlocks
-              </h2>
-              <ol className={`${styles.track} relative mt-4 grid grid-cols-3`}>
-                {[33, 66, 100].map((threshold) => (
-                  <li
-                    key={threshold}
-                    className="relative flex flex-col items-center gap-3 text-xs tabular-nums"
-                  >
-                    {threshold === 100 ? (
+                    className={`${styles.progressFill} bg-accent h-full`}
+                    style={
+                      {
+                        "--progress": `${currentProgress * 100}%`,
+                      } as CSSProperties
+                    }
+                  />
+                </div>
+              </div>
+            ) : null}
+            {rewards.length ? (
+              <section className="mt-6" aria-labelledby={`${id}-unlocks`}>
+                <h2
+                  id={`${id}-unlocks`}
+                  className="text-muted text-xs font-semibold tracking-wide uppercase"
+                >
+                  Sound unlocks
+                </h2>
+                <ol
+                  className={`${styles.track} relative mt-4 flex`}
+                  style={
+                    { "--milestone-count": rewards.length } as CSSProperties
+                  }
+                >
+                  {rewards.map(({ id: rewardId, threshold, earned }) => (
+                    <li
+                      key={rewardId}
+                      className="relative flex min-w-0 flex-1 flex-col items-center gap-3 text-xs tabular-nums"
+                    >
                       <span
-                        className={`${styles.marker} ${styles.finalMarker} relative block size-3`}
-                        role="img"
-                        aria-label="Final milestone: diamond"
+                        className={`${styles.marker} ${threshold === 1 ? styles.finalMarker : "rounded-full"} ${earned ? styles.earnedMarker : ""} relative block size-3`}
+                        role={
+                          milestones !== undefined || threshold === 1
+                            ? "img"
+                            : undefined
+                        }
+                        aria-hidden={
+                          milestones === undefined && threshold !== 1
+                            ? true
+                            : undefined
+                        }
+                        aria-label={
+                          milestones !== undefined
+                            ? `${Math.floor(threshold * 100)}% placeholder sound reward, ${earned ? "unlocked" : "locked"}`
+                            : threshold === 1
+                              ? "Final milestone: diamond"
+                              : undefined
+                        }
                       />
-                    ) : (
                       <span
-                        className={`${styles.marker} relative block size-3 rounded-full`}
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span>{threshold}%</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
+                        aria-hidden={
+                          milestones !== undefined ? true : undefined
+                        }
+                      >
+                        {Math.floor(threshold * 100)}%
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ) : null}
           </div>
         ) : null}
 

@@ -1,8 +1,8 @@
 .track::before {
   content: "";
   position: absolute;
-  /* Equal-width milestone columns put the outer centers one sixth in. */
-  inset-inline: calc(100% / 6);
+  /* Stop at the outer marker centers, regardless of the reward count. */
+  inset-inline: calc(100% / (2 * var(--milestone-count)));
   top: calc(var(--spacing) * 1.5);
   height: 1px;
   background: var(--color-rule);
@@ -17,4 +17,13 @@
 .finalMarker {
   border-color: var(--color-accent);
   transform: rotate(45deg);
+}
+
+.earnedMarker {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.progressFill {
+  width: var(--progress);
 }

@@ -9,6 +9,15 @@ import {
 } from "./imitation/persistence";
 import { Introduction } from "./Introduction";
 import { MainMenu } from "./MainMenu";
+import {
+  clearUnlocks,
+  isPuzzleUnlocked,
+  loadUnlocks,
+  profileProgress,
+  reconcileUnlocks,
+  rewardMilestones,
+  saveUnlocks,
+} from "./progression";
 import { PuzzleKeyboard } from "./PuzzleKeyboard";
 import { PuzzleIcon } from "./PuzzleIcon";
 import { keyboardSynth } from "./keyboardSynth";
@@ -215,13 +224,11 @@ function RunView({
   );
 }
 
-// Use current estimates for prerequisite checks, not a permanent unlock ledger.
-// Reward completion remains separate from these curriculum thresholds.
-function profileProgress(profile: Record<string, { proficiency: number }>) {
-  const skills = Object.values(profile);
-  return (
-    skills.reduce((sum, skill) => sum + skill.proficiency, 0) / skills.length
-  );
+function loadReconciledUnlocks() {
+  return reconcileUnlocks(loadUnlocks(window.localStorage), {
+    navigation: profileProgress(loadProfile(window.localStorage)),
+    imitation: profileProgress(loadImitationProfile(window.localStorage)),
+  });
 }
 
 export function App() {
@@ -229,10 +236,15 @@ export function App() {
   const [profile, setProfile] = useState(() =>
     loadProfile(window.localStorage),
   );
+  const [unlocks, setUnlocks] = useState(loadReconciledUnlocks);
   const [session, setSession] = useState<RunSession | null>(null);
   const navigationProgress = profileProgress(profile);
 
   useEffect(() => stopReveal, []);
+  useEffect(() => {
+    if (unlocks.length) saveUnlocks(unlocks, window.localStorage);
+    else clearUnlocks(window.localStorage);
+  }, [unlocks]);
 
   const beginRun = () => {
     stopReveal();
@@ -257,6 +269,9 @@ export function App() {
     );
     setProfile(transition.state.profile);
     saveProfile(transition.state.profile, window.localStorage);
+    const nextUnlocks = loadReconciledUnlocks();
+    saveUnlocks(nextUnlocks, window.localStorage);
+    setUnlocks(nextUnlocks);
     setSession({
       ...session,
       run: transition.state,
@@ -285,6 +300,8 @@ export function App() {
   const eraseProgress = () => {
     clearSavedProfile(window.localStorage);
     clearImitationProfile(window.localStorage);
+    clearUnlocks(window.localStorage);
+    setUnlocks([]);
     setProfile(createDefaultProfile());
     setSession(null);
   };
@@ -298,10 +315,7 @@ export function App() {
   if (screen === "menu") {
     return (
       <MainMenu
-        navigationProgress={navigationProgress}
-        imitationProgress={profileProgress(
-          loadImitationProfile(window.localStorage),
-        )}
+        unlocks={unlocks}
         onOpenImitation={() => setScreen("imitation")}
         onOpenNoteNavigation={() => setScreen("introduction")}
         onOpenSettings={() => setScreen("settings")}
@@ -319,9 +333,12 @@ export function App() {
   if (screen === "imitation") {
     return (
       <ImitationGame
-        onExit={() => setScreen("menu")}
+        onExit={() => {
+          setUnlocks(loadReconciledUnlocks());
+          setScreen("menu");
+        }}
         lockedReason={
-          navigationProgress < 0.2
+          !isPuzzleUnlocked("imitation", unlocks)
             ? "Reach 20% in Navigation to unlock."
             : undefined
         }
@@ -336,6 +353,8 @@ export function App() {
         title="Note navigation"
         instruction="Learn to identify the direction and distance between notes."
         theoryTip={navigationTheoryTip(profile)}
+        progress={navigationProgress}
+        milestones={rewardMilestones("navigation", unlocks)}
         icon={<PuzzleIcon name="navigation" className="h-full w-full" />}
         skills={SKILLS.map((skill) => ({
           label: skillLabels[skill],

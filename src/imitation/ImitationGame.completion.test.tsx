@@ -5,6 +5,8 @@ interface IntroductionContract {
   title: string;
   instruction: string;
   theoryTip: string;
+  progress?: number;
+  milestones?: readonly { id: string; threshold: number; earned: boolean }[];
   onBack: () => void;
   onContinue: () => void;
   runSummary?: { status: "succeeded" | "failed"; puzzlesPlayed: number };
@@ -37,6 +39,13 @@ vi.mock("../Introduction", async (importOriginal) => {
 });
 
 import { createSeededRng } from "../noteNavigation/random";
+import {
+  loadUnlocks,
+  profileProgress,
+  reconcileUnlocks,
+  rewardMilestones,
+  saveUnlocks,
+} from "../progression";
 import * as director from "./director";
 import { ImitationGame } from "./ImitationGame";
 import { loadImitationProfile, type ImitationStorage } from "./persistence";
@@ -143,6 +152,7 @@ describe("Imitation completion on Introduction", () => {
       }
 
       await finishRun();
+      expect(loadUnlocks(storage)).toContain("reward:imitation:33");
       expect(screen.queryByRole("heading", { name: "Imitation" })).toBeNull();
       expect(screen.queryByRole("button", { name: "View results" })).toBeNull();
       expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
@@ -173,6 +183,10 @@ describe("Imitation completion on Introduction", () => {
         })),
       );
       const saved = loadImitationProfile(storage);
+      expect(introProps().progress).toBe(profileProgress(saved));
+      expect(introProps().milestones).toEqual(
+        rewardMilestones("imitation", loadUnlocks(storage)),
+      );
       expect(IMITATION_SKILLS.map((skill) => saved[skill].proficiency)).toEqual(
         introProps().skills.map((skill) => skill.proficiency),
       );
@@ -183,6 +197,57 @@ describe("Imitation completion on Introduction", () => {
       expect(vi.getTimerCount()).toBe(0);
     },
   );
+
+  it("persists threshold crossings immediately, merges the latest ledger, and keeps rewards after a decline and exit", async () => {
+    const storage = memoryStorage();
+    const submit = director.submitImitationResponse;
+    let proficiency = 0.66;
+    vi.spyOn(director, "submitImitationResponse").mockImplementation(
+      (...args) => {
+        const result = submit(...args);
+        return {
+          ...result,
+          state: {
+            ...result.state,
+            status: "active",
+            profile: Object.fromEntries(
+              IMITATION_SKILLS.map((skill) => [
+                skill,
+                { ...result.state.profile[skill], proficiency },
+              ]),
+            ) as typeof result.state.profile,
+          },
+        };
+      },
+    );
+    const view = render(
+      <ImitationGame rng={createSeededRng(19)} storage={storage} />,
+    );
+    await start();
+    finishPlayback();
+    const navigationUnlocks = reconcileUnlocks([], { navigation: 0.66 });
+    saveUnlocks(navigationUnlocks, storage);
+    submitResponse();
+    const earned = reconcileUnlocks(navigationUnlocks, { imitation: 0.66 });
+    expect(loadUnlocks(storage)).toEqual(earned);
+    finishPlayback();
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    finishPlayback();
+    proficiency = 0;
+    submitResponse();
+    expect(loadUnlocks(storage)).toEqual(earned);
+    fireEvent.click(screen.getByRole("button", { name: "Exit run" }));
+    expect(introProps().progress).toBe(0);
+    expect(introProps().milestones).toEqual(
+      rewardMilestones("imitation", earned),
+    );
+    view.unmount();
+    render(<ImitationGame storage={storage} />);
+    expect(introProps().milestones).toEqual(
+      rewardMilestones("imitation", earned),
+    );
+    expect(loadUnlocks(storage)).toEqual(earned);
+  });
 
   it("Play again starts a fresh attempt and uses the updated profile as the next baseline", async () => {
     completeAfterTwoSubmissions("succeeded");

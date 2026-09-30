@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PuzzleIcon, type PuzzleIconName } from "./PuzzleIcon";
+import { isPuzzleUnlocked, type Unlocks } from "./progression";
 import styles from "./MainMenu.module.css";
 
 const puzzles: readonly {
@@ -41,23 +42,21 @@ const puzzles: readonly {
 ];
 
 type MainMenuProps = {
-  navigationProgress?: number;
-  imitationProgress?: number;
+  unlocks?: Unlocks;
   onOpenNoteNavigation?: () => void;
   onOpenImitation?: () => void;
   onOpenSettings?: () => void;
 };
 
 export function MainMenu({
-  navigationProgress = 0,
-  imitationProgress = 0,
+  unlocks = [],
   onOpenNoteNavigation,
   onOpenImitation,
   onOpenSettings,
 }: MainMenuProps) {
   const [upcoming, setUpcoming] = useState<PuzzleIconName | null>(null);
-  const branchOpen = navigationProgress >= 0.2;
-  const intervalsOpen = branchOpen && imitationProgress >= 0.6;
+  const branchOpen = isPuzzleUnlocked("imitation", unlocks);
+  const intervalsOpen = isPuzzleUnlocked("intervals", unlocks);
   const selected = puzzles.find((puzzle) => puzzle.id === upcoming);
 
   if (selected) {
@@ -65,7 +64,7 @@ export function MainMenu({
       selected.id === "intervals"
         ? "Reach 60% in Imitation to unlock."
         : "Reach 20% in Navigation to unlock.";
-    const met = selected.id === "intervals" ? intervalsOpen : branchOpen;
+    const met = isPuzzleUnlocked(selected.id, unlocks);
     return (
       <main className="bg-canvas text-ink min-h-svh px-6 py-8">
         <div className="mx-auto max-w-md">
@@ -136,12 +135,7 @@ export function MainMenu({
             />
           </svg>
           {puzzles.map((puzzle) => {
-            const locked =
-              puzzle.id === "navigation"
-                ? false
-                : puzzle.id === "intervals"
-                  ? !intervalsOpen
-                  : !branchOpen;
+            const locked = !isPuzzleUnlocked(puzzle.id, unlocks);
             const available =
               puzzle.id === "navigation" || puzzle.id === "imitation";
             const onClick =

@@ -11,6 +11,9 @@ const synth = vi.hoisted(() => ({
 vi.mock("../keyboardSynth", () => ({ keyboardSynth: synth }));
 
 import { createSeededRng } from "../noteNavigation/random";
+import { loadUnlocks, reconcileUnlocks } from "../progression";
+import { createImitationProfile } from "./profile";
+import { saveImitationProfile } from "./persistence";
 import { ImitationGame } from "./ImitationGame";
 import { PLAYBACK_TIMING } from "./playback";
 import { movementFeedback } from "./slotFeedbackPresentation";
@@ -119,6 +122,21 @@ describe("ImitationGame", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("migrates saved Imitation progress using standalone custom storage", () => {
+    const { storage } = memoryStorage();
+    const profile = Object.fromEntries(
+      Object.entries(createImitationProfile()).map(([key, skill]) => [
+        key,
+        { ...skill, proficiency: 0.66 },
+      ]),
+    ) as ReturnType<typeof createImitationProfile>;
+    saveImitationProfile(profile, storage);
+    render(<ImitationGame storage={storage} />);
+    expect(loadUnlocks(storage)).toEqual(
+      reconcileUnlocks([], { imitation: 0.66 }),
+    );
   });
 
   it("shows the shared introduction and leaves saved progress alone on back", () => {

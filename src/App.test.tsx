@@ -10,6 +10,7 @@ const synth = vi.hoisted(() => ({
 vi.mock("./keyboardSynth", () => ({ keyboardSynth: synth }));
 
 import { App } from "./App";
+import { loadUnlocks, reconcileUnlocks, saveUnlocks } from "./progression";
 import * as navigation from "./noteNavigation";
 import {
   loadImitationProfile,
@@ -101,17 +102,96 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("erases both puzzle profiles from settings without clearing unrelated data", () => {
+  it("migrates both saved profiles and retains earned access after proficiency falls and reloads", () => {
+    const navigationProfile = createProfile({
+      numericalDestination: { proficiency: 0.66 },
+      numericalDistance: { proficiency: 0.66 },
+      intervalInterpretation: { proficiency: 0.66 },
+      intervalIdentification: { proficiency: 0.66 },
+    });
+    const imitationProfile = Object.fromEntries(
+      Object.entries(createImitationProfile()).map(([key, skill]) => [
+        key,
+        { ...skill, proficiency: 0.66 },
+      ]),
+    ) as ReturnType<typeof createImitationProfile>;
+    saveProfile(navigationProfile, window.localStorage);
+    saveImitationProfile(imitationProfile, window.localStorage);
+    const first = render(<App />);
+    const earned = loadUnlocks(window.localStorage);
+    expect(earned).toEqual(
+      reconcileUnlocks([], { navigation: 0.66, imitation: 0.66 }),
+    );
+    first.unmount();
+    saveProfile(createDefaultProfile(), window.localStorage);
+    saveImitationProfile(createImitationProfile(), window.localStorage);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: /imitation/i }));
+    expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
+    expect(loadUnlocks(window.localStorage)).toEqual(earned);
+  });
+
+  it.each(["active", "failed"] as const)(
+    "saves Navigation threshold rewards on an answer in a %s run, before exit",
+    (status) => {
+      const updatedProfile = createProfile({
+        numericalDestination: { proficiency: 0.66 },
+        numericalDistance: { proficiency: 0.66 },
+        intervalInterpretation: { proficiency: 0.66 },
+        intervalIdentification: { proficiency: 0.66 },
+      });
+      const answer = navigation.answerQuestion;
+      vi.spyOn(navigation, "answerQuestion").mockImplementation((...args) => {
+        const result = answer(...args);
+        return {
+          ...result,
+          state: { ...result.state, status, profile: updatedProfile },
+        };
+      });
+      render(<App />);
+      fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
+      fireEvent.click(screen.getByRole("button", { name: "Start" }));
+      fireEvent.click(screen.getAllByRole("button", { pressed: false })[0]!);
+      fireEvent.click(screen.getByRole("button", { name: "Submit" }));
+      expect(loadProfile(window.localStorage)).toEqual(updatedProfile);
+      expect(loadUnlocks(window.localStorage)).toEqual(
+        reconcileUnlocks([], { navigation: 0.66 }),
+      );
+      fireEvent.click(screen.getByRole("button", { name: "Exit run" }));
+      fireEvent.click(screen.getByRole("button", { name: /imitation/i }));
+      expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
+    },
+  );
+
+  it("refreshes the latest Imitation ledger on exit instead of overwriting it", () => {
+    saveUnlocks(reconcileUnlocks([], { navigation: 0.2 }), window.localStorage);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: /imitation/i }));
+    const earned = reconcileUnlocks(loadUnlocks(window.localStorage), {
+      imitation: 0.66,
+    });
+    saveUnlocks(earned, window.localStorage);
+    fireEvent.click(screen.getByRole("button", { name: "← Back" }));
+    expect(loadUnlocks(window.localStorage)).toEqual(earned);
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    expect(loadUnlocks(window.localStorage)).toEqual(earned);
+  });
+
+  it("erases both puzzle profiles and unlocks from settings without clearing unrelated data", () => {
     const navigation = createDefaultProfile();
     const imitation = createImitationProfile();
     saveProfile(navigation, window.localStorage);
     saveImitationProfile(imitation, window.localStorage);
+    saveUnlocks(
+      reconcileUnlocks([], { navigation: 1, imitation: 1 }),
+      window.localStorage,
+    );
     window.localStorage.setItem("unrelated", "keep");
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: "Settings" }));
     fireEvent.click(screen.getByRole("button", { name: "Erase all progress" }));
-    expect(window.localStorage.length).toBe(3);
+    expect(window.localStorage.length).toBe(4);
     fireEvent.click(
       screen.getByRole("button", { name: "Confirm erase all progress" }),
     );
@@ -121,6 +201,7 @@ describe("App", () => {
     );
     expect(window.localStorage.length).toBe(1);
     expect(window.localStorage.getItem("unrelated")).toBe("keep");
+    expect(loadUnlocks(window.localStorage)).toEqual([]);
     expect(loadProfile(window.localStorage)).toEqual(createDefaultProfile());
     expect(loadImitationProfile(window.localStorage)).toEqual(
       createImitationProfile(),
@@ -130,6 +211,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { name: "Imitation" }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start" })).toBeDisabled();
   });
 
   it.each(["succeeded", "failed"] as const)(

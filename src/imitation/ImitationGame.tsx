@@ -7,6 +7,13 @@ import { displayPitch, type Pitch } from "../music";
 import { PuzzleKeyboard } from "../PuzzleKeyboard";
 import { PuzzleIcon } from "../PuzzleIcon";
 import { RunShell } from "../run";
+import {
+  loadUnlocks,
+  profileProgress,
+  reconcileUnlocks,
+  rewardMilestones,
+  saveUnlocks,
+} from "../progression";
 import { imitationTheoryTip } from "./theoryTips";
 import {
   loadImitationProfile,
@@ -223,6 +230,14 @@ export function ImitationGame({
   const storage = suppliedStorage ?? defaultStorage();
   const [screen, setScreen] = useState<GameScreen>("introduction");
   const [profile, setProfile] = useState(() => loadImitationProfile(storage));
+  const [unlocks, setUnlocks] = useState(() =>
+    reconcileUnlocks(loadUnlocks(storage), {
+      imitation: profileProgress(profile),
+    }),
+  );
+  useEffect(() => {
+    if (unlocks.length) saveUnlocks(unlocks, storage);
+  }, [unlocks, storage]);
   const [session, setSession] = useState<ImitationSession | null>(null);
   const [playback, setPlayback] = useState<PlaybackState | null>(null);
   const [message, setMessage] = useState("");
@@ -398,6 +413,11 @@ export function ImitationGame({
     );
     setProfile(result.state.profile);
     saveImitationProfile(result.state.profile, storage);
+    const nextUnlocks = reconcileUnlocks(loadUnlocks(storage), {
+      imitation: profileProgress(result.state.profile),
+    });
+    saveUnlocks(nextUnlocks, storage);
+    setUnlocks(nextUnlocks);
     setSession({
       ...session,
       run: result.state,
@@ -453,6 +473,8 @@ export function ImitationGame({
         title="Imitation"
         instruction="Listen to a melody, then recreate its pattern on the keyboard."
         theoryTip={imitationTheoryTip(profile)}
+        progress={profileProgress(profile)}
+        milestones={rewardMilestones("imitation", unlocks)}
         icon={<PuzzleIcon name="imitation" className="h-full w-full" />}
         skills={Object.entries(skillLabels).map(([key, label]) => ({
           label,
