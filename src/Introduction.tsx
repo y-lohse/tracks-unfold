@@ -17,7 +17,12 @@ type IntroductionProps = {
     previousProficiency?: number;
   }[];
   progress?: number;
-  milestones?: readonly { id: string; threshold: number; earned: boolean }[];
+  milestones?: readonly {
+    id: string;
+    threshold: number;
+    earned: boolean;
+    label?: string;
+  }[];
   lockedReason?: string;
   runSummary?: { status: "succeeded" | "failed"; puzzlesPlayed: number };
 };
@@ -44,7 +49,7 @@ export function Introduction({
         ? Math.max(0, Math.min(1, progress))
         : 0;
   const percentage = Math.floor((currentProgress ?? 0) * 100);
-  const rewards = milestones ?? [
+  const rewards: NonNullable<IntroductionProps["milestones"]> = milestones ?? [
     { id: "33", threshold: 0.33, earned: false },
     { id: "66", threshold: 0.66, earned: false },
     { id: "100", threshold: 1, earned: false },
@@ -156,7 +161,7 @@ export function Introduction({
                     { "--milestone-count": rewards.length } as CSSProperties
                   }
                 >
-                  {rewards.map(({ id: rewardId, threshold, earned }) => (
+                  {rewards.map(({ id: rewardId, threshold, earned, label }) => (
                     <li
                       key={rewardId}
                       className="relative flex min-w-0 flex-1 flex-col items-center gap-3 text-xs tabular-nums"
@@ -175,7 +180,7 @@ export function Introduction({
                         }
                         aria-label={
                           milestones !== undefined
-                            ? `${Math.floor(threshold * 100)}% placeholder sound reward, ${earned ? "unlocked" : "locked"}`
+                            ? `${Math.floor(threshold * 100)}% ${label ?? "Sound reward"}, ${earned ? "unlocked" : "locked"}`
                             : threshold === 1
                               ? "Final milestone: diamond"
                               : undefined
@@ -188,6 +193,14 @@ export function Introduction({
                       >
                         {Math.floor(threshold * 100)}%
                       </span>
+                      {label ? (
+                        <span
+                          className="text-muted text-center"
+                          aria-hidden="true"
+                        >
+                          {label}
+                        </span>
+                      ) : null}
                     </li>
                   ))}
                 </ol>

@@ -22,6 +22,7 @@ export function Settings({ onBack, onEraseProgress }: SettingsProps) {
           ← Back
         </button>
         <h1 className="mt-10 mb-5 text-2xl font-semibold">Settings</h1>
+
         <p className="text-muted text-sm leading-relaxed">
           Erase all progress for Navigation and Imitation on this device.
         </p>

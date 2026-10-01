@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const synth = vi.hoisted(() => ({
+  configure: vi.fn(),
   noteOn: vi.fn(),
   noteOff: vi.fn(),
   releaseAll: vi.fn(),
@@ -10,6 +11,12 @@ const synth = vi.hoisted(() => ({
 vi.mock("./keyboardSynth", () => ({ keyboardSynth: synth }));
 
 import { App } from "./App";
+import { DEFAULT_INSTRUMENT_SOUND } from "./instrumentPresets";
+import {
+  loadInstrumentSound,
+  saveInstrumentSound,
+  INSTRUMENT_STORAGE_KEY,
+} from "./instrumentStorage";
 import { loadUnlocks, reconcileUnlocks, saveUnlocks } from "./progression";
 import * as navigation from "./noteNavigation";
 import {
@@ -32,7 +39,318 @@ describe("App", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
+
+  it("assembles four compact slots directly from home and restores the shared sound", () => {
+    vi.useFakeTimers();
+    saveUnlocks(
+      reconcileUnlocks([], { navigation: 1, imitation: 1 }),
+      window.localStorage,
+    );
+    const first = render(<App />);
+    expect(synth.configure).toHaveBeenLastCalledWith(DEFAULT_INSTRUMENT_SOUND);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    expect(screen.getAllByRole("combobox")).toHaveLength(4);
+    expect(
+      screen.queryByRole("combobox", { name: "Octave" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hold keys/)).not.toBeInTheDocument();
+    const sound = {
+      tone: "reed",
+      shape: "round",
+      filter: "mellow",
+      effect: "grit",
+    } as const;
+    for (const [label, value] of [
+      ["Tone", "reed"],
+      ["Shape", "round"],
+      ["Filter", "mellow"],
+      ["Effect", "grit"],
+    ]) {
+      fireEvent.change(screen.getByRole("combobox", { name: label }), {
+        target: { value },
+      });
+    }
+    expect(synth.configure).toHaveBeenLastCalledWith(sound);
+    expect(loadInstrumentSound(window.localStorage)).toEqual(sound);
+    const key = screen.getByRole("button", { name: "C4" });
+    fireEvent.keyDown(key, { key: " " });
+    expect(synth.noteOn).toHaveBeenLastCalledWith("C4");
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.keyUp(key, { key: " " });
+    expect(synth.noteOff).toHaveBeenLastCalledWith("C4");
+    expect(key).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(
+      screen.getByRole("heading", { name: "Tracks Unfold" }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
+    expect(synth.configure).toHaveBeenLastCalledWith(sound);
+    first.unmount();
+    render(<App />);
+    expect(synth.configure).toHaveBeenLastCalledWith(sound);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    expect(screen.getByRole("combobox", { name: "Shape" })).toHaveValue(
+      "round",
+    );
+    expect(screen.getByRole("combobox", { name: "Effect" })).toHaveValue(
+      "grit",
+    );
+  });
+
+  it("cancels pending minimum notes on preset changes and exit", () => {
+    vi.useFakeTimers();
+    saveUnlocks(reconcileUnlocks([], { navigation: 1 }), window.localStorage);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    const key = screen.getByRole("button", { name: "C4" });
+    fireEvent.keyDown(key, { key: "Enter" });
+    fireEvent.keyUp(key, { key: "Enter" });
+    fireEvent.change(screen.getByRole("combobox", { name: "Tone" }), {
+      target: { value: "triangle" },
+    });
+    expect(synth.releaseAll).toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "C4" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    synth.noteOff.mockClear();
+    act(() => vi.advanceTimersByTime(300));
+    expect(synth.noteOff).not.toHaveBeenCalled();
+    fireEvent.keyDown(screen.getByRole("button", { name: "D4" }), {
+      key: "Enter",
+    });
+    fireEvent.keyUp(screen.getByRole("button", { name: "D4" }), {
+      key: "Enter",
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    synth.noteOff.mockClear();
+    act(() => vi.advanceTimersByTime(300));
+    expect(synth.noteOff).not.toHaveBeenCalled();
+  });
+
+  it("gives taps 250ms, retriggers repeated taps, and releases longer holds immediately", () => {
+    vi.useFakeTimers();
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    const key = screen.getByRole("button", { name: "C4" });
+    synth.noteOff.mockClear();
+    fireEvent.keyDown(key, { key: "Enter" });
+    act(() => vi.advanceTimersByTime(20));
+    fireEvent.keyUp(key, { key: "Enter" });
+    act(() => vi.advanceTimersByTime(229));
+    expect(synth.noteOff).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(1));
+    expect(synth.noteOff).toHaveBeenCalledWith("C4");
+    expect(key).toHaveAttribute("aria-pressed", "false");
+    fireEvent.keyDown(key, { key: "Enter" });
+    fireEvent.keyUp(key, { key: "Enter" });
+    act(() => vi.advanceTimersByTime(100));
+    fireEvent.keyDown(key, { key: "Enter" });
+    synth.noteOff.mockClear();
+    act(() => vi.advanceTimersByTime(300));
+    expect(synth.noteOff).not.toHaveBeenCalled();
+    fireEvent.keyUp(key, { key: "Enter" });
+    expect(synth.noteOff).toHaveBeenCalledWith("C4");
+  });
+
+  it("interrupts tap timers when the window loses focus", () => {
+    vi.useFakeTimers();
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    const key = screen.getByRole("button", { name: "C4" });
+    fireEvent.keyDown(key, { key: "Enter" });
+    fireEvent.keyUp(key, { key: "Enter" });
+    fireEvent.blur(window);
+    expect(key).toHaveAttribute("aria-pressed", "false");
+    synth.noteOff.mockClear();
+    act(() => vi.advanceTimersByTime(300));
+    expect(synth.noteOff).not.toHaveBeenCalled();
+  });
+
+  it("relocks and resets equipped rewards when progress is erased", () => {
+    saveUnlocks(reconcileUnlocks([], { imitation: 1 }), window.localStorage);
+    saveInstrumentSound(
+      { ...DEFAULT_INSTRUMENT_SOUND, tone: "reed" },
+      window.localStorage,
+    );
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Erase all progress" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Confirm erase all progress" }),
+    );
+    expect(loadInstrumentSound(window.localStorage)).toEqual(
+      DEFAULT_INSTRUMENT_SOUND,
+    );
+    expect(synth.configure).toHaveBeenLastCalledWith(DEFAULT_INSTRUMENT_SOUND);
+    expect(loadUnlocks(window.localStorage)).toEqual([]);
+  });
+
+  it("keeps unsaved choices active and reports persistence failure", () => {
+    saveUnlocks(reconcileUnlocks([], { navigation: 1 }), window.localStorage);
+    const setItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (
+      this: Storage,
+      key,
+      value,
+    ) {
+      if (key === INSTRUMENT_STORAGE_KEY) throw new Error("quota");
+      setItem.call(this, key, value);
+    });
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Tone" }), {
+      target: { value: "triangle" },
+    });
+    expect(screen.getByRole("combobox", { name: "Tone" })).toHaveValue(
+      "triangle",
+    );
+    expect(synth.configure).toHaveBeenLastCalledWith({
+      ...DEFAULT_INSTRUMENT_SOUND,
+      tone: "triangle",
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent("could not be saved");
+  });
+
+  it("offers only defaults initially and rejects selecting a locked option", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    const options = screen.getAllByRole("option") as HTMLOptionElement[];
+    expect(
+      options
+        .filter((option) => !option.disabled)
+        .map((option) => option.value),
+    ).toEqual(["sine", "steady", "open", "dry"]);
+    expect(
+      screen.getByRole("option", { name: "Round — Navigation 33%" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("option", { name: "Grit — Imitation 66%" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("option", { name: "Square — Locked" }),
+    ).toBeDisabled();
+    fireEvent.change(screen.getByRole("combobox", { name: "Tone" }), {
+      target: { value: "reed" },
+    });
+    expect(synth.configure).toHaveBeenLastCalledWith(DEFAULT_INSTRUMENT_SOUND);
+    expect(window.localStorage.getItem(INSTRUMENT_STORAGE_KEY)).toBeNull();
+  });
+
+  it("does not treat saved prototype sound choices as earned content", () => {
+    saveUnlocks(["reward:navigation:33"], window.localStorage);
+    saveInstrumentSound(
+      { tone: "reed", shape: "round", filter: "thin", effect: "grit" },
+      window.localStorage,
+    );
+    render(<App />);
+    const available = { ...DEFAULT_INSTRUMENT_SOUND, shape: "round" };
+    expect(synth.configure).toHaveBeenLastCalledWith(available);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    expect(screen.getByRole("combobox", { name: "Tone" })).toHaveValue("sine");
+    expect(screen.getByRole("combobox", { name: "Shape" })).toHaveValue(
+      "round",
+    );
+    expect(screen.getByRole("combobox", { name: "Filter" })).toHaveValue(
+      "open",
+    );
+    expect(screen.getByRole("combobox", { name: "Effect" })).toHaveValue("dry");
+  });
+
+  it("credits both existing profiles on startup but leaves unassigned content locked", () => {
+    const profile = createProfile({
+      numericalDestination: { proficiency: 1 },
+      numericalDistance: { proficiency: 1 },
+      intervalInterpretation: { proficiency: 1 },
+      intervalIdentification: { proficiency: 1 },
+    });
+    saveProfile(profile, window.localStorage);
+    const imitation = Object.fromEntries(
+      Object.entries(createImitationProfile()).map(([key, skill]) => [
+        key,
+        { ...skill, proficiency: 1 },
+      ]),
+    ) as ReturnType<typeof createImitationProfile>;
+    saveImitationProfile(imitation, window.localStorage);
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    const options = screen.getAllByRole("option") as HTMLOptionElement[];
+    expect(options.filter((option) => !option.disabled)).toHaveLength(10);
+    for (const name of [
+      "Round",
+      "Mellow",
+      "Triangle",
+      "Room",
+      "Grit",
+      "Reed",
+    ]) {
+      expect(screen.getByRole("option", { name })).toBeEnabled();
+    }
+    expect(
+      screen.getByRole("option", { name: "Square — Locked" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("option", { name: "Hall — Locked" }),
+    ).toBeDisabled();
+  });
+
+  it.each([
+    [0.33, "Shape", "round", "Round"],
+    [0.66, "Filter", "mellow", "Mellow"],
+    [1, "Tone", "triangle", "Triangle"],
+  ] as const)(
+    "makes Navigation reward at %s usable immediately after an answer and permanent across reload",
+    (threshold, slot, preset, label) => {
+      const withProgress = (progress: number) =>
+        createProfile({
+          numericalDestination: { proficiency: progress },
+          numericalDistance: { proficiency: progress },
+          intervalInterpretation: { proficiency: progress },
+          intervalIdentification: { proficiency: progress },
+        });
+      saveProfile(withProgress(threshold - 0.0001), window.localStorage);
+      const answer = navigation.answerQuestion;
+      vi.spyOn(navigation, "answerQuestion").mockImplementation((...args) => {
+        const result = answer(...args);
+        return {
+          ...result,
+          state: {
+            ...result.state,
+            profile: withProgress(threshold),
+            status: "failed",
+          },
+        };
+      });
+      const first = render(<App />);
+      fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+      expect(
+        screen.getByRole("option", { name: new RegExp(`^${label} —`) }),
+      ).toBeDisabled();
+      fireEvent.click(screen.getByRole("button", { name: "Back" }));
+      fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
+      fireEvent.click(screen.getByRole("button", { name: "Start" }));
+      fireEvent.click(screen.getAllByRole("button", { pressed: false })[0]!);
+      fireEvent.click(screen.getByRole("button", { name: "Submit" }));
+      fireEvent.click(screen.getByRole("button", { name: "Exit run" }));
+      fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+      expect(screen.getByRole("option", { name: label })).toBeEnabled();
+      fireEvent.change(screen.getByRole("combobox", { name: slot }), {
+        target: { value: preset },
+      });
+      expect(synth.configure).toHaveBeenLastCalledWith({
+        ...DEFAULT_INSTRUMENT_SOUND,
+        [slot.toLowerCase()]: preset,
+      });
+      first.unmount();
+      saveProfile(createDefaultProfile(), window.localStorage);
+      render(<App />);
+      fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+      expect(screen.getByRole("option", { name: label })).toBeEnabled();
+      expect(screen.getByRole("combobox", { name: slot })).toHaveValue(preset);
+    },
+  );
 
   it("opens the puzzle introduction from the instrument menu", () => {
     render(<App />);
@@ -173,7 +491,19 @@ describe("App", () => {
     saveUnlocks(earned, window.localStorage);
     fireEvent.click(screen.getByRole("button", { name: "← Back" }));
     expect(loadUnlocks(window.localStorage)).toEqual(earned);
-    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Instrument" }));
+    expect(screen.getByRole("option", { name: "Room" })).toBeEnabled();
+    expect(screen.getByRole("option", { name: "Grit" })).toBeEnabled();
+    expect(
+      screen.getByRole("option", { name: "Reed — Imitation 100%" }),
+    ).toBeDisabled();
+    fireEvent.change(screen.getByRole("combobox", { name: "Effect" }), {
+      target: { value: "grit" },
+    });
+    expect(synth.configure).toHaveBeenLastCalledWith({
+      ...DEFAULT_INSTRUMENT_SOUND,
+      effect: "grit",
+    });
     expect(loadUnlocks(window.localStorage)).toEqual(earned);
   });
 
@@ -199,7 +529,7 @@ describe("App", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       "All progress erased.",
     );
-    expect(window.localStorage.length).toBe(1);
+    expect(window.localStorage.length).toBe(2);
     expect(window.localStorage.getItem("unrelated")).toBe("keep");
     expect(loadUnlocks(window.localStorage)).toEqual([]);
     expect(loadProfile(window.localStorage)).toEqual(createDefaultProfile());

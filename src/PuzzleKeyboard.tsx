@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import styles from "./PuzzleKeyboard.module.css";
 
 const blackKeys = [
@@ -35,8 +37,10 @@ type PuzzleKeyboardProps = {
   markers?: readonly PuzzleKeyboardMarker[];
   enabledPitches?: ReadonlySet<number>;
   soundingPitch?: number;
+  soundingPitches?: ReadonlySet<number>;
   showPitchLabels?: boolean;
   onPitchPress?: (pitch: number) => void;
+  onPitchRelease?: (pitch: number) => void;
 };
 
 function markerAt(pitch: number, markers: readonly PuzzleKeyboardMarker[]) {
@@ -54,6 +58,7 @@ function KeyFace({
   enabled,
   marker,
   onPress,
+  onRelease,
   pitch,
   sounding,
   showPitchLabel,
@@ -62,10 +67,72 @@ function KeyFace({
   enabled: boolean;
   marker?: PuzzleKeyboardMarker;
   onPress?: (pitch: number) => void;
+  onRelease?: (pitch: number) => void;
   pitch: number;
   sounding: boolean;
   showPitchLabel: boolean;
 }) {
+  const sustained = Boolean(onPress && onRelease);
+  const inputs = useRef(new Set<string>());
+  const releaseHeld = useRef<(() => void) | undefined>(undefined);
+  const suppressClick = useRef(false);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+
+  const syntheticReleaseTimer = useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
+
+  function attack(input: string) {
+    if (!enabled || !onPress || !onRelease || inputs.current.has(input)) return;
+    const first = inputs.current.size === 0;
+    inputs.current.add(input);
+    if (first) {
+      releaseHeld.current = () => onRelease(pitch);
+      onPress(pitch);
+    }
+  }
+
+  function release(input: string) {
+    if (!inputs.current.delete(input) || inputs.current.size > 0) return;
+    const notify = releaseHeld.current;
+    releaseHeld.current = undefined;
+    notify?.();
+  }
+
+  function allowSyntheticClickAfterKeyboard() {
+    clearTimeout(clickTimer.current);
+    // Native keyboard clicks occur before the next task.
+    clickTimer.current = setTimeout(() => {
+      suppressClick.current = false;
+    }, 0);
+  }
+
+  useEffect(() => {
+    if (!sustained || !enabled) return;
+    const heldInputs = inputs.current;
+    function clearHeld() {
+      heldInputs.clear();
+      const notify = releaseHeld.current;
+      releaseHeld.current = undefined;
+      notify?.();
+      clearTimeout(clickTimer.current);
+      clearTimeout(syntheticReleaseTimer.current);
+      suppressClick.current = false;
+    }
+    function onVisibilityChange() {
+      if (document.visibilityState === "hidden") clearHeld();
+    }
+    window.addEventListener("blur", clearHeld);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("blur", clearHeld);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      clearHeld();
+    };
+  }, [sustained, enabled, pitch]);
+
   const markerClass =
     marker?.role === "primary"
       ? styles.primary
@@ -74,6 +141,7 @@ function KeyFace({
         : "";
   const className = [
     styles.key,
+    sustained ? "touch-none select-none" : "",
     markerClass,
     sounding ? styles.sounding : "",
     enabled ? "" : styles.unavailable,
@@ -99,7 +167,51 @@ function KeyFace({
         aria-pressed={sounding}
         className={className}
         disabled={!enabled}
-        onClick={() => onPress(pitch)}
+        onClick={(event) => {
+          if (!sustained) {
+            onPress(pitch);
+          } else if (event.detail === 0 && !suppressClick.current) {
+            attack("click");
+            clearTimeout(syntheticReleaseTimer.current);
+            // Allow asynchronous audio startup before ending the audition.
+            syntheticReleaseTimer.current = setTimeout(
+              () => release("click"),
+              180,
+            );
+          }
+        }}
+        {...(sustained && {
+          onPointerDown: (event) => {
+            if (event.button !== 0 || !enabled) return;
+            event.preventDefault();
+            event.currentTarget.setPointerCapture(event.pointerId);
+            attack(`pointer:${event.pointerId}`);
+          },
+          onPointerUp: (event) => release(`pointer:${event.pointerId}`),
+          onPointerCancel: (event) => release(`pointer:${event.pointerId}`),
+          onLostPointerCapture: (event) =>
+            release(`pointer:${event.pointerId}`),
+          onKeyDown: (event) => {
+            if (event.key !== " " && event.key !== "Enter") return;
+            event.preventDefault();
+            suppressClick.current = true;
+            clearTimeout(clickTimer.current);
+            if (!event.repeat) attack(`key:${event.key}`);
+          },
+          onKeyUp: (event) => {
+            if (event.key !== " " && event.key !== "Enter") return;
+            event.preventDefault();
+            release(`key:${event.key}`);
+            allowSyntheticClickAfterKeyboard();
+          },
+          onBlur: () => {
+            clearTimeout(syntheticReleaseTimer.current);
+            release("click");
+            release("key: ");
+            release("key:Enter");
+            allowSyntheticClickAfterKeyboard();
+          },
+        })}
         type="button"
       >
         {face}
@@ -115,14 +227,18 @@ function Octave({
   markers,
   octave,
   onPitchPress,
+  onPitchRelease,
   soundingPitch,
+  soundingPitches,
   showPitchLabels,
 }: {
   enabledPitches?: ReadonlySet<number>;
   markers: readonly PuzzleKeyboardMarker[];
   octave: number;
   onPitchPress?: (pitch: number) => void;
+  onPitchRelease?: (pitch: number) => void;
   soundingPitch?: number;
+  soundingPitches?: ReadonlySet<number>;
   showPitchLabels: boolean;
 }) {
   const basePitch = (octave + 1) * 12;
@@ -134,8 +250,11 @@ function Octave({
         enabled={enabledPitches?.has(pitch) ?? true}
         marker={markerAt(pitch, markers)}
         onPress={onPitchPress}
+        onRelease={onPitchRelease}
         pitch={pitch}
-        sounding={soundingPitch === pitch}
+        sounding={
+          soundingPitch === pitch || (soundingPitches?.has(pitch) ?? false)
+        }
         showPitchLabel={showPitchLabels}
       />
     );
@@ -166,8 +285,10 @@ export function PuzzleKeyboard({
   markers = [],
   octaves,
   onPitchPress,
+  onPitchRelease,
   showPitchLabels = false,
   soundingPitch,
+  soundingPitches,
 }: PuzzleKeyboardProps) {
   const interactive = onPitchPress !== undefined;
 
@@ -183,8 +304,10 @@ export function PuzzleKeyboard({
           markers={markers}
           octave={octave}
           onPitchPress={onPitchPress}
+          onPitchRelease={onPitchRelease}
           showPitchLabels={showPitchLabels}
           soundingPitch={soundingPitch}
+          soundingPitches={soundingPitches}
         />
       ))}
     </figure>

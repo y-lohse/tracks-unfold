@@ -8,6 +8,16 @@ import {
   loadImitationProfile,
 } from "./imitation/persistence";
 import { Introduction } from "./Introduction";
+import { Instrument } from "./Instrument";
+import {
+  availableInstrumentSound,
+  instrumentMilestones,
+} from "./instrumentUnlocks";
+import {
+  DEFAULT_INSTRUMENT_SOUND,
+  type InstrumentSound,
+} from "./instrumentPresets";
+import { loadInstrumentSound, saveInstrumentSound } from "./instrumentStorage";
 import { MainMenu } from "./MainMenu";
 import {
   clearUnlocks,
@@ -15,7 +25,6 @@ import {
   loadUnlocks,
   profileProgress,
   reconcileUnlocks,
-  rewardMilestones,
   saveUnlocks,
 } from "./progression";
 import { PuzzleKeyboard } from "./PuzzleKeyboard";
@@ -48,7 +57,8 @@ import {
 } from "./noteNavigation";
 import styles from "./App.module.css";
 
-type AppScreen = "menu" | "settings" | "introduction" | "run" | "imitation";
+type AppScreen =
+  "menu" | "settings" | "instrument" | "introduction" | "run" | "imitation";
 
 type RunSession = {
   run: RunState;
@@ -238,6 +248,51 @@ export function App() {
   );
   const [unlocks, setUnlocks] = useState(loadReconciledUnlocks);
   const [session, setSession] = useState<RunSession | null>(null);
+  const [initialInstrument] = useState(() => {
+    try {
+      return {
+        sound: availableInstrumentSound(
+          loadInstrumentSound(window.localStorage),
+          unlocks,
+        ),
+        error: null,
+      };
+    } catch {
+      return {
+        sound: { ...DEFAULT_INSTRUMENT_SOUND },
+        error:
+          "Your saved instrument could not be loaded. Changes will still work for this session.",
+      };
+    }
+  });
+  const [sound, setSound] = useState(initialInstrument.sound);
+  const [instrumentStorageError, setInstrumentStorageError] = useState<
+    string | null
+  >(initialInstrument.error);
+
+  useEffect(() => {
+    keyboardSynth.configure(sound);
+  }, [sound]);
+
+  function changeSound(next: InstrumentSound) {
+    const available = availableInstrumentSound(next, unlocks);
+    if (
+      (Object.keys(next) as (keyof InstrumentSound)[]).some(
+        (slot) => next[slot] !== available[slot],
+      )
+    )
+      return;
+    keyboardSynth.configure(available);
+    setSound(next);
+    try {
+      saveInstrumentSound(next, window.localStorage);
+      setInstrumentStorageError(null);
+    } catch {
+      setInstrumentStorageError(
+        "Your sound works for this session, but could not be saved. Choose another option to retry.",
+      );
+    }
+  }
   const navigationProgress = profileProgress(profile);
 
   useEffect(() => stopReveal, []);
@@ -301,6 +356,7 @@ export function App() {
     clearSavedProfile(window.localStorage);
     clearImitationProfile(window.localStorage);
     clearUnlocks(window.localStorage);
+    changeSound({ ...DEFAULT_INSTRUMENT_SOUND });
     setUnlocks([]);
     setProfile(createDefaultProfile());
     setSession(null);
@@ -319,6 +375,7 @@ export function App() {
         onOpenImitation={() => setScreen("imitation")}
         onOpenNoteNavigation={() => setScreen("introduction")}
         onOpenSettings={() => setScreen("settings")}
+        onOpenInstrument={() => setScreen("instrument")}
       />
     );
   }
@@ -327,6 +384,17 @@ export function App() {
       <Settings
         onBack={() => setScreen("menu")}
         onEraseProgress={eraseProgress}
+      />
+    );
+  }
+  if (screen === "instrument") {
+    return (
+      <Instrument
+        sound={sound}
+        unlocks={unlocks}
+        onChange={changeSound}
+        onBack={() => setScreen("menu")}
+        storageError={instrumentStorageError}
       />
     );
   }
@@ -354,7 +422,7 @@ export function App() {
         instruction="Learn to identify the direction and distance between notes."
         theoryTip={navigationTheoryTip(profile)}
         progress={navigationProgress}
-        milestones={rewardMilestones("navigation", unlocks)}
+        milestones={instrumentMilestones("navigation", unlocks)}
         icon={<PuzzleIcon name="navigation" className="h-full w-full" />}
         skills={SKILLS.map((skill) => ({
           label: skillLabels[skill],

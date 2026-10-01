@@ -33,11 +33,13 @@ describe("MainMenu", () => {
     const onOpenNoteNavigation = vi.fn();
     const onOpenImitation = vi.fn();
     const onOpenSettings = vi.fn();
+    const onOpenInstrument = vi.fn();
     render(
       <MainMenu
         onOpenImitation={onOpenImitation}
         onOpenNoteNavigation={onOpenNoteNavigation}
         onOpenSettings={onOpenSettings}
+        onOpenInstrument={onOpenInstrument}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: /note navigation/i }));
@@ -49,6 +51,12 @@ describe("MainMenu", () => {
     expect(screen.queryByText("Settings")).not.toBeInTheDocument();
     fireEvent.click(settings);
     expect(onOpenSettings).toHaveBeenCalledOnce();
+    const instrument = screen.getByRole("button", { name: "Instrument" });
+    expect(instrument.closest("header")).toBe(settings.closest("header"));
+    expect(instrument.querySelector("svg")).not.toBeNull();
+    expect(screen.queryByText("Instrument")).not.toBeInTheDocument();
+    fireEvent.click(instrument);
+    expect(onOpenInstrument).toHaveBeenCalledOnce();
     expect(onOpenNoteNavigation).toHaveBeenCalledOnce();
     expect(onOpenImitation).toHaveBeenCalledOnce();
   });

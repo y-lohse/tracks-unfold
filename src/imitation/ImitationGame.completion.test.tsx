@@ -6,7 +6,12 @@ interface IntroductionContract {
   instruction: string;
   theoryTip: string;
   progress?: number;
-  milestones?: readonly { id: string; threshold: number; earned: boolean }[];
+  milestones?: readonly {
+    id: string;
+    threshold: number;
+    earned: boolean;
+    label?: string;
+  }[];
   onBack: () => void;
   onContinue: () => void;
   runSummary?: { status: "succeeded" | "failed"; puzzlesPlayed: number };
@@ -38,12 +43,15 @@ vi.mock("../Introduction", async (importOriginal) => {
   };
 });
 
+import {
+  instrumentMilestones,
+  isInstrumentPresetUnlocked,
+} from "../instrumentUnlocks";
 import { createSeededRng } from "../noteNavigation/random";
 import {
   loadUnlocks,
   profileProgress,
   reconcileUnlocks,
-  rewardMilestones,
   saveUnlocks,
 } from "../progression";
 import * as director from "./director";
@@ -92,7 +100,10 @@ function submitResponse() {
   fireEvent.click(screen.getByRole("button", { name: "Submit response" }));
 }
 
-function completeAfterTwoSubmissions(status: "succeeded" | "failed") {
+function completeAfterTwoSubmissions(
+  status: "succeeded" | "failed",
+  finalProficiency?: number,
+) {
   const submit = director.submitImitationResponse;
   return vi
     .spyOn(director, "submitImitationResponse")
@@ -109,7 +120,12 @@ function completeAfterTwoSubmissions(status: "succeeded" | "failed") {
               skill,
               {
                 ...result.state.profile[skill],
-                proficiency: count * 0.2 + index * 0.03,
+                proficiency:
+                  finalProficiency === undefined
+                    ? count * 0.2 + index * 0.03
+                    : count === 2
+                      ? finalProficiency
+                      : finalProficiency - 0.0001,
               },
             ]),
           ) as typeof state.profile,
@@ -185,7 +201,7 @@ describe("Imitation completion on Introduction", () => {
       const saved = loadImitationProfile(storage);
       expect(introProps().progress).toBe(profileProgress(saved));
       expect(introProps().milestones).toEqual(
-        rewardMilestones("imitation", loadUnlocks(storage)),
+        instrumentMilestones("imitation", loadUnlocks(storage)),
       );
       expect(IMITATION_SKILLS.map((skill) => saved[skill].proficiency)).toEqual(
         introProps().skills.map((skill) => skill.proficiency),
@@ -198,56 +214,136 @@ describe("Imitation completion on Introduction", () => {
     },
   );
 
-  it("persists threshold crossings immediately, merges the latest ledger, and keeps rewards after a decline and exit", async () => {
-    const storage = memoryStorage();
-    const submit = director.submitImitationResponse;
-    let proficiency = 0.66;
-    vi.spyOn(director, "submitImitationResponse").mockImplementation(
-      (...args) => {
-        const result = submit(...args);
-        return {
-          ...result,
-          state: {
-            ...result.state,
-            status: "active",
-            profile: Object.fromEntries(
-              IMITATION_SKILLS.map((skill) => [
-                skill,
-                { ...result.state.profile[skill], proficiency },
-              ]),
-            ) as typeof result.state.profile,
-          },
-        };
-      },
-    );
-    const view = render(
-      <ImitationGame rng={createSeededRng(19)} storage={storage} />,
-    );
-    await start();
-    finishPlayback();
-    const navigationUnlocks = reconcileUnlocks([], { navigation: 0.66 });
-    saveUnlocks(navigationUnlocks, storage);
-    submitResponse();
-    const earned = reconcileUnlocks(navigationUnlocks, { imitation: 0.66 });
-    expect(loadUnlocks(storage)).toEqual(earned);
-    finishPlayback();
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-    finishPlayback();
-    proficiency = 0;
-    submitResponse();
-    expect(loadUnlocks(storage)).toEqual(earned);
-    fireEvent.click(screen.getByRole("button", { name: "Exit run" }));
-    expect(introProps().progress).toBe(0);
-    expect(introProps().milestones).toEqual(
-      rewardMilestones("imitation", earned),
-    );
-    view.unmount();
-    render(<ImitationGame storage={storage} />);
-    expect(introProps().milestones).toEqual(
-      rewardMilestones("imitation", earned),
-    );
-    expect(loadUnlocks(storage)).toEqual(earned);
-  });
+  it.each([
+    [0.33, "effect", "room", "Room"],
+    [0.66, "effect", "grit", "Grit"],
+    [1, "tone", "reed", "Reed"],
+  ] as const)(
+    "crossing %s enables %s %s immediately and persists after decline, exit and reload",
+    async (threshold, slot, preset, label) => {
+      const storage = memoryStorage();
+      const submit = director.submitImitationResponse;
+      let proficiency = threshold - 0.0001;
+      vi.spyOn(director, "submitImitationResponse").mockImplementation(
+        (...args) => {
+          const result = submit(...args);
+          return {
+            ...result,
+            state: {
+              ...result.state,
+              status: "active",
+              profile: Object.fromEntries(
+                IMITATION_SKILLS.map((skill) => [
+                  skill,
+                  { ...result.state.profile[skill], proficiency },
+                ]),
+              ) as typeof result.state.profile,
+            },
+          };
+        },
+      );
+      const view = render(
+        <ImitationGame rng={createSeededRng(19)} storage={storage} />,
+      );
+      await start();
+      finishPlayback();
+      const navigationUnlocks = reconcileUnlocks([], { navigation: 0.66 });
+      saveUnlocks(navigationUnlocks, storage);
+      submitResponse();
+      expect(
+        isInstrumentPresetUnlocked(slot, preset, loadUnlocks(storage)),
+      ).toBe(false);
+      expect(loadUnlocks(storage)).not.toContain(
+        `reward:imitation:${Math.round(threshold * 100)}`,
+      );
+      finishPlayback();
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+      finishPlayback();
+      proficiency = threshold;
+      submitResponse();
+      const earned = reconcileUnlocks(navigationUnlocks, {
+        imitation: threshold,
+      });
+      expect(loadUnlocks(storage)).toEqual(earned);
+      expect(
+        isInstrumentPresetUnlocked(slot, preset, loadUnlocks(storage)),
+      ).toBe(true);
+      finishPlayback();
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+      finishPlayback();
+      proficiency = 0;
+      submitResponse();
+      expect(loadUnlocks(storage)).toEqual(earned);
+      expect(
+        isInstrumentPresetUnlocked(slot, preset, loadUnlocks(storage)),
+      ).toBe(true);
+      fireEvent.click(screen.getByRole("button", { name: "Exit run" }));
+      expect(introProps().progress).toBe(0);
+      expect(introProps().milestones).toEqual(
+        instrumentMilestones("imitation", earned),
+      );
+      expect(
+        screen.getByRole("img", {
+          name: `${Math.round(threshold * 100)}% ${label}, unlocked`,
+        }),
+      ).toBeInTheDocument();
+      view.unmount();
+      render(<ImitationGame storage={storage} />);
+      expect(introProps().milestones).toEqual(
+        instrumentMilestones("imitation", earned),
+      );
+      expect(loadUnlocks(storage)).toEqual(earned);
+      expect(introProps().progress).toBe(0);
+      expect(
+        isInstrumentPresetUnlocked(slot, preset, loadUnlocks(storage)),
+      ).toBe(true);
+      expect(
+        screen.getByRole("img", {
+          name: `${Math.round(threshold * 100)}% ${label}, unlocked`,
+        }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it.each([
+    [0.33, "effect", "room"],
+    [0.66, "effect", "grit"],
+    [1, "tone", "reed"],
+  ] as const)(
+    "unlocks %s on the final answer before Continue and retains %s %s on reload",
+    async (threshold, slot, preset) => {
+      completeAfterTwoSubmissions("succeeded", threshold);
+      const storage = memoryStorage();
+      const view = render(
+        <ImitationGame rng={createSeededRng(19)} storage={storage} />,
+      );
+      await start();
+      finishPlayback();
+      submitResponse();
+      expect(
+        isInstrumentPresetUnlocked(slot, preset, loadUnlocks(storage)),
+      ).toBe(false);
+      finishPlayback();
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+      finishPlayback();
+      submitResponse();
+      expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
+      expect(loadUnlocks(storage)).toContain(
+        `reward:imitation:${Math.round(threshold * 100)}`,
+      );
+      expect(
+        isInstrumentPresetUnlocked(slot, preset, loadUnlocks(storage)),
+      ).toBe(true);
+      view.unmount();
+      render(<ImitationGame storage={storage} />);
+      expect(
+        isInstrumentPresetUnlocked(slot, preset, loadUnlocks(storage)),
+      ).toBe(true);
+      expect(introProps().milestones).toEqual(
+        instrumentMilestones("imitation", loadUnlocks(storage)),
+      );
+    },
+  );
 
   it("Play again starts a fresh attempt and uses the updated profile as the next baseline", async () => {
     completeAfterTwoSubmissions("succeeded");

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "../Button";
 import { Introduction } from "../Introduction";
+import { instrumentMilestones } from "../instrumentUnlocks";
 import { keyboardSynth } from "../keyboardSynth";
 import { displayPitch, type Pitch } from "../music";
 import { PuzzleKeyboard } from "../PuzzleKeyboard";
@@ -11,7 +12,6 @@ import {
   loadUnlocks,
   profileProgress,
   reconcileUnlocks,
-  rewardMilestones,
   saveUnlocks,
 } from "../progression";
 import { imitationTheoryTip } from "./theoryTips";
@@ -474,7 +474,7 @@ export function ImitationGame({
         instruction="Listen to a melody, then recreate its pattern on the keyboard."
         theoryTip={imitationTheoryTip(profile)}
         progress={profileProgress(profile)}
-        milestones={rewardMilestones("imitation", unlocks)}
+        milestones={instrumentMilestones("imitation", unlocks)}
         icon={<PuzzleIcon name="imitation" className="h-full w-full" />}
         skills={Object.entries(skillLabels).map(([key, label]) => ({
           label,

@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { Introduction } from "./Introduction";
 import styles from "./Introduction.module.css";
-import { rewardMilestones } from "./progression";
+import { instrumentMilestones } from "./instrumentUnlocks";
+import { loadUnlocks, saveUnlocks } from "./progression";
 
 const props = {
   title: "Note navigation",
@@ -187,35 +188,51 @@ describe("Introduction", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("retains earned rewards when current progress retreats", () => {
-    const milestones = rewardMilestones("navigation", ["reward:navigation:33"]);
-    const { rerender } = render(
-      <Introduction {...props} progress={0.5} milestones={milestones} />,
-    );
-    const earned = screen.getByRole("img", {
-      name: "33% placeholder sound reward, unlocked",
-    });
-    expect(earned).toHaveClass(styles.earnedMarker);
-    expect(
-      screen.getByRole("img", {
-        name: "66% placeholder sound reward, locked",
-      }),
-    ).not.toHaveClass(styles.earnedMarker);
+  it.each([
+    ["navigation", "Round", "Mellow"],
+    ["imitation", "Room", "Grit"],
+  ] as const)(
+    "retains persisted %s rewards when current progress retreats",
+    (puzzle, first, second) => {
+      const values = new Map<string, string>();
+      const storage = {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => values.set(key, value),
+      };
+      saveUnlocks([`reward:${puzzle}:33`], storage);
+      const milestones = instrumentMilestones(puzzle, loadUnlocks(storage));
+      const { rerender } = render(
+        <Introduction {...props} progress={0.5} milestones={milestones} />,
+      );
+      const earned = screen.getByRole("img", {
+        name: `33% ${first}, unlocked`,
+      });
+      expect(earned).toHaveClass(styles.earnedMarker);
+      expect(
+        screen.getByRole("img", {
+          name: `66% ${second}, locked`,
+        }),
+      ).not.toHaveClass(styles.earnedMarker);
 
-    rerender(
-      <Introduction {...props} progress={0.1} milestones={milestones} />,
-    );
-    expect(
-      screen.getByRole("progressbar", { name: "Overall progress" }),
-    ).toHaveAttribute("aria-valuenow", "10");
-    expect(
-      screen.getByRole("img", {
-        name: "33% placeholder sound reward, unlocked",
-      }),
-    ).toHaveClass(styles.earnedMarker);
-    expect(screen.getByText(props.instruction)).toBeInTheDocument();
-    expect(screen.getByText(props.theoryTip)).toBeInTheDocument();
-  });
+      rerender(
+        <Introduction
+          {...props}
+          progress={0.1}
+          milestones={instrumentMilestones(puzzle, loadUnlocks(storage))}
+        />,
+      );
+      expect(
+        screen.getByRole("progressbar", { name: "Overall progress" }),
+      ).toHaveAttribute("aria-valuenow", "10");
+      expect(
+        screen.getByRole("img", {
+          name: `33% ${first}, unlocked`,
+        }),
+      ).toHaveClass(styles.earnedMarker);
+      expect(screen.getByText(props.instruction)).toBeInTheDocument();
+      expect(screen.getByText(props.theoryTip)).toBeInTheDocument();
+    },
+  );
 
   it.each([0, 0.33, 0.66, 0.9999, 1])(
     "represents progress %s on a full zero-to-100 meter without rounding up",
@@ -243,21 +260,23 @@ describe("Introduction", () => {
   );
 
   it("unlocks the final diamond only from earned state, independently of completion", () => {
-    const locked = rewardMilestones("navigation", []);
-    const earned = rewardMilestones("navigation", ["reward:navigation:100"]);
+    const locked = instrumentMilestones("navigation", []);
+    const earned = instrumentMilestones("navigation", [
+      "reward:navigation:100",
+    ]);
     const { rerender } = render(
       <Introduction {...props} progress={1} milestones={locked} />,
     );
     expect(
       screen.getByRole("img", {
-        name: "100% placeholder sound reward, locked",
+        name: "100% Triangle, locked",
       }),
     ).not.toHaveClass(styles.earnedMarker);
 
     rerender(<Introduction {...props} progress={1} milestones={earned} />);
     expect(
       screen.getByRole("img", {
-        name: "100% placeholder sound reward, unlocked",
+        name: "100% Triangle, unlocked",
       }),
     ).toHaveClass(styles.finalMarker, styles.earnedMarker);
     expect(screen.getByRole("progressbar")).toHaveAttribute(
@@ -272,25 +291,49 @@ describe("Introduction", () => {
     );
     expect(
       screen.getByRole("img", {
-        name: "100% placeholder sound reward, unlocked",
+        name: "100% Triangle, unlocked",
       }),
     ).toHaveClass(styles.finalMarker, styles.earnedMarker);
   });
 
-  it("shows supplied reward states without inventing current progress", () => {
-    render(
-      <Introduction
-        {...props}
-        milestones={rewardMilestones("navigation", [])}
-      />,
-    );
-    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("img")).toHaveLength(3);
-    expect(screen.getByRole("list")).toHaveStyle({ "--milestone-count": "3" });
-    expect(
-      screen.queryByRole("button", { name: /reward|sound/i }),
-    ).not.toBeInTheDocument();
-  });
+  it.each([
+    ["navigation", ["Round", "Mellow", "Triangle"]],
+    ["imitation", ["Room", "Grit", "Reed"]],
+  ] as const)(
+    "shows %s short reward names without inventing current progress",
+    (puzzle, labels) => {
+      render(
+        <Introduction
+          {...props}
+          milestones={instrumentMilestones(puzzle, [])}
+        />,
+      );
+      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(screen.getAllByRole("img")).toHaveLength(3);
+      const items = screen.getAllByRole("listitem");
+      labels.forEach((label, index) => {
+        const percent = [33, 66, 100][index];
+        expect(
+          within(items[index]).getByRole("img", {
+            name: `${percent}% ${label}, locked`,
+          }),
+        ).not.toHaveClass(styles.earnedMarker);
+        const percentage = within(items[index]).getByText(`${percent}%`);
+        const name = within(items[index]).getByText(label);
+        expect(name).toBeVisible();
+        expect(
+          percentage.compareDocumentPosition(name) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+      });
+      expect(screen.getByRole("list")).toHaveStyle({
+        "--milestone-count": "3",
+      });
+      expect(
+        screen.queryByRole("button", { name: /reward|sound/i }),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it("omits skills and unlocks for an empty skill list", () => {
     render(<Introduction {...props} skills={[]} />);

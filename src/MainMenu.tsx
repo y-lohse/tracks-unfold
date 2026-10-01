@@ -46,6 +46,7 @@ type MainMenuProps = {
   onOpenNoteNavigation?: () => void;
   onOpenImitation?: () => void;
   onOpenSettings?: () => void;
+  onOpenInstrument?: () => void;
 };
 
 export function MainMenu({
@@ -53,6 +54,7 @@ export function MainMenu({
   onOpenNoteNavigation,
   onOpenImitation,
   onOpenSettings,
+  onOpenInstrument,
 }: MainMenuProps) {
   const [upcoming, setUpcoming] = useState<PuzzleIconName | null>(null);
   const branchOpen = isPuzzleUnlocked("imitation", unlocks);
@@ -96,6 +98,25 @@ export function MainMenu({
           <h1 className="text-center text-xl font-medium tracking-tight">
             Tracks Unfold
           </h1>
+          <button
+            type="button"
+            onClick={onOpenInstrument}
+            aria-label="Instrument"
+            className="text-muted focus-visible:outline-accent absolute top-0 left-0 flex size-11 cursor-pointer items-center justify-center rounded-full focus-visible:outline-2"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="size-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="M9 5v14M15 5v14M6 5v8h3M12 5v8h3M18 5v8h3" />
+            </svg>
+          </button>
           <button
             type="button"
             onClick={onOpenSettings}
