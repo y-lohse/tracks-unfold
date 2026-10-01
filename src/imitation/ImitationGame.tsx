@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { StorageBoundary } from "../StorageBoundary";
+import { ResilientStorage } from "../resilientStorage";
+
 import { Button } from "../Button";
 import { Introduction } from "../Introduction";
 import { instrumentMilestones } from "../instrumentUnlocks";
@@ -83,10 +86,6 @@ const skillLabels: Readonly<Record<ImitationSkill, string>> = {
   pitchNavigation: "Pitch navigation",
   relationshipTransposition: "Relationship transposition",
 };
-
-function defaultStorage(): ImitationStorage {
-  return window.localStorage;
-}
 
 function allowanceLabel(value: number | null): string {
   return value === null ? "∞" : String(value);
@@ -221,13 +220,23 @@ function SlotStrip({
   );
 }
 
-export function ImitationGame({
+export function ImitationGame(props: ImitationGameProps) {
+  if (props.storage instanceof ResilientStorage) {
+    return <ImitationGameContent {...props} storage={props.storage} />;
+  }
+  return (
+    <StorageBoundary storage={props.storage}>
+      {(storage) => <ImitationGameContent {...props} storage={storage} />}
+    </StorageBoundary>
+  );
+}
+
+function ImitationGameContent({
   onExit,
   rng = Math.random,
-  storage: suppliedStorage,
+  storage,
   lockedReason,
-}: ImitationGameProps) {
-  const storage = suppliedStorage ?? defaultStorage();
+}: ImitationGameProps & { storage: ResilientStorage }) {
   const [screen, setScreen] = useState<GameScreen>("introduction");
   const [profile, setProfile] = useState(() => loadImitationProfile(storage));
   const [unlocks, setUnlocks] = useState(() =>

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+import { StorageBoundary } from "./StorageBoundary";
+import type { ResilientStorage } from "./resilientStorage";
+
 import { AnswerControls } from "./AnswerControls";
 import { Button } from "./Button";
 import { ImitationGame } from "./imitation/ImitationGame";
@@ -234,19 +237,25 @@ function RunView({
   );
 }
 
-function loadReconciledUnlocks() {
-  return reconcileUnlocks(loadUnlocks(window.localStorage), {
-    navigation: profileProgress(loadProfile(window.localStorage)),
-    imitation: profileProgress(loadImitationProfile(window.localStorage)),
+function loadReconciledUnlocks(storage: ResilientStorage) {
+  return reconcileUnlocks(loadUnlocks(storage), {
+    navigation: profileProgress(loadProfile(storage)),
+    imitation: profileProgress(loadImitationProfile(storage)),
   });
 }
 
 export function App() {
-  const [screen, setScreen] = useState<AppScreen>("menu");
-  const [profile, setProfile] = useState(() =>
-    loadProfile(window.localStorage),
+  return (
+    <StorageBoundary>
+      {(storage) => <AppContent storage={storage} />}
+    </StorageBoundary>
   );
-  const [unlocks, setUnlocks] = useState(loadReconciledUnlocks);
+}
+
+function AppContent({ storage }: { storage: ResilientStorage }) {
+  const [screen, setScreen] = useState<AppScreen>("menu");
+  const [profile, setProfile] = useState(() => loadProfile(storage));
+  const [unlocks, setUnlocks] = useState(() => loadReconciledUnlocks(storage));
   const [session, setSession] = useState<RunSession | null>(null);
   const [initialInstrument] = useState(() => {
     try {
@@ -297,9 +306,9 @@ export function App() {
 
   useEffect(() => stopReveal, []);
   useEffect(() => {
-    if (unlocks.length) saveUnlocks(unlocks, window.localStorage);
-    else clearUnlocks(window.localStorage);
-  }, [unlocks]);
+    if (unlocks.length) saveUnlocks(unlocks, storage);
+    else clearUnlocks(storage);
+  }, [unlocks, storage]);
 
   const beginRun = () => {
     stopReveal();
@@ -323,9 +332,9 @@ export function App() {
       session.selected,
     );
     setProfile(transition.state.profile);
-    saveProfile(transition.state.profile, window.localStorage);
-    const nextUnlocks = loadReconciledUnlocks();
-    saveUnlocks(nextUnlocks, window.localStorage);
+    saveProfile(transition.state.profile, storage);
+    const nextUnlocks = loadReconciledUnlocks(storage);
+    saveUnlocks(nextUnlocks, storage);
     setUnlocks(nextUnlocks);
     setSession({
       ...session,
@@ -353,9 +362,9 @@ export function App() {
   };
 
   const eraseProgress = () => {
-    clearSavedProfile(window.localStorage);
-    clearImitationProfile(window.localStorage);
-    clearUnlocks(window.localStorage);
+    clearSavedProfile(storage);
+    clearImitationProfile(storage);
+    clearUnlocks(storage);
     changeSound({ ...DEFAULT_INSTRUMENT_SOUND });
     setUnlocks([]);
     setProfile(createDefaultProfile());
@@ -401,8 +410,9 @@ export function App() {
   if (screen === "imitation") {
     return (
       <ImitationGame
+        storage={storage}
         onExit={() => {
-          setUnlocks(loadReconciledUnlocks());
+          setUnlocks(loadReconciledUnlocks(storage));
           setScreen("menu");
         }}
         lockedReason={
