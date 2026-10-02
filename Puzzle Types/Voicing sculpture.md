@@ -92,9 +92,9 @@ Multi-chord forms can contribute to:
 - [[H7 - Connecting chord voices]]: common tones, small movements and deliberate inversion/voicing choices, after relevant C5/H2 familiarity.
 - [[H6 - Dominant seventh resolution]]: tracking the leading tone and chordal seventh in a resolving progression. The focused form needs C7/H4, not completion of all H7 work.
 
-Supplying all chord tones supports placement but does not establish independent chord construction. Recognition of what changed—voicing, inversion or identity—also needs deliberate evidence. Selecting V7–I without determining the marked voices' movements does not demonstrate full H6; supplying the chord sequence does not establish independent harmonic-function choice.
+Supplying all chord tones supports placement and learning without establishing independent chord construction. Make changes in voicing and bass, and the preserved chord identity, noticeable through note positions, labels and audition. Only a claim to assess independent recognition of those distinctions needs additional evidence; the learning interaction does not need an extra recognition question. Selecting V7–I without determining the marked voices' movements does not demonstrate full H6; supplying the chord sequence does not establish independent harmonic-function choice.
 
-The merged type provides a use for chord knowledge, not by itself a complete way of initially teaching chord construction. Separate acquisition-game proposals address that need.
+The merged type provides a use for chord knowledge and opportunities to reinforce it, not by itself a complete introduction to chord construction. [[Chordfall]] supplies the complementary construction direction; supported placement can begin without requiring mastery of that game.
 
 ## Open design work
 

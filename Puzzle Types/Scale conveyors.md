@@ -54,7 +54,7 @@ Supply the major-scale recipe 2–2–1–2–2–2–1 and, initially, a letter
 
 Lay connections directly onto the routing board and show their movement consequences. The F♯ choice explains both where an E parcel goes and why an F parcel remains untouched.
 
-Start with one conveyor supplied and another constructed with guidance. Later remove letter and interval support separately and vary roots. Reuse a completed conveyor within a puzzle instead of demanding the same scale before each pulse.
+Start with one conveyor supplied and another constructed with guidance. Later vary letter and interval support separately and vary roots; keep references where they help players notice and use the relationships. Reuse a completed conveyor within a puzzle instead of demanding the same scale before each pulse.
 
 A supplied complete route or full preview is learning support, not independent scale-construction evidence. Validate the named scale and its spelling as well as delivery: malformed scales must not become arbitrary custom routes that happen to solve the logistics problem.
 
@@ -106,8 +106,8 @@ Resolve:
 
 - A legible portrait-phone representation of spelling, connections and multiple parcels.
 - Whether constructing the route feels integral to the puzzle rather than a prerequisite chore.
-- How much preview teaches the mechanism versus supplying the answer.
-- Assistance removal and transfer to construction on unfamiliar roots.
+- How previews make scale membership and movement understandable while leaving consequential routing choices; supplying information is not itself a learning failure.
+- Supported and more independent construction on unfamiliar roots, without making assistance removal an objective in itself.
 - The note-addressed and degree-addressed board presentations, assistance and generation rules that make bidirectional translation useful without replacing the routing problem.
 - Puzzle submission, reversible movement, feedback and puzzle-type skill assessment.
 

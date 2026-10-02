@@ -25,7 +25,7 @@ The current direction also includes a distinct requirement to find home in some 
 
 The backing establishes the tonal context, but choosing a low-tension note does not necessarily identify the tonic. Over C-major backing in C major, C, E and G all meet the prototype's low target. Choosing E can succeed without recognizing C as home. When backing changes within the key, the low band's chord-tone membership changes while the key's tonic remains the same.
 
-There is no objection to supplying unexplained harmonic context. The issue is whether the player's required action actually identifies home rather than merely hearing context in which home is present.
+There is no objection to supplying unexplained harmonic context. Choosing and comparing notes in that context can help develop tonal orientation even without an explicit home response. The narrower issue is an assessment claim: matching a low-tension target does not independently establish recognition of the tonic.
 
 ## Retain the distinction between home and tension
 
@@ -50,4 +50,6 @@ A visible degree-1 label can supply the home answer. Distinguish supported learn
 
 ## Open design work
 
-Arbitrate how home requirements integrate with contour targets, what support is supplied, and how K1 is demonstrated. Preserve the separation between tonic identity and chord-relative tension. Do not require chord terminology lessons simply to provide a tonal backing.
+First test whether choosing, hearing and revising a short contour makes contextual relationships noticeable and is worth repeating. Resolve how the proposed home destinations integrate with contour targets and what support helps; do not add a home question to every contour solely to obtain K1 evidence. Define independent tonic-recognition evidence only for forms that actually claim to assess it.
+
+Preserve the separation between tonic identity and chord-relative tension. Treat the three bands as a provisional game model: make their allowed choices understandable and test them against the actual accompaniment and register, rather than grading a player's subjective sense of tension against an unexplained lookup table. Vary keys, backing, targets and phrase shapes while keeping early comparisons controlled. Do not require chord terminology lessons simply to provide a tonal backing.

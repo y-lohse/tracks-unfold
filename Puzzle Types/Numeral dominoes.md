@@ -73,7 +73,7 @@ The second arrangement is not declared bad music. It fulfills less of this puzzl
 
 Begin with a small hand, one key and a reference pairing familiar chord names with their numerals. The player can reason about placement while translation is still supported. Repeated joins and playback expose root-degree and quality relationships; corrections or occasional tips can name what the player has encountered. Do not precede play with a numeral lesson.
 
-Remove expanded chord-name and numeral reminders as the corresponding relationships become accessible. Use both directions: interpret a numeral to find its chord, and determine which numeral a visible chord can satisfy. Do not permanently encode equivalents by matching colors or positions.
+Expanded chord-name and numeral reminders can become lighter as the corresponding relationships become accessible, while useful references remain available. Removing support is not itself a progression objective. Use both directions: interpret a numeral to find its chord, and determine which numeral a visible chord can satisfy. Do not permanently encode equivalents by matching colors or positions.
 
 Add musical goals separately from the opening matching demand. Let the player pursue a visible goal, hear the resulting ending or preparation pattern, and encounter it across varied hands. A short contextual tip can attach a name to that observed relationship. Do not require a complete functional taxonomy merely to connect introductory dominoes.
 

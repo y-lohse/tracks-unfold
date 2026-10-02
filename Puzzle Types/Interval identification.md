@@ -31,6 +31,14 @@ Sound alone cannot establish enharmonic spelling in the tuning used here. An aug
 - If assessing a spelling distinction, supply note spelling explicitly. Such tasks belong more naturally in note navigation than in audio-only identification.
 - Interval names accompanied by semitone reminders provide support; distinguish that success from independently connecting sound to the interval name.
 
+## Learning through play
+
+A direct listening-and-identification loop is a legitimate direction; it does not need an unrelated strategic layer to justify its learning value. Its enjoyment and replay value still need to be tested rather than inferred from curriculum coverage.
+
+Start with a small set of contrasting relationships and useful replay or named sound references. After an answer, let the player compare the heard example with the selected and correct relationships from a common starting pitch. A name or semitone reminder can attach to the difference they hear; no explanation question is required. Exact listening allowances and submission behavior remain open under the shared run rules.
+
+Repeat familiar interval relationships across different starting pitches and, gradually, registers and timbres. Vary direction and successive/simultaneous presentation separately so a new demand remains understandable. Memorizing the sound of a relationship is desirable; relying on one recording or screen position is not the intended fluency. Useful support need not disappear merely to make the game harder.
+
 ## Open design work
 
 Choose the response interface, listening support, example-generation rules, feedback and proficiency thresholds. Vary musical examples so recognition generalizes beyond memorized recordings. Test whether the identification loop sustains engaging runs. No fixed difficulty ladder or unlock route is specified yet.

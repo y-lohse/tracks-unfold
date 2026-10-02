@@ -117,7 +117,7 @@ Every clip is used, both rhythms still fill three beats, and both melodies prese
 
 Begin with familiar major-key chord–numeral relationships, without waiting for complete minor-key coverage. Early source progressions can show their numeral patterns alongside their chord names. A key reference can support destination realization while the shared inventory still leaves meaningful choices. Learning comes from the allocation decisions, repeated transpositions and audible comparisons, not a preliminary lesson. Corrections or occasional tips can name relationships the player has already encountered.
 
-Later, remove the supplied source numerals so the player determines the pattern from the source key and chords, then realizes it in a chosen destination key. Fade references separately from increasing the allocation problem. Do not make the player rebuild each chord from notes as a prerequisite to placing it.
+A later form can omit the supplied source numerals so the player determines the pattern from the source key and chords, then realizes it in a chosen destination key. Vary reference support separately from increasing the allocation problem; retaining a useful reference is compatible with worthwhile transposition practice. Do not make the player rebuild each chord from notes as a prerequisite to placing it.
 
 In chord rounds, attach timing to the source slots in the opening form. The new chords retain the original change positions and durations automatically, allowing attention to stay on harmonic transposition. This preserves timing in the result without claiming independent rhythm construction or performance.
 

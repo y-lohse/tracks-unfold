@@ -9,7 +9,9 @@ status: behavioral-spec
 
 Develop hearing and reproduction of pitch relationships through generated phrase-imitation puzzles. The player hears a short monophonic phrase, receives one response pitch as an anchor, and reconstructs the phrase's pitch relationships on the shared keyboard instrument.
 
-Use the shared [[Run director]] for focus, assessment, escalation, lives and run completion. This specification defines Imitation's task, skills, controls, generation contract and feedback. Numerical thresholds, update formulas and visual styling remain implementation tuning unless stated otherwise.
+Use the shared [[Run director]] for focus, assessment, escalation, lives and run completion. This document describes Imitation's implemented task, skills, controls, generation contract and feedback. Numerical thresholds, update formulas and visual styling are current implementation choices, not unfinished requirements.
+
+**Implementation authority:** the current source and tests in `src/imitation/`, together with `src/PuzzleKeyboard.tsx`, are authoritative. Future AI-assisted refinement must reconcile this document to that behavior, not change the game to satisfy older wording or inferred curriculum requirements. Preserve the implemented answer contracts, support, assessment, thresholds and interaction unless a separate behavior change is explicitly requested. Learning coverage describes practice opportunities, not extra quizzes or independent proficiency proofs.
 
 Imitation assesses relative pitch relationships. It does not require absolute pitch, performed rhythm, interval naming, a fixed key or scale, or aesthetic judgment.
 
@@ -76,7 +78,7 @@ Phrase length, reference plays and pitch auditions increase task difficulty or r
 
 Interval precision determines both the answer contract and whether interval-size reproduction is required. Direction-only questions do not penalize nonexact movement sizes.
 
-Pitch-selection demand is contextual rather than a raw enabled-key count. Generation accounts for the active relationship contract, invalid alternatives and valid-solution breadth. Even the most curated supply includes at least two more choices in each direction from the anchor than there are editable slots, so recognizing direction alone does not determine the response. A broader supply is not automatically harder when it mostly adds valid answers.
+Pitch-selection demand uses curated, expanded and full-keyboard supplies. Curated and expanded supplies are symmetric around the anchor and include the exact reconstruction; expanded supplies also include reference pitches and nearby alternatives. Every supply includes at least two more choices in each direction from the anchor than there are editable slots, so recognizing direction alone does not determine the response. Generation validates the exact witness rather than enumerating valid-solution breadth or measuring invalid alternatives under each contract. A broader supply is not automatically harder when it mostly adds valid answers.
 
 Reference movement range is also skill-specific. Small movements can be more difficult for pitch-direction discrimination, while broader and larger movements increase interval-size reproduction and pitch-navigation demand. At broader range settings, include at least one non-repeated movement from the newly available range.
 
@@ -123,7 +125,7 @@ Do not fall back to a puzzle that is solvable only through a nonexact tolerant a
 
 ## Keyboard and response interaction
 
-Use the existing keyboard visual language as the interactive instrument. Generalize it from its current illustrative two-marker role rather than introducing the prototype's spiral.
+Use the shared keyboard as the interactive instrument. It supports both Note navigation's illustrative markers and Imitation's enabled pitches, note labels and sounding-pitch feedback; the prototype's spiral is not used.
 
 - Keep exact pitch positions stable throughout the puzzle.
 - Always show the central C4–B4 section. Show lower or higher octave sections when their pitches are available or needed for the current material.
@@ -141,7 +143,7 @@ Silent edits are unlimited and cannot be used to hear pitches. Each entry requir
 
 Highlight a selected response slot independently from a sounding keyboard pitch. Entering a pitch does not leave the keyboard key highlighted as selected.
 
-If no auditions remain, do not play a pitch and draw attention to the allowance. Rapid successive auditions should respond immediately and may interrupt the previous audition. Reference playback takes priority during an attempt; ordinary auditions must not interrupt or obscure it.
+If no auditions remain, tapping without an editable slot selected plays nothing; the remaining allowance stays visible. Rapid successive auditions should respond immediately and may interrupt the previous audition. Reference playback takes priority during an attempt; ordinary auditions must not interrupt or obscure it.
 
 ## Playback and listening allowances
 
@@ -151,7 +153,7 @@ Use the response slots as the shared sequential playback display. A small state 
 
 After any submitted response:
 
-- reference replay and pitch auditions become unlimited;
+- response/comparison playback, per-slot comparisons and pitch auditions become unlimited; the attempt's reference-replay button becomes `Play response` or `Compare`, rather than offering a separate reference replay;
 - review listening cannot add assessment evidence;
 - the enabled pitch supply remains unchanged; and
 - the submitted response remains locked.
@@ -233,7 +235,7 @@ Generation must validate that:
 
 Prefer compact central-register material for introductory unshifted puzzles. As challenge grows, vary direction, register, anchor position, contour and exact pitches without moving keyboard positions within a puzzle.
 
-Use bounded resampling. If a requested combination is infeasible, the director may select a compatible actual configuration and record the difference. Never silently present a puzzle under a different contract. Exhausted generation is a development/configuration failure, not a player mistake, and costs no life.
+Use bounded resampling. The director stages controls before generation, including deferring the wide range while separated non-octave placement is active. The generator records the normalized request and resolved categorical settings; it does not silently substitute a different contract after failure. Incompatible configuration or exhausted generation raises a development/configuration error, not a player mistake, and costs no life.
 
 ## Run behavior
 
@@ -267,13 +269,13 @@ Imitation does not assess structural interval naming, simultaneous harmonic inte
 
 Design for current portrait-phone browsers and reuse the project's established surfaces, typography, keyboard and run-status language.
 
-Do not carry over the prototype's desktop split layout, chromatic spiral, nine-axis radar or visible development readout. Show each piece of run and puzzle information once. Keep the active relationship contract and remaining listening allowances visible without instructional paragraphs around every control.
+Do not carry over the prototype's desktop split layout, chromatic spiral, nine-axis radar or visible development readout. The current console shows response slots, playback controls and remaining listening allowances without instructional paragraphs around every control. Relationship-specific correction appears in slot review feedback; there is no separate pre-submission contract readout.
 
 Development observability may use tests or development-only tooling, but it is not part of the player-facing puzzle specification and must not leak unanswered reference material.
 
 ## Implementation tuning and deferred work
 
-Tune through implementation and playtesting:
+The controls, generation, assessment, playback and slot feedback below already have implementations. These are possible subjects for separately requested playtesting and tuning, not a backlog authorizing automatic changes:
 
 - categorical thresholds along each normalized control;
 - mapping from targeted skill challenge to compatible control combinations;
@@ -283,6 +285,6 @@ Tune through implementation and playtesting:
 - phrase sampling and immediate-repeat avoidance;
 - playback timing and synthesized sound;
 - compact slot feedback at narrow phone widths; and
-- overall curriculum-skill contribution and puzzle-unlock formulas.
+- overall curriculum-skill contribution, which remains outside this puzzle specification. Puzzle access and instrument rewards already have application-level implementations; do not treat them as missing work here.
 
 Do not add performed rhythm, timers, interval-name questions, retries, manual parameter panels or a separate memory skill to solve tuning problems within this puzzle type.

@@ -46,7 +46,7 @@ The two physical F tiles can be used in different orders to produce two winning 
 
 Learning happens through repeated play, visible note relationships and hearing the results, not an explicit theory lesson followed by an exercise. Begin with accessible boards and support that leaves a real strategic choice. Relevant interval and note-navigation familiarity helps, but scale construction, numeral fluency and ear-training mastery are not opening requirements.
 
-An assisted board may make two valid constructions visible without marking the strategically better removal. Repeated encounters across roots let the player observe what changes and what remains. Reduce complete-match support as those relationships become familiar; later the player supplies root, quality and notes independently.
+An assisted board may make two valid constructions visible without marking the strategically better removal. Repeated encounters across roots let the player observe what changes and what remains. Complete-match support can become lighter as those relationships become familiar; independent root, quality and note selection is a possible later demand, not the purpose of every board. Keep useful references available when they support musical attention and leave the clearing decisions meaningful.
 
 The construction contracts include:
 
@@ -171,7 +171,7 @@ Resolve:
 
 - Selection, audition, preview, undo and submission interactions.
 - Assistance that lets players learn through practice and observation without solving strategic decisions; corrections and occasional tips should respond to what the player has encountered, not impose lessons before play.
-- The transition from supported moves to independent construction and recognition.
+- When lighter support creates worthwhile construction and recognition practice, and when references should remain available.
 - How to distinguish musical errors, strategic dead ends and revealed-answer corrections in assessment.
 - Compact boards that remain legible on portrait phones, including the exposed-tone counts required by complete extensions.
 - Generation for each permitted chord size and key-specific vocabulary, including minor v/V and major-key viiø7.

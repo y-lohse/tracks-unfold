@@ -65,7 +65,7 @@ The example describes a mid-draft decision, not a complete generated market. Acc
 
 The final performance resolves the draft. Ordering matters when the brief uses positions or adjacency, and the unused reserve makes the final selection meaningful. With a small lineup, arrangement may be straightforward; the principal strategy is the contested draft, not an additional card-battle system.
 
-After both players lock in, demonstrate how each performance satisfied or missed the brief. When a quality was mistaken, play the selected chord and a controlled counterpart of the requested quality, and explain the relevant structural difference. Feedback should connect the sound with its structure, rather than merely display a lost point.
+After both players lock in, demonstrate how each performance satisfied or missed the brief. When a quality was mistaken, play the selected chord and a controlled counterpart of the requested quality. A concise label, structural comparison or contextual tip can help make the difference noticeable; a verbal explanation after every performance is not required. Feedback should connect the sound with its structure, rather than merely display a lost point.
 
 Playback timing is supplied. This is not a rhythm-performance task, nor does assembling the lineup require keyboard dexterity. Multiple bookings, asymmetric briefs, combat powers and card-activation rules are not part of the promoted concept.
 
@@ -75,7 +75,7 @@ Begin with major/minor contrasts and controlled voicings. Named reference sounds
 
 Progress from same-root comparisons to varied roots, then introduce register, inversion and timbre changes gradually. A quality must not become associated with one memorized recording, register or instrument. Avoid changing several unfamiliar acoustic dimensions at once.
 
-Add diminished and augmented triads after introducing their sounds and interval structures. Later briefs can use common seventh-chord qualities with relevant teaching and references. More qualities expand the collection possibilities; they should not arrive merely to increase strategic difficulty.
+Introduce diminished and augmented triads through supported auditions and comparisons that connect their sounds and interval structures. Later briefs can use common seventh-chord qualities with relevant comparisons and references. These introductions belong within play, not a prerequisite lesson sequence. More qualities expand the collection possibilities; they should not arrive merely to increase strategic difficulty.
 
 ## Learning coverage and assessment over repeated play
 

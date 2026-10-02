@@ -53,7 +53,7 @@ Construction can become a means to making a chosen accompaniment work. It need n
 - If functionality is constrained, define it within the taught tonal context rather than treating all chord uses as universal.
 - Chord identity and voicing are separate. Do not assess unspecified inversion or voice-leading choices.
 - Generate compatible melody/harmony material and independently validate player alternatives.
-- Do not reveal all fitting chords through interface highlights when independent membership reasoning is the target. Such highlighting can be introductory support instead.
+- Membership highlights can support learning even when they supply the local fit. Preserve choices about the complete accompaniment and ending rather than highlighting a single winning sequence. Distinguish supported success from independent membership reasoning only when making that assessment claim.
 
 ## Learning coverage and readiness
 
@@ -64,7 +64,7 @@ Construction can become a means to making a chosen accompaniment work. It need n
 
 H5/H6 completion is not an entry requirement for basic M6. Choosing a V7–I ending alone does not establish [[H6 - Dominant seventh resolution]]: tracking the tendency tones requires an additional task, more naturally developed in Voicing sculpture's multi-chord forms.
 
-Accounting for why a marked note fits is relevant evidence, but it need not take the form of a compulsory multi-question explanation after every puzzle. Direct note interactions and focused feedback may make the relationship clearer; the method is unresolved.
+Make marked-note membership noticeable through the placed chords, relevant note displays and playback. Choosing and comparing fitting accompaniments is the learning activity; players need not explain why each note fits. If an assessment later claims independent membership reasoning, define proportionate evidence separately rather than adding a compulsory explanation task.
 
 ## Open design work
 
