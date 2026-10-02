@@ -7,7 +7,7 @@
 - `PuzzleId`: `navigation | imitation | rhythm | contours | intervals`.
 - `Unlocks`: `readonly string[]`, containing stable earned IDs, not percentages.
 - `profileProgress(profile)`: current unweighted mean of all own enumerable skill proficiencies, on a 0–1 scale. An empty profile returns zero. Nonfinite or out-of-range proficiencies count as zero and remain in the denominator. Certainty does not affect progress. Valid profiles should already be validated by their feature's persistence layer.
-- `rewardMilestones(puzzle, unlocks)`: ordered `{ id, threshold, earned }` markers. Only navigation and imitation have placeholder rewards. Earned status comes exclusively from IDs, never from current progress.
+- `rewardMilestones(puzzle, unlocks)`: ordered `{ id, threshold, earned }` markers. Only navigation and imitation have reward milestones; their instrument content is assigned separately in `src/instrumentUnlocks.ts`. Earned status comes exclusively from IDs, never from current progress.
 - `isPuzzleUnlocked(puzzle, unlocks)`: navigation is always available; other puzzles require their stable puzzle ID.
 - `reconcileUnlocks(unlocks, progress)`: returns the union of existing IDs and everything earned by the supplied partial progress report. It never mutates its inputs or removes earned IDs, preserves unknown IDs, and deduplicates in insertion order. Missing, nonfinite, or out-of-range progress is ignored. All checks use inclusive, unrounded thresholds.
 - `loadUnlocks(storage)`, `saveUnlocks(unlocks, storage)`, `clearUnlocks(storage)`: explicit persistence operations. Reconciliation itself does not save.
@@ -24,7 +24,7 @@
 
 The imitation rule is independent: imitation progress can unlock intervals even if navigation progress is missing or low and imitation's own puzzle ID has not been earned. Reporting progress is evidence, not an access-control check.
 
-Reward fractions are exactly **0.33, 0.66, and 1**, not thirds or rounded display percentages. A report at 1 earns all earlier milestones in the same call. These rewards are placeholders only: the module defines no sounds, instruments, content, or reward-delivery effects. Rhythm, contours, and intervals currently have no reward milestones or outgoing progression rules.
+Reward fractions are exactly **0.33, 0.66, and 1**, not thirds or rounded display percentages. A report at 1 earns all earlier milestones in the same call. The progression module defines no sounds or reward-delivery effects. `src/instrumentUnlocks.ts` gives these existing IDs concrete content: Navigation unlocks Round shape, Mellow filter, and Triangle tone; Imitation unlocks Room effect, Grit effect, and Reed tone. Defaults (Sine, Steady, Open, Dry) are always available, while unassigned presets remain locked. The Instrument view checks the ledger, not current percentages or saved sound selections. See `Instrument.md` for selection and erase semantics. Rhythm, contours, and intervals currently have no reward milestones or outgoing progression rules.
 
 Stable IDs are persistence contracts. Do not rename, recycle, or reinterpret an earned ID when changing presentation or thresholds. Removing a rule must not remove already earned IDs.
 
