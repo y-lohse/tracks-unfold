@@ -7,7 +7,7 @@ status: proposed
 
 # T4 - Integrated tonal interpretation
 
-## Ability
+## What this skill enables
 
 Use a clearly established key and a progression together: identify chord degrees, explain their notes and locate basic melody notes against them.
 
@@ -20,10 +20,6 @@ Use a clearly established key and a progression together: identify chord degrees
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
-Combine skills only after their component demands are accessible. The game must not supply the very relationship whose understanding is being assessed.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.
+Combine skills when their component demands are accessible. Support can supply some relationships while the player works with others; integration can grow through partial, supported uses rather than requiring every relationship to be determined independently at once.

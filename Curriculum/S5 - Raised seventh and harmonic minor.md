@@ -7,7 +7,7 @@ status: proposed
 
 # S5 - Raised seventh and harmonic minor
 
-## Ability
+## What this skill enables
 
 Recognize and construct the raised seventh used in minor-key harmony; understand how harmonic minor differs from natural minor.
 
@@ -17,10 +17,6 @@ Recognize and construct the raised seventh used in minor-key harmony; understand
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Include harmonic minor to explain common minor-key harmony. Defer a full treatment of melodic minor and modes.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

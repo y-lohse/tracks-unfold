@@ -7,7 +7,7 @@ status: deferred
 
 # C12 - Accounting for every chord note
 
-## Ability
+## What this skill enables
 
 Given a chord symbol or a note collection within the taught vocabulary, account for the root, third or replacement, fifth, seventh, additions and bass; detect a missing or extra note relative to the stated construction.
 
@@ -22,10 +22,6 @@ Given a chord symbol or a note collection within the taught vocabulary, account 
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Synthesis of the taught chord vocabulary, not a claim to explain every chord in all music. Provide a root or harmonic context when a note collection has multiple valid names, or accept valid alternatives.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

@@ -7,7 +7,7 @@ status: agreed
 
 # M6 - Choosing harmony for a melody
 
-## Ability
+## What this skill enables
 
 Choose basic diatonic chords for a supplied melody in an established key, satisfying explicit note-membership and harmonic-ending requirements.
 
@@ -19,10 +19,10 @@ Choose basic diatonic chords for a supplied melody in an established key, satisf
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show downstream skills.
 
-## Scope and teaching notes
+## Scope and design notes
 
 State which melody notes must be chord tones and what ending is required. Accept every progression meeting the requirements. Begin in major; extend to minor with H3. This selects chords, whereas H7 arranges the notes of already specified chords. It is not an open-ended composition project.
 
-## Evidence of understanding
+## Examples of use
 
 Select chords that contain the specified melody notes and meet the stated tonal destination; account for the relevant chord tones and correct a selection that violates the requirements.

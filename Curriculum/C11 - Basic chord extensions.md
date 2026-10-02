@@ -7,7 +7,7 @@ status: proposed
 
 # C11 - Basic chord extensions
 
-## Ability
+## What this skill enables
 
 Decode basic ninth, eleventh and thirteenth chord symbols under stated conventions; distinguish extended chords from added-note chords, especially 9 versus add9.
 
@@ -18,10 +18,6 @@ Decode basic ninth, eleventh and thirteenth chord symbols under stated conventio
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
-A later foundational target. Define complete constructions for assessed tasks, including seventh quality. Explain that real voicings can omit notes without requiring mastery of those conventions. Defer exhaustive altered extensions.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.
+A later foundational target. Use complete constructions under explicit symbol conventions, including seventh quality. Real voicings can omit notes; those conventions are outside the required scope, not a mandatory explanatory detour before play. Defer exhaustive altered extensions.

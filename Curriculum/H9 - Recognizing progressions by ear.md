@@ -7,7 +7,7 @@ status: agreed
 
 # H9 - Recognizing progressions by ear
 
-## Ability
+## What this skill enables
 
 Identify the chord sequence or degree pattern of a simple heard progression in an established key.
 
@@ -20,10 +20,10 @@ Identify the chord sequence or degree pattern of a simple heard progression in a
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show downstream skills.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Begin with clear root-position triads from a small taught vocabulary. Later vary voicing and include minor or seventh chords when the corresponding knowledge and listening skills are available. Do not require unrestricted song transcription or absolute pitch.
 
-## Evidence of understanding
+## Examples of use
 
 Identify an unfamiliar sequence from the taught vocabulary, distinguish sequences with different order or endings, and retain recognition when surface details such as register change.

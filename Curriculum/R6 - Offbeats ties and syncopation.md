@@ -7,7 +7,7 @@ status: proposed
 
 # R6 - Offbeats ties and syncopation
 
-## Ability
+## What this skill enables
 
 Sustain notes across beat boundaries and distinguish an offbeat attack from an on-beat attack; recognize and construct simple syncopation against an established pulse.
 
@@ -18,10 +18,6 @@ Sustain notes across beat boundaries and distinguish an offbeat attack from an o
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Include ties and relevant dotted durations as vocabulary. Establish the pulse so offbeat placement has a clear reference.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

@@ -9,11 +9,11 @@ status: agreed
 
 An instrument-agnostic learning dependency map for foundational Western tonal music. This is a skill map, not a fixed chapter sequence or a one-to-one list of game levels.
 
-Vision: [[30 Projects/Music App/Vision|Vision statement]].
+Read [Learning principles](../Learning%20principles.md) for the project's practice-led approach, varied repetition and secondary keyboard objective.
 
-Each skill note defines an observable ability, direct learning foundations, scope and evidence. IDs preserve the reviewed inventory, including notes retained for deferred or skipped areas. Current scope decisions below determine which abilities are active. These notes are curriculum specifications, not implemented game features.
+Each skill note describes what familiarity with a musical concept enables someone to do, its direct learning foundations and its scope. These capabilities apply in or beyond the app; they are not a checklist of performances the app must elicit, measure or certify. IDs preserve the reviewed inventory, including notes retained for deferred or skipped areas. Current scope decisions below determine which abilities are active. These notes describe learning aims, not implemented features or required player-facing explanations.
 
-Layer 1: [[Curriculum - Practical outcomes]]. This map is layer 2. Layer 3—detailed learning milestones, scaffolding and readiness evidence—remains to be designed.
+Layer 1: [[Curriculum - Practical outcomes]] describes how the capabilities combine in musical use. This map is layer 2. Layer 3—detailed opportunities for practice, variation and support—remains to be designed. The documents in `Puzzle Types/` explore or specify playable approaches at their stated stages of maturity.
 
 ## Browsing the graph
 
@@ -35,13 +35,19 @@ T3 and T5 have conditional, task-dependent prerequisites rather than fixed edges
 - Enough familiarity to begin is required, not perfect mastery.
 - Some combined skills include major and minor coverage. Major-only learning can begin before the complete dependency set is ready, as noted in those skills.
 - Listening, construction and vocabulary develop together. Isolated interval recognition is not a gate before chord construction.
-- A puzzle may exercise several skills. Skills present in a puzzle are not necessarily skills demonstrated by the player's actions.
+- A puzzle can offer practice, observation and reinforcement across several skills without independently assessing each of them.
 
-## Assessment principles
+## Interpreting the skill notes
 
-Use clear requirements within explicit musical contexts. Judge whether those requirements are met without implying they define all valid music. Distinguish structural facts, contextual conventions and task requirements. Accept every solution satisfying the stated contract.
+“What this skill enables” describes the musical capability being developed, not a mandatory task format. Verbs such as identify, explain and construct describe things a learner could do; they do not require an in-app quiz, verbal explanation or lesson. Additional examples of use, where present, make that capability more concrete rather than adding assessment requirements.
 
-Track evidence of recognition, construction, interpretation, transfer and integration separately where relevant. Naming is not hearing; recognition is not construction; supported success is not independent performance. Change roots, keys, registers or representations to test relationships rather than memorized instances.
+Scope notes identify musical distinctions and boundaries for designers. Make those relationships available through play, comparison, sound and useful support; explicit exposition is not the default delivery method.
+
+Use clear puzzle requirements within explicit musical contexts without implying they define all valid music. Distinguish structural facts, contextual conventions and task requirements. Accept every solution satisfying the stated contract.
+
+Naming, hearing, construction and interpretation are related but distinct abilities that can develop together across games. Change roots, keys, registers or representations to broaden familiarity while repeating useful relationships. Remembering notes and patterns is a desired outcome; avoiding a memorized screen solution is not a reason to avoid memorization itself.
+
+Support can make practice productive even when it supplies part of an answer. Questions about what an answer independently establishes belong to the relevant assessment design; they do not determine the entire learning value of an interaction. This curriculum does not change the existing proficiency or unlock mechanics.
 
 ## Suggested progression
 

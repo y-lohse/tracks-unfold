@@ -7,7 +7,7 @@ status: proposed
 
 # M4 - Reaching melodic destinations
 
-## Ability
+## What this skill enables
 
 Reach a specified melodic destination—such as the tonic or a target chord tone—while satisfying stated pitch and rhythm constraints.
 
@@ -20,10 +20,6 @@ Reach a specified melodic destination—such as the tonic or a target chord tone
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
-State an identifiable destination and accept every solution meeting the visible constraints. Do not assess an unstated preferred continuation.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.
+State an identifiable destination and accept every solution meeting the visible constraints. Do not require an unstated preferred continuation.

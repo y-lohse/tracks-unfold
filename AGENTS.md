@@ -1,5 +1,9 @@
 # Project conventions
 
+## Learning and puzzle design
+
+Before designing or reviewing curriculum, puzzles or learning interactions, read [Learning principles](Learning%20principles.md) and the curriculum's [skill map](Curriculum/Curriculum%20-%20Skill%20map.md). The principles guide nuanced trade-offs; they are not a rigid feature checklist. Curriculum capabilities are not mandatory in-app assessments, and designer-facing musical facts are not automatically required player-facing explanations. Preserve explicit behavioral contracts when applying this guidance.
+
 ## Scope
 
 - Build only abstractions required by current behavior. Do not add placeholder services, stores, routers, or domain layers for anticipated features.

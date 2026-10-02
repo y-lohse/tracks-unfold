@@ -7,7 +7,7 @@ status: proposed
 
 # C5 - Voicing and doubling
 
-## Ability
+## What this skill enables
 
 Reorder, spread and double chord tones while preserving chord identity; distinguish voicing changes from changes of chord or inversion.
 
@@ -18,10 +18,6 @@ Reorder, spread and double chord tones while preserving chord identity; distingu
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Voicing describes the arrangement of notes. Moving an upper voice does not necessarily change inversion; changing the lowest chord tone does.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

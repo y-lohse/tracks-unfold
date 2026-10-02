@@ -7,7 +7,7 @@ status: proposed
 
 # M3 - Passing and neighboring notes
 
-## Ability
+## What this skill enables
 
 Recognize and construct simple passing and neighboring notes in stated rhythmic and harmonic contexts.
 
@@ -19,10 +19,6 @@ Recognize and construct simple passing and neighboring notes in stated rhythmic 
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Use explicitly stated rhythmic and harmonic contexts. Start with simple passing and neighboring constructions, not an exhaustive taxonomy of non-chord tones.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

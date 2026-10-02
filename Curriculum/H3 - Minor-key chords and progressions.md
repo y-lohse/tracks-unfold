@@ -7,7 +7,7 @@ status: proposed
 
 # H3 - Minor-key chords and progressions
 
-## Ability
+## What this skill enables
 
 Derive basic minor-key triads and interpret their numerals; construct the major V chord using the raised seventh and compare it with minor v.
 
@@ -19,10 +19,6 @@ Derive basic minor-key triads and interpret their numerals; construct the major 
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Natural-minor chords and raised-seventh harmony both belong here. Do not imply every minor-key passage uses one unchanging scale collection.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

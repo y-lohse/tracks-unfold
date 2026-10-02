@@ -7,7 +7,7 @@ status: proposed
 
 # C6 - Slash chords and specified bass
 
-## Ability
+## What this skill enables
 
 Read and realize slash notation; distinguish a chord-tone bass that produces an inversion from a specified bass outside the chord.
 
@@ -17,10 +17,6 @@ Read and realize slash notation; distinguish a chord-tone bass that produces an 
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 For example, C/E specifies a chord-tone bass and an inversion. A slash can also specify a bass outside the named chord; not every slash chord is an inversion.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

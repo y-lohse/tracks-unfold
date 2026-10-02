@@ -7,7 +7,7 @@ status: deferred
 
 # M5 - Motif repetition and variation
 
-## Ability
+## What this skill enables
 
 Recognize and construct repetition and small variations of a short motif, preserving selected rhythmic or melodic features.
 
@@ -18,10 +18,6 @@ Recognize and construct repetition and small variations of a short motif, preser
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
-Assess preservation or variation of specified features rather than artistic quality or a complete composition.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.
+Focus on preservation or variation of specified features rather than artistic quality or a complete composition.

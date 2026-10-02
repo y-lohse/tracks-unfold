@@ -7,7 +7,7 @@ status: proposed
 
 # K1 - Hearing the tonic
 
-## Ability
+## What this skill enables
 
 Recognize and reproduce the tonic after a clear tonal context has established it; distinguish tonic from merely the first or last note heard.
 
@@ -18,10 +18,6 @@ Recognize and reproduce the tonic after a clear tonal context has established it
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
 Initial intuitive hearing of home can begin earlier with support. The listed dependency supports connecting the heard tonic to an explicit scale degree.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.

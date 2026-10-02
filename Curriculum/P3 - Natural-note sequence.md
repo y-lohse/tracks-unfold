@@ -7,7 +7,7 @@ status: proposed
 
 # P3 - Natural-note sequence
 
-## Ability
+## What this skill enables
 
 Navigate the repeating natural-note sequence A–G, including the transition between octaves.
 
@@ -17,10 +17,6 @@ Navigate the repeating natural-note sequence A–G, including the transition bet
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
-Use explicit musical contexts and assess the stated relationship. Vary examples so success does not depend on memorizing one instance.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.
+Use clear musical contexts and varied examples to make the relationship noticeable and build familiarity beyond a single instance.

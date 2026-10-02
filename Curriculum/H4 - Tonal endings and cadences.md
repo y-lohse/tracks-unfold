@@ -7,7 +7,7 @@ status: proposed
 
 # H4 - Tonal endings and cadences
 
-## Ability
+## What this skill enables
 
 Recognize and construct basic tonal endings, initially V–I/i and IV–I; distinguish a tonic arrival from an ending that remains on V.
 
@@ -19,10 +19,6 @@ Recognize and construct basic tonal endings, initially V–I/i and IV–I; disti
 
 These are direct learning foundations, not requirements for perfect mastery. Backlinks show skills that build on this one.
 
-## Scope and teaching notes
+## Scope and design notes
 
-Teach clear endings within explicit tonal contexts. Full coverage includes both major and minor; major-only examples can begin before the minor prerequisites are complete.
-
-## Evidence of understanding
-
-Assess the ability above in more than one example. Distinguish supported performance from independent performance, and naming from hearing or construction where relevant. A multi-skill task only provides evidence for relationships the player actually has to determine.
+Use clear endings within explicit tonal contexts. Full coverage includes both major and minor; major-only examples can begin before the minor prerequisites are complete.
