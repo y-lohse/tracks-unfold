@@ -11,7 +11,7 @@ Layer 1: the practical capabilities the component skills add up to. Layer 2 is [
 
 These are ten outcomes, not ten additional skills, game levels, projects or a single final exam. Each is an end-to-end check combining skills; simpler versions can recur early, with richer vocabulary and less support later. The three new integration skills T6, H9 and M6 support outcomes 5, 10 and 8 respectively; they are not three extra outcomes.
 
-All agreed skills remain in course scope. Seventh chords, suspensions, additions, extensions and richer rhythm arrive later in the course, not in a separately deferred version.
+Current scope follows [[Curriculum - Skill map]]: M5, T5 and C12 are deferred, and I4 is skipped as a separate topic. Seventh chords, suspensions, additions, extensions and richer rhythm remain in scope. The retained outcomes below describe the broader capabilities; deferred components are not current completion requirements.
 
 ## Assessment conventions
 
@@ -24,6 +24,8 @@ All agreed skills remain in course scope. Seventh chords, suspensions, additions
 - External-instrument performance is not required. These checks demonstrate understanding inside the app; actual transfer to instrument use is a product-validation question, not something app completion alone proves.
 
 ## 1. Decode an unfamiliar chord and account for its notes
+
+**Current scope:** chord construction and arrangement remain active. The exhaustive C12 note-accounting component is deferred; retaining this broader outcome does not require adding that task now.
 
 **Check:** Given a chord symbol from the taught vocabulary on an unfamiliar root, construct its notes, identify their roles, and realize a specified bass or inversion. Recognize another voicing of the same chord.
 

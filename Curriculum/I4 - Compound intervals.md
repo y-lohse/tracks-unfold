@@ -2,7 +2,7 @@
 skill_id: I4
 area: "Intervals"
 type: music-theory-skill
-status: proposed
+status: skipped
 ---
 
 # I4 - Compound intervals

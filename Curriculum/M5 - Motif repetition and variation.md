@@ -2,7 +2,7 @@
 skill_id: M5
 area: "Melody in tonal and rhythmic context"
 type: music-theory-skill
-status: proposed
+status: deferred
 ---
 
 # M5 - Motif repetition and variation

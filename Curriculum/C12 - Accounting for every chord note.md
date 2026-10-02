@@ -2,7 +2,7 @@
 skill_id: C12
 area: "Chord structure and vocabulary"
 type: music-theory-skill
-status: proposed
+status: deferred
 ---
 
 # C12 - Accounting for every chord note

@@ -2,7 +2,7 @@
 skill_id: T5
 area: "Transfer and integration"
 type: music-theory-skill
-status: proposed
+status: deferred
 ---
 
 # T5 - Diagnosing and correcting constructions

@@ -11,7 +11,7 @@ An instrument-agnostic learning dependency map for foundational Western tonal mu
 
 Vision: [[30 Projects/Music App/Vision|Vision statement]].
 
-Each skill note defines an observable ability, direct learning foundations, scope and evidence. IDs preserve the reviewed proposal. The skill inventory is agreed; these notes are curriculum specifications, not implemented game features.
+Each skill note defines an observable ability, direct learning foundations, scope and evidence. IDs preserve the reviewed inventory, including notes retained for deferred or skipped areas. Current scope decisions below determine which abilities are active. These notes are curriculum specifications, not implemented game features.
 
 Layer 1: [[Curriculum - Practical outcomes]]. This map is layer 2. Layer 3—detailed learning milestones, scaffolding and readiness evidence—remains to be designed.
 
@@ -37,9 +37,9 @@ T3 and T5 have conditional, task-dependent prerequisites rather than fixed edges
 - Listening, construction and vocabulary develop together. Isolated interval recognition is not a gate before chord construction.
 - A puzzle may exercise several skills. Skills present in a puzzle are not necessarily skills demonstrated by the player's actions.
 
-## Teaching and assessment principles
+## Assessment principles
 
-Teach clear rules within explicit contexts. Judge whether the player meets those rules, without teaching all exceptions or implying the rules define all valid music. Distinguish structural facts, contextual conventions and challenge requirements. Accept every solution satisfying the stated contract.
+Use clear requirements within explicit musical contexts. Judge whether those requirements are met without implying they define all valid music. Distinguish structural facts, contextual conventions and task requirements. Accept every solution satisfying the stated contract.
 
 Track evidence of recognition, construction, interpretation, transfer and integration separately where relevant. Naming is not hearing; recognition is not construction; supported success is not independent performance. Change roots, keys, registers or representations to test relationships rather than memorized instances.
 
@@ -57,10 +57,15 @@ Transfer, vocabulary and listening recur throughout. These stages are orientatio
 
 - Include note names, chord symbols, degree numbers and basic rhythmic notation. Fluent staff-pitch reading is a separate branch, not an entry requirement.
 - Include inversions, voicing, common seventh chords, suspensions and additions.
-- All agreed skills remain in course scope. Seventh chords, suspensions, additions, extensions and richer rhythm come later in the course; they are not deferred to a separate version.
+- Seventh chords, suspensions, additions, extensions and richer rhythm remain in scope.
 - Include natural and harmonic minor; defer a full treatment of melodic minor and modes.
 - Defer advanced jazz harmony, exhaustive altered chords, modulation, secondary dominants, borrowed chords, formal counterpoint, orchestration, advanced polyrhythms and extensive odd-meter study.
-- Explaining every note means accounting for notes in the taught chord vocabulary and basic melody–harmony relationships, not explaining every composer's choice in arbitrary music.
+- The deferred every-note accounting scope concerns the available chord vocabulary and basic melody–harmony relationships, not explaining every composer's choice in arbitrary music.
+
+## Current scope decisions
+
+- **Skip I4 as a separate topic.** Compound-interval naming is not a standalone skill branch or prerequisite. The limited 9/11/13 relationships needed by added notes and extensions remain within C10/C11.
+- **Defer M5, T5 and C12.** Motif variation, dedicated construction diagnosis and exhaustive chord-note accounting are not current requirements. Keep their notes for future consideration rather than deleting or renumbering the inventory.
 
 ## Skills by area
 
@@ -87,7 +92,7 @@ Transfer, vocabulary and listening recur throughout. These stages are orientatio
 - [[I1 - Semitone distances]]
 - [[I2 - Interval names and construction]]
 - [[I3 - Hearing intervals]]
-- [[I4 - Compound intervals]]
+- [[I4 - Compound intervals]] — skipped as a separate topic; limited extension terminology remains within C10/C11.
 
 ### Scales and scale degrees
 
@@ -117,7 +122,7 @@ Transfer, vocabulary and listening recur throughout. These stages are orientatio
 - [[C9 - Suspended chords]]
 - [[C10 - Sixth and added-note chords]]
 - [[C11 - Basic chord extensions]]
-- [[C12 - Accounting for every chord note]]
+- [[C12 - Accounting for every chord note]] — deferred.
 
 ### Chords in keys and harmonic movement
 
@@ -137,7 +142,7 @@ Transfer, vocabulary and listening recur throughout. These stages are orientatio
 - [[M2 - Melody notes against chord and key]]
 - [[M3 - Passing and neighboring notes]]
 - [[M4 - Reaching melodic destinations]]
-- [[M5 - Motif repetition and variation]]
+- [[M5 - Motif repetition and variation]] — deferred.
 - [[M6 - Choosing harmony for a melody]]
 
 ### Transfer and integration
@@ -146,5 +151,5 @@ Transfer, vocabulary and listening recur throughout. These stages are orientatio
 - [[T2 - Progression transposition]]
 - [[T3 - Chord construction on unfamiliar roots]]
 - [[T4 - Integrated tonal interpretation]]
-- [[T5 - Diagnosing and correcting constructions]]
+- [[T5 - Diagnosing and correcting constructions]] — deferred.
 - [[T6 - Reconstructing phrases by ear]]
