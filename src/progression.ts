@@ -1,5 +1,19 @@
 export type PuzzleId =
-  "navigation" | "imitation" | "rhythm" | "contours" | "intervals";
+  | "navigation"
+  | "imitation"
+  | "rhythm"
+  | "contours"
+  | "intervals"
+  | "chordfall"
+  | "scaleConveyors"
+  | "chordDraft"
+  | "voicingSculpture"
+  | "numeralDominoes"
+  | "melodyTrails"
+  | "tonalSwitchboard"
+  | "coverVersions"
+  | "harmonyFitting"
+  | "progressionWordle";
 
 export type Unlocks = readonly string[];
 
@@ -17,18 +31,89 @@ const PUZZLE_UNLOCK_IDS = {
   rhythm: "puzzle:rhythm",
   contours: "puzzle:contours",
   intervals: "puzzle:intervals",
-} as const;
+  chordfall: "puzzle:chordfall",
+  scaleConveyors: "puzzle:scale-conveyors",
+  chordDraft: "puzzle:chord-draft",
+  voicingSculpture: "puzzle:voicing-sculpture",
+  numeralDominoes: "puzzle:numeral-dominoes",
+  melodyTrails: "puzzle:melody-trails",
+  tonalSwitchboard: "puzzle:tonal-switchboard",
+  coverVersions: "puzzle:cover-versions",
+  harmonyFitting: "puzzle:harmony-fitting",
+  progressionWordle: "puzzle:progression-wordle",
+} as const satisfies Record<Exclude<PuzzleId, "navigation">, string>;
 
-const PUZZLE_RULES: readonly {
-  source: PuzzleId;
-  threshold: number;
-  id: string;
-}[] = [
-  { source: "navigation", threshold: 0.2, id: PUZZLE_UNLOCK_IDS.imitation },
-  { source: "navigation", threshold: 0.2, id: PUZZLE_UNLOCK_IDS.rhythm },
-  { source: "navigation", threshold: 0.2, id: PUZZLE_UNLOCK_IDS.contours },
-  { source: "imitation", threshold: 0.6, id: PUZZLE_UNLOCK_IDS.intervals },
+type Requirement = { source: PuzzleId; threshold: number };
+type UnlockRoute = { label: string; requirements: readonly Requirement[] };
+
+const requirement = (source: PuzzleId, threshold: number): Requirement => ({
+  source,
+  threshold,
+});
+const all = (...requirements: Requirement[]): readonly UnlockRoute[] => [
+  { label: "Requirements", requirements },
 ];
+
+const PUZZLE_RULES: Record<PuzzleId, readonly UnlockRoute[]> = {
+  navigation: [],
+  imitation: all(requirement("navigation", 0.2)),
+  rhythm: all(requirement("navigation", 0.2)),
+  contours: all(requirement("navigation", 0.2)),
+  intervals: all(requirement("imitation", 0.6)),
+  chordfall: all(requirement("navigation", 0.35)),
+  scaleConveyors: all(requirement("navigation", 0.35)),
+  chordDraft: all(requirement("imitation", 0.3)),
+  voicingSculpture: all(requirement("chordfall", 0.35)),
+  numeralDominoes: all(
+    requirement("scaleConveyors", 0.35),
+    requirement("chordfall", 0.35),
+  ),
+  melodyTrails: all(
+    requirement("scaleConveyors", 0.35),
+    requirement("imitation", 0.3),
+  ),
+  tonalSwitchboard: all(
+    requirement("scaleConveyors", 0.45),
+    requirement("contours", 0.35),
+  ),
+  coverVersions: [
+    {
+      label: "Chord covers",
+      requirements: [requirement("numeralDominoes", 0.4)],
+    },
+    {
+      label: "Melody covers",
+      requirements: [
+        requirement("scaleConveyors", 0.4),
+        requirement("melodyTrails", 0.3),
+      ],
+    },
+  ],
+  harmonyFitting: all(
+    requirement("chordfall", 0.4),
+    requirement("numeralDominoes", 0.4),
+  ),
+  progressionWordle: all(
+    requirement("chordDraft", 0.4),
+    requirement("numeralDominoes", 0.4),
+    requirement("contours", 0.35),
+  ),
+};
+
+function readinessId({ source, threshold }: Requirement): string {
+  return `readiness:${source}:${Math.round(threshold * 100)}`;
+}
+
+/** Alternatives are OR routes; every requirement within a route is required. */
+export function puzzleRequirements(puzzle: PuzzleId, unlocks: Unlocks) {
+  return PUZZLE_RULES[puzzle].map(({ label, requirements }) => ({
+    label,
+    requirements: requirements.map((item) => ({
+      ...item,
+      earned: unlocks.includes(readinessId(item)),
+    })),
+  }));
+}
 
 const REWARD_RULES = {
   navigation: [
@@ -44,6 +129,16 @@ const REWARD_RULES = {
   rhythm: [],
   contours: [],
   intervals: [],
+  chordfall: [],
+  scaleConveyors: [],
+  chordDraft: [],
+  voicingSculpture: [],
+  numeralDominoes: [],
+  melodyTrails: [],
+  tonalSwitchboard: [],
+  coverVersions: [],
+  harmonyFitting: [],
+  progressionWordle: [],
 } as const satisfies Record<
   PuzzleId,
   readonly { id: string; threshold: number }[]
@@ -92,9 +187,27 @@ export function reconcileUnlocks(
   progress: Partial<Record<PuzzleId, number>>,
 ): Unlocks {
   const earned = new Set(unlocks);
-  for (const { source, threshold, id } of PUZZLE_RULES) {
-    const current = progress[source];
-    if (isUnitNumber(current) && current >= threshold) earned.add(id);
+  // Retain individual thresholds so AND gates work across partial reports and reloads.
+  for (const routes of Object.values(PUZZLE_RULES)) {
+    for (const { requirements } of routes) {
+      for (const item of requirements) {
+        const current = progress[item.source];
+        if (isUnitNumber(current) && current >= item.threshold)
+          earned.add(readinessId(item));
+      }
+    }
+  }
+  for (const puzzle of Object.keys(PUZZLE_UNLOCK_IDS) as Exclude<
+    PuzzleId,
+    "navigation"
+  >[]) {
+    if (
+      PUZZLE_RULES[puzzle].some(({ requirements }) =>
+        requirements.every((item) => earned.has(readinessId(item))),
+      )
+    ) {
+      earned.add(PUZZLE_UNLOCK_IDS[puzzle]);
+    }
   }
   for (const puzzle of Object.keys(REWARD_RULES) as PuzzleId[]) {
     const current = progress[puzzle];

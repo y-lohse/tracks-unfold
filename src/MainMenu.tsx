@@ -1,45 +1,102 @@
-import { useState } from "react";
-import { PuzzleIcon, type PuzzleIconName } from "./PuzzleIcon";
-import { isPuzzleUnlocked, type Unlocks } from "./progression";
+import { useState, type CSSProperties } from "react";
+import { PuzzleIcon } from "./PuzzleIcon";
+import { PUZZLES, PUZZLE_IDS } from "./puzzleCatalog";
+import {
+  isPuzzleUnlocked,
+  puzzleRequirements,
+  type PuzzleId,
+  type Unlocks,
+} from "./progression";
 import styles from "./MainMenu.module.css";
 
-const puzzles: readonly {
-  id: PuzzleIconName;
-  title: string;
-  label: string;
-  placement: string;
-}[] = [
-  {
-    id: "navigation",
-    title: "Navigation",
-    label: "Note navigation",
-    placement: "col-start-2 row-start-1",
-  },
-  {
-    id: "imitation",
-    title: "Imitation",
-    label: "Imitation",
-    placement: "col-start-1 row-start-2",
-  },
-  {
-    id: "rhythm",
-    title: "Rhythm",
-    label: "Rhythm performance",
-    placement: "col-start-2 row-start-2",
-  },
-  {
-    id: "contours",
-    title: "Contours",
-    label: "Tonal contours",
-    placement: "col-start-3 row-start-2",
-  },
-  {
-    id: "intervals",
-    title: "Intervals",
-    label: "Interval identification",
-    placement: "col-start-1 row-start-3",
-  },
-];
+// Rows retain the original Navigation → three branches → Intervals arrangement.
+const positions: Record<PuzzleId, { column: number; row: number }> = {
+  navigation: { column: 1, row: 0 },
+  imitation: { column: 0, row: 1 },
+  rhythm: { column: 1, row: 1 },
+  contours: { column: 2, row: 1 },
+  intervals: { column: 0, row: 2 },
+  chordfall: { column: 1, row: 2 },
+  scaleConveyors: { column: 2, row: 2 },
+  chordDraft: { column: 0, row: 3 },
+  voicingSculpture: { column: 1, row: 3 },
+  tonalSwitchboard: { column: 2, row: 3 },
+  melodyTrails: { column: 0, row: 4 },
+  numeralDominoes: { column: 1, row: 4 },
+  progressionWordle: { column: 0, row: 5 },
+  harmonyFitting: { column: 1, row: 5 },
+  coverVersions: { column: 2, row: 5 },
+};
+
+const shortTitles: Partial<Record<PuzzleId, string>> = {
+  navigation: "Navigation",
+  rhythm: "Rhythm",
+  contours: "Contours",
+  intervals: "Intervals",
+};
+
+type NodePosition = CSSProperties & {
+  "--tree-column": number;
+  "--tree-row": number;
+};
+
+function connectionPath(source: PuzzleId, target: PuzzleId) {
+  const from = positions[source];
+  const to = positions[target];
+  const x1 = from.column * 100 + 50;
+  const x2 = to.column * 100 + 50;
+  // Match the original h-28 nodes and gap-y-20 spacing in the SVG coordinate space.
+  const y1 = from.row * 192 + 112;
+  const y2 = to.row * 192;
+  if (to.row === from.row + 1) {
+    return `M${x1} ${y1} V${y1 + 36} H${x2} V${y2}`;
+  }
+  // Long dependencies use the gutters instead of passing through intervening tiles.
+  const gutter =
+    from.column === to.column
+      ? [4, 200, 296][from.column]
+      : from.column < to.column
+        ? (from.column + 1) * 100
+        : from.column * 100;
+  return `M${x1} ${y1} V${y1 + 36} H${gutter} V${y2 - 44} H${x2} V${y2}`;
+}
+
+function Requirements({
+  puzzle,
+  unlocks,
+}: {
+  puzzle: PuzzleId;
+  unlocks: Unlocks;
+}) {
+  const routes = puzzleRequirements(puzzle, unlocks);
+  if (routes.length === 0)
+    return <p className="text-muted text-xs">Available from the start</p>;
+  return (
+    <div className="space-y-3 text-xs">
+      {routes.map((route, index) => (
+        <div key={route.label}>
+          {index > 0 && <p className="text-accent mb-2 font-semibold">OR</p>}
+          <p className="text-muted mb-1 font-medium">
+            {routes.length > 1 ? `${route.label} · ` : ""}
+            {route.requirements.length > 1 ? "All required" : "Requires"}
+          </p>
+          <ul className="space-y-1">
+            {route.requirements.map(({ source, threshold, earned }) => (
+              <li
+                key={source}
+                className={earned ? "text-success" : "text-muted"}
+              >
+                {earned ? "✓ " : ""}
+                {PUZZLES[source].title} ≥ {Math.round(threshold * 100)}%
+                {earned && <span className="sr-only"> — earned</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 type MainMenuProps = {
   unlocks?: Unlocks;
@@ -56,17 +113,10 @@ export function MainMenu({
   onOpenSettings,
   onOpenInstrument,
 }: MainMenuProps) {
-  const [upcoming, setUpcoming] = useState<PuzzleIconName | null>(null);
-  const branchOpen = isPuzzleUnlocked("imitation", unlocks);
-  const intervalsOpen = isPuzzleUnlocked("intervals", unlocks);
-  const selected = puzzles.find((puzzle) => puzzle.id === upcoming);
+  const [upcoming, setUpcoming] = useState<PuzzleId | null>(null);
+  if (upcoming) {
+    const selected = PUZZLES[upcoming];
 
-  if (selected) {
-    const requirement =
-      selected.id === "intervals"
-        ? "Reach 60% in Imitation to unlock."
-        : "Reach 20% in Navigation to unlock.";
-    const met = isPuzzleUnlocked(selected.id, unlocks);
     return (
       <main className="bg-canvas text-ink min-h-svh px-6 py-8">
         <div className="mx-auto max-w-md">
@@ -77,13 +127,21 @@ export function MainMenu({
           >
             ← Back
           </button>
-          <PuzzleIcon
-            name={selected.id}
-            className="text-accent mt-10 h-16 w-16"
-          />
-          <h1 className="mt-6 text-2xl font-semibold">{selected.label}</h1>
+          <PuzzleIcon name={upcoming} className="text-accent mt-10 size-16" />
+          <h1 className="mt-6 text-2xl font-semibold">{selected.title}</h1>
           <p className="text-muted mt-4 text-sm">Coming soon.</p>
-          {!met && <p className="text-muted mt-4 text-sm">{requirement}</p>}
+          <p className="mt-4 text-sm leading-relaxed">{selected.description}</p>
+          <div className="border-rule mt-8 space-y-4 border-t pt-6">
+            <Requirements puzzle={upcoming} unlocks={unlocks} />
+
+            {upcoming === "coverVersions" && (
+              <p className="text-muted text-xs leading-relaxed">
+                Either route earns access to Cover versions. Chord and melody
+                forms have separate requirements; one route does not establish
+                readiness for both.
+              </p>
+            )}
+          </div>
         </div>
       </main>
     );
@@ -126,7 +184,7 @@ export function MainMenu({
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
-              className={`${styles.lockIcon} size-5`}
+              className={`${styles.lineIcon} size-5`}
             >
               <path
                 d="M9.5 3h5l.6 2.5 2 1.2 2.5-.8 2.5 4.2-1.9 1.9v2.3l1.9 1.8-2.5 4.3-2.5-.8-2 1.1-.6 2.5h-5l-.6-2.5-2-1.1-2.5.8L1.9 16l1.9-1.8V12l-1.9-1.9 2.5-4.2 2.5.8 2-1.2Z"
@@ -143,61 +201,76 @@ export function MainMenu({
           <svg
             aria-hidden="true"
             className={`${styles.connections} pointer-events-none absolute inset-0 h-full w-full`}
-            viewBox="0 0 300 496"
+            viewBox="0 0 300 1072"
             preserveAspectRatio="none"
           >
-            <path
-              className={branchOpen ? styles.openConnection : undefined}
-              d="M150 112 V148 M50 192 V148 H250 V192 M150 148 V192"
-            />
-            <path
-              className={intervalsOpen ? styles.openConnection : undefined}
-              d="M50 304 V384"
-            />
+            {PUZZLE_IDS.flatMap((target) =>
+              puzzleRequirements(target, unlocks).flatMap((route) =>
+                route.requirements.map(({ source, earned }) => (
+                  <path
+                    key={`${target}-${route.label}-${source}`}
+                    data-source={source}
+                    data-target={target}
+                    className={earned ? styles.openConnection : undefined}
+                    d={connectionPath(source, target)}
+                  />
+                )),
+              ),
+            )}
           </svg>
-          {puzzles.map((puzzle) => {
-            const locked = !isPuzzleUnlocked(puzzle.id, unlocks);
-            const available =
-              puzzle.id === "navigation" || puzzle.id === "imitation";
-            const onClick =
-              puzzle.id === "navigation"
-                ? onOpenNoteNavigation
-                : puzzle.id === "imitation"
-                  ? onOpenImitation
-                  : () => setUpcoming(puzzle.id);
-            return (
-              <button
-                key={puzzle.id}
-                type="button"
-                onClick={onClick}
-                aria-label={`Open ${puzzle.label}${locked ? ", locked" : !available ? ", coming soon" : ""}`}
-                className={`${puzzle.placement} ${styles.treeNode} focus-visible:outline-accent relative flex h-28 min-w-0 cursor-pointer flex-col items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4`}
-              >
-                <span
-                  className={`${styles.tile} ${locked ? styles.locked : ""} relative flex h-18 w-18 shrink-0 items-center justify-center rounded-2xl`}
+          {[...PUZZLE_IDS]
+            .sort(
+              (a, b) =>
+                positions[a].row - positions[b].row ||
+                positions[a].column - positions[b].column,
+            )
+            .map((id) => {
+              const puzzle = PUZZLES[id];
+              const locked = !isPuzzleUnlocked(id, unlocks);
+              const position: NodePosition = {
+                "--tree-column": positions[id].column + 1,
+                "--tree-row": positions[id].row + 1,
+              };
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  style={position}
+                  onClick={
+                    id === "navigation"
+                      ? onOpenNoteNavigation
+                      : id === "imitation"
+                        ? onOpenImitation
+                        : () => setUpcoming(id)
+                  }
+                  aria-label={`Open ${puzzle.title}${locked ? ", locked" : !puzzle.implemented ? ", coming soon" : ""}`}
+                  className={`${styles.treeNode} focus-visible:outline-accent relative flex h-28 min-w-0 cursor-pointer flex-col items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4`}
                 >
-                  <PuzzleIcon name={puzzle.id} className="h-12 w-12" />
-                  {locked && (
-                    <span className="bg-canvas text-muted absolute -right-1 -bottom-1 rounded-full p-1.5">
-                      <svg
-                        aria-hidden="true"
-                        viewBox="0 0 16 16"
-                        className={`${styles.lockIcon} h-3 w-3`}
-                      >
-                        <rect x="4" y="7" width="8" height="7" rx="1" />
-                        <path d="M5 7 V5 A3 3 0 0 1 11 5 V7" />
-                      </svg>
-                    </span>
-                  )}
-                </span>
-                <span
-                  className={`bg-canvas px-1 text-xs ${locked ? "text-muted" : "text-ink"}`}
-                >
-                  {puzzle.title}
-                </span>
-              </button>
-            );
-          })}
+                  <span
+                    className={`${styles.tile} ${locked ? styles.locked : ""} relative flex size-18 shrink-0 items-center justify-center rounded-2xl`}
+                  >
+                    <PuzzleIcon name={id} className="size-12" />
+                    {locked && (
+                      <span className="bg-canvas text-muted absolute -right-1 -bottom-1 rounded-full p-1.5">
+                        <svg
+                          aria-hidden="true"
+                          viewBox="0 0 16 16"
+                          className={`${styles.lineIcon} size-3`}
+                        >
+                          <rect x="4" y="7" width="8" height="7" rx="1" />
+                          <path d="M5 7 V5 A3 3 0 0 1 11 5 V7" />
+                        </svg>
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={`bg-canvas px-1 text-xs ${locked ? "text-muted" : "text-ink"}`}
+                  >
+                    {shortTitles[id] ?? puzzle.title}
+                  </span>
+                </button>
+              );
+            })}
         </section>
       </div>
     </main>

@@ -5,6 +5,11 @@
   --tree-connected: var(--palette-mauve);
 }
 
+.treeNode {
+  grid-column: var(--tree-column);
+  grid-row: var(--tree-row);
+}
+
 .tile {
   color: var(--tree-active);
   background: var(--tree-face);
@@ -21,7 +26,7 @@
   border-color: var(--tree-line);
 }
 
-.lockIcon {
+.lineIcon {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;

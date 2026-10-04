@@ -2,10 +2,11 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { MainMenu } from "./MainMenu";
-import { reconcileUnlocks } from "./progression";
+import { reconcileUnlocks, puzzleRequirements } from "./progression";
+import { PUZZLES, PUZZLE_IDS } from "./puzzleCatalog";
 
 describe("MainMenu", () => {
-  it("shows a five-puzzle tree with Navigation initially unlocked", () => {
+  it("shows all fifteen puzzles with Navigation initially unlocked", () => {
     render(<MainMenu />);
     expect(
       screen.getByRole("heading", { name: "Tracks Unfold" }),
@@ -16,12 +17,10 @@ describe("MainMenu", () => {
     expect(
       screen.getByRole("button", { name: "Open Note navigation" }),
     ).toHaveTextContent("Navigation");
-    for (const name of [
-      "Imitation",
-      "Rhythm performance",
-      "Tonal contours",
-      "Interval identification",
-    ]) {
+    expect(PUZZLE_IDS).toHaveLength(15);
+    for (const name of PUZZLE_IDS.filter((id) => id !== "navigation").map(
+      (id) => PUZZLES[id].title,
+    )) {
       expect(
         screen.getByRole("button", { name: `Open ${name}, locked` }),
       ).toBeEnabled();
@@ -110,12 +109,86 @@ describe("MainMenu", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps detailed AND/OR requirements in the previews", () => {
+    render(
+      <MainMenu unlocks={reconcileUnlocks([], { scaleConveyors: 0.35 })} />,
+    );
+    expect(screen.queryByText("All required")).not.toBeInTheDocument();
+    expect(screen.queryByText("Your musical paths")).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open Numeral dominoes, locked" }),
+    );
+    expect(screen.getByText("All required")).toBeInTheDocument();
+    expect(screen.getByText(/Scale conveyors ≥ 35%/)).toHaveTextContent(
+      "earned",
+    );
+    expect(screen.getByText("Chordfall ≥ 35%")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "← Back" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open Cover versions, locked" }),
+    );
+    expect(screen.getByText("OR")).toBeInTheDocument();
+    expect(screen.getByText(/Chord covers/)).toBeInTheDocument();
+    expect(screen.getByText(/Melody covers/)).toBeInTheDocument();
+  });
+
+  it("connects every shared prerequisite and highlights earned connections", () => {
+    const unlocks = reconcileUnlocks([], { scaleConveyors: 0.35 });
+    render(<MainMenu unlocks={unlocks} />);
+    const tree = screen.getByRole("region", { name: "Puzzle tree" });
+    const edges = tree.querySelectorAll("path[data-source]");
+    const requirements = PUZZLE_IDS.flatMap((target) =>
+      puzzleRequirements(target, unlocks).flatMap((route) =>
+        route.requirements.map((item) => ({ ...item, target })),
+      ),
+    );
+    expect(edges).toHaveLength(requirements.length);
+    for (const { source, target, earned } of requirements) {
+      const edge = [...edges].find(
+        (edge) =>
+          edge.getAttribute("data-source") === source &&
+          edge.getAttribute("data-target") === target,
+      );
+      expect(edge).toBeDefined();
+      expect(Boolean(edge?.getAttribute("class"))).toBe(earned);
+    }
+    const navigation = screen.getByRole("button", {
+      name: "Open Note navigation",
+    });
+    expect(navigation.style.getPropertyValue("--tree-column")).toBe("2");
+    expect(navigation.style.getPropertyValue("--tree-row")).toBe("1");
+    expect(
+      screen
+        .getByRole("button", { name: "Open Interval identification, locked" })
+        .style.getPropertyValue("--tree-row"),
+    ).toBe("3");
+    expect(tree.querySelectorAll("article")).toHaveLength(0);
+  });
+
+  it("provides a non-playable preview and back navigation for every placeholder", () => {
+    render(<MainMenu />);
+    for (const id of PUZZLE_IDS.filter((id) => !PUZZLES[id].implemented)) {
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: `Open ${PUZZLES[id].title}, locked`,
+        }),
+      );
+      expect(
+        screen.getByRole("heading", { name: PUZZLES[id].title }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(PUZZLES[id].description)).toBeInTheDocument();
+      expect(screen.getByText("Coming soon.")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Start" }),
+      ).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "← Back" }));
+    }
+  });
+
   it("explains prerequisites for an upcoming locked puzzle", () => {
     render(<MainMenu />);
     fireEvent.click(screen.getByRole("button", { name: /tonal contours/i }));
-    expect(
-      screen.getByText("Reach 20% in Navigation to unlock."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Note navigation ≥ 20%")).toBeInTheDocument();
     expect(screen.getByText("Coming soon.")).toBeInTheDocument();
   });
 });

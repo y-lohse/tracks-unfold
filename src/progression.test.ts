@@ -5,6 +5,7 @@ import {
   isPuzzleUnlocked,
   loadUnlocks,
   profileProgress,
+  puzzleRequirements,
   reconcileUnlocks,
   rewardMilestones,
   saveUnlocks,
@@ -106,7 +107,7 @@ describe("unlock rules", () => {
     },
   );
 
-  it.each<PuzzleId>(["rhythm", "contours", "intervals"])(
+  it.each<PuzzleId>(["rhythm", "intervals"])(
     "does not invent rewards or outgoing unlocks for %s",
     (puzzle) => {
       expect(rewardMilestones(puzzle, [])).toEqual([]);
@@ -117,8 +118,8 @@ describe("unlock rules", () => {
   it("keeps all earned and unknown IDs through decreases, missing reports, and repeated reconciliation", () => {
     const original = Object.freeze(["future:earned"]);
     const earned = reconcileUnlocks(original, { navigation: 1, imitation: 1 });
-    expect(earned).toHaveLength(11);
-    expect(new Set(earned).size).toBe(11);
+    expect(earned).toContain("future:earned");
+    expect(new Set(earned).size).toBe(earned.length);
     expect(original).toEqual(["future:earned"]);
     expect(reconcileUnlocks(earned, { navigation: 0, imitation: 0 })).toEqual(
       earned,
@@ -154,6 +155,93 @@ describe("unlock rules", () => {
         ({ earned }) => earned,
       ),
     ).toBe(false);
+  });
+});
+
+describe("branching progression", () => {
+  const cases: [PuzzleId, Partial<Record<PuzzleId, number>>][] = [
+    ["chordfall", { navigation: 0.35 }],
+    ["scaleConveyors", { navigation: 0.35 }],
+    ["chordDraft", { imitation: 0.3 }],
+    ["voicingSculpture", { chordfall: 0.35 }],
+    ["numeralDominoes", { scaleConveyors: 0.35, chordfall: 0.35 }],
+    ["melodyTrails", { scaleConveyors: 0.35, imitation: 0.3 }],
+    ["tonalSwitchboard", { scaleConveyors: 0.45, contours: 0.35 }],
+    ["coverVersions", { numeralDominoes: 0.4 }],
+    ["coverVersions", { scaleConveyors: 0.4, melodyTrails: 0.3 }],
+    ["harmonyFitting", { chordfall: 0.4, numeralDominoes: 0.4 }],
+    [
+      "progressionWordle",
+      { chordDraft: 0.4, numeralDominoes: 0.4, contours: 0.35 },
+    ],
+  ];
+
+  it.each(cases)(
+    "requires every threshold of a route for %s",
+    (puzzle, report) => {
+      expect(isPuzzleUnlocked(puzzle, [])).toBe(false);
+      expect(rewardMilestones(puzzle, [])).toEqual([]);
+      expect(isPuzzleUnlocked(puzzle, reconcileUnlocks([], report))).toBe(true);
+      for (const [source, threshold] of Object.entries(report)) {
+        for (const invalid of [
+          threshold - 0.000001,
+          NaN,
+          Infinity,
+          -1,
+          1.1,
+          undefined,
+        ]) {
+          expect(
+            isPuzzleUnlocked(
+              puzzle,
+              reconcileUnlocks([], { ...report, [source]: invalid }),
+            ),
+          ).toBe(false);
+        }
+      }
+    },
+  );
+
+  it("combines permanent prerequisite milestones across partial reports and reloads", () => {
+    const storage = memoryStorage();
+    const first = reconcileUnlocks([], { scaleConveyors: 0.35 });
+    expect(isPuzzleUnlocked("numeralDominoes", first)).toBe(false);
+    saveUnlocks(first, storage);
+    const earned = reconcileUnlocks(loadUnlocks(storage), {
+      scaleConveyors: 0,
+      chordfall: 0.35,
+    });
+    expect(isPuzzleUnlocked("numeralDominoes", earned)).toBe(true);
+    expect(
+      puzzleRequirements("numeralDominoes", earned)[0].requirements.every(
+        (item) => item.earned,
+      ),
+    ).toBe(true);
+    expect(
+      reconcileUnlocks(earned, { chordfall: 0, scaleConveyors: 0 }),
+    ).toEqual(earned);
+  });
+
+  it("exposes alternative routes without granting the other form's readiness", () => {
+    const earned = reconcileUnlocks([], { numeralDominoes: 0.4 });
+    const routes = puzzleRequirements("coverVersions", earned);
+    expect(routes.map(({ label }) => label)).toEqual([
+      "Chord covers",
+      "Melody covers",
+    ]);
+    expect(routes[0].requirements.every((item) => item.earned)).toBe(true);
+    expect(routes[1].requirements.some((item) => item.earned)).toBe(false);
+    expect(puzzleRequirements("navigation", [])).toEqual([]);
+  });
+
+  it("preserves older unlocks without inventing historical prerequisite evidence", () => {
+    const old = ["puzzle:imitation", "puzzle:intervals", "future:earned"];
+    expect(reconcileUnlocks(old, {})).toEqual(old);
+    expect(isPuzzleUnlocked("intervals", old)).toBe(true);
+    expect(puzzleRequirements("intervals", old)[0].requirements[0].earned).toBe(
+      false,
+    );
+    expect(isPuzzleUnlocked("chordDraft", old)).toBe(false);
   });
 });
 
